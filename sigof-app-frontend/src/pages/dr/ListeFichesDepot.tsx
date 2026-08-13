@@ -2,26 +2,26 @@ import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileSearch, FileDown, Search, ChevronLeft, ChevronRight, Trash2, Loader2, X, Clock, Inbox } from "lucide-react";
 import { toast } from "sonner";
-import { requeteApi } from "@/lib/api";
-import { API_ENDPOINTS, PAGINATION } from "@/config/app";
-import { formatMontant } from "@/lib/format";
-import { optionsTaillePagination } from "@/lib/pagination";
-import { useAuth } from "@/hooks/use-auth";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import { requeteApi } from "@/shared/lib/api";
+import { API_ENDPOINTS, PAGINATION } from "@/shared/config/app";
+import { formatMontant } from "@/shared/lib/format";
+import { optionsTaillePagination } from "@/shared/lib/pagination";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/shared/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/shared/components/ui/empty";
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
   AlertDialogMedia,
-} from "@/components/ui/alert-dialog";
+} from "@/shared/components/ui/alert-dialog";
 import type { Stats, Fiche, FichesDepotResponse } from "@/interfaces/pool-sr";
 
 type StatutCfg = { badge: string; label: string; row: string };

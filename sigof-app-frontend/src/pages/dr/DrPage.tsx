@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { getPortalMenu, findPageInfo } from "@/config/menu";
-import { portalThemeVars } from "@/lib/color";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { AppTopBar } from "@/components/app-shell/AppTopBar";
-import { AppSidebar } from "@/components/app-shell/AppSidebar";
+import { getPortalMenu, findPageInfo } from "@/shared/config/menu";
+import { portalThemeVars } from "@/shared/lib/color";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { AppTopBar } from "@/shared/components/layout/AppTopBar";
+import { AppSidebar } from "@/shared/components/layout/AppSidebar";
 
 const PORTAL = "dr" as const;
 

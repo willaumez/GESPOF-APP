@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,9 +7,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
-import { formatMontant } from "@/lib/format";
+} from "@/shared/components/ui/dialog";
+import { cn } from "@/shared/lib/utils";
+import { formatMontant } from "@/shared/lib/format";
 import type { FicheDepotDetail, LigneMouvement, LigneSystacDetail } from "@/interfaces/pool-sr";
 import { SYSTAC_COL_WIDTHS, TYPE_CFG, type SectionMouvement, type TypeMouvement } from "./constants";
 import { TableSystac } from "./TableSystac";

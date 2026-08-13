@@ -6,10 +6,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
-import { formatMontant } from "@/lib/format";
+} from "@/shared/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { cn } from "@/shared/lib/utils";
+import { formatMontant } from "@/shared/lib/format";
 import type { LigneMouvement } from "@/interfaces/pool-sr";
 import { regrouperParObservations } from "./utils";
 

@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/shared/components/ui/alert-dialog";
 import type { LigneMouvement } from "@/interfaces/pool-sr";
 
 interface ConfirmerSuppressionLigneDialogProps {

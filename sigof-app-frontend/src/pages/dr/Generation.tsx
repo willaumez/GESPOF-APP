@@ -15,19 +15,19 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { requeteApi, requeteApiBlob } from "@/lib/api";
-import { API_ENDPOINTS } from "@/config/app";
-import { getPortalMenu } from "@/config/menu";
-import { formatMontant } from "@/lib/format";
-import { useAuth } from "@/hooks/use-auth";
-import { Skeleton } from "@/components/ui/skeleton";
+import { requeteApi, requeteApiBlob } from "@/shared/lib/api";
+import { API_ENDPOINTS } from "@/shared/config/app";
+import { getPortalMenu } from "@/shared/config/menu";
+import { formatMontant } from "@/shared/lib/format";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Card,
   CardHeader,
   CardContent,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,10 +38,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+} from "@/shared/components/ui/alert-dialog";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import {
   Table,
   TableHeader,
@@ -49,19 +49,19 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
+} from "@/shared/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/shared/components/ui/tooltip";
 import {
   Empty,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
   EmptyDescription,
-} from "@/components/ui/empty";
+} from "@/shared/components/ui/empty";
 import type { Resume, FicheRecente } from "@/interfaces/pool-sr";
 
 type StatutCfg = { badge: string; label: string };

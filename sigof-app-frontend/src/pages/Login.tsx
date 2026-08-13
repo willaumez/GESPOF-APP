@@ -3,13 +3,13 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, KeyRound, UserCog, Users, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/use-auth";
-import { serviceAuthentification } from "@/services/auth.service";
-import type { RoleUtilisateur } from "@/contexts/auth-context";
-import { AuthCard } from "@/components/auth/AuthCard";
-import { AuthBrandPanel } from "@/components/auth/AuthBrandPanel";
-import { BoutonSoumission } from "@/components/auth/SubmitButton";
-import { useAuthEntranceAnimee } from "@/components/auth/AuthEntranceContext";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { serviceAuthentification } from "@/shared/lib/auth.service";
+import type { RoleUtilisateur } from "@/shared/hooks/auth-context";
+import { AuthCard } from "@/shared/components/auth/AuthCard";
+import { AuthBrandPanel } from "@/shared/components/auth/AuthBrandPanel";
+import { BoutonSoumission } from "@/shared/components/auth/SubmitButton";
+import { useAuthEntranceAnimee } from "@/shared/components/auth/AuthEntranceContext";
 
 type Etape = "connexion" | "definir-mot-de-passe";
 

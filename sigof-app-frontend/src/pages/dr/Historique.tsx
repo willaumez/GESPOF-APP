@@ -5,25 +5,25 @@ import {
   ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import { requeteApi } from "@/lib/api";
-import { API_ENDPOINTS, PAGINATION } from "@/config/app";
-import { optionsTaillePagination } from "@/lib/pagination";
-import { useAuth } from "@/hooks/use-auth";
+import { requeteApi } from "@/shared/lib/api";
+import { API_ENDPOINTS, PAGINATION } from "@/shared/config/app";
+import { optionsTaillePagination } from "@/shared/lib/pagination";
+import { useAuth } from "@/shared/hooks/use-auth";
 import type { HistoriqueEntree, HistoriqueResponse, UtilisateursSRResponse } from "@/interfaces/pool-sr";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
   AlertDialogMedia,
-} from "@/components/ui/alert-dialog";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+} from "@/shared/components/ui/alert-dialog";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/shared/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/shared/components/ui/empty";
 
 const STATUT_BADGE: Record<string, string> = {
   cree:    "border-transparent bg-muted text-muted-foreground",

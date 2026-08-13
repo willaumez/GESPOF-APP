@@ -1,9 +1,9 @@
 import { useNavigate, Navigate } from "react-router-dom";
-import logo from "@/assets/SIGOF-logo-tr.png";
-import { useAuth } from "../hooks/use-auth";
-import { AccountMenu } from "@/components/AccountMenu";
-import { getAccessiblePortails } from "@/config/menu";
-import { resolveIcon } from "@/lib/icons";
+import logo from "@/shared/assets/SIGOF-logo-tr.png";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { AccountMenu } from "@/shared/components/layout/AccountMenu";
+import { getAccessiblePortails } from "@/shared/config/menu";
+import { resolveIcon } from "@/shared/lib/icons";
 
 const PortailSelection = () => {
   const { user } = useAuth();

@@ -2,9 +2,9 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, MailCheck } from "lucide-react";
-import { AuthCard } from "@/components/auth/AuthCard";
-import { AuthBrandPanel } from "@/components/auth/AuthBrandPanel";
-import { BoutonSoumission } from "@/components/auth/SubmitButton";
+import { AuthCard } from "@/shared/components/auth/AuthCard";
+import { AuthBrandPanel } from "@/shared/components/auth/AuthBrandPanel";
+import { BoutonSoumission } from "@/shared/components/auth/SubmitButton";
 
 type Etape = "saisie" | "envoye";
 

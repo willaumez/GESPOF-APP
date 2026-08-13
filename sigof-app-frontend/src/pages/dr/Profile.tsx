@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { requeteApi } from "@/lib/api";
-import { API_ENDPOINTS } from "@/config/app";
-import { getAccessiblePortails } from "@/config/menu";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { requeteApi } from "@/shared/lib/api";
+import { API_ENDPOINTS } from "@/shared/config/app";
+import { getAccessiblePortails } from "@/shared/config/menu";
 import type { UtilisateurProfil } from "@/entity/pool-sr";
 import { User, Mail, Shield, Calendar, Activity, Lock, CheckCircle2, Eye, EyeOff, Loader2, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
+} from "@/shared/components/ui/dialog";
 
 export default function Profile() {
   const { user, token, activerSession } = useAuth();

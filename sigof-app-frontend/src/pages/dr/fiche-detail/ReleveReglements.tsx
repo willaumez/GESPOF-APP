@@ -1,10 +1,10 @@
 import { Fragment, useState } from "react";
 import { Inbox, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -12,16 +12,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/shared/components/ui/table";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
-import { cn } from "@/lib/utils";
-import { formatMontant } from "@/lib/format";
+} from "@/shared/components/ui/empty";
+import { cn } from "@/shared/lib/utils";
+import { formatMontant } from "@/shared/lib/format";
 import type { FicheDepotDetail } from "@/interfaces/pool-sr";
 import { TYPE_CFG, type SectionMouvement, type TypeMouvement } from "./constants";
 import { correspondFiltre } from "./utils";

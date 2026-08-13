@@ -11,33 +11,33 @@ import {
   Loader2,
   TriangleAlert,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { API_CONFIG, API_ENDPOINTS } from "@/config/app";
-import { lireJeton } from "@/lib/auth-stockage";
-import { useAuth } from "@/hooks/use-auth";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { formatMontant } from "@/lib/format";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardTitle } from "@/components/ui/card";
+import { cn } from "@/shared/lib/utils";
+import { API_CONFIG, API_ENDPOINTS } from "@/shared/config/app";
+import { lireJeton } from "@/shared/lib/auth-stockage";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
+import { formatMontant } from "@/shared/lib/format";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardTitle } from "@/shared/components/ui/card";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@/components/ui/input-group";
-import { Label } from "@/components/ui/label";
+} from "@/shared/components/ui/input-group";
+import { Label } from "@/shared/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from "@/shared/components/ui/dialog";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
+} from "@/shared/components/ui/resizable";
 import {
   Table,
   TableHeader,
@@ -45,7 +45,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
+} from "@/shared/components/ui/table";
 import type {
   ResultatGenerationFiche,
   FicheNonValidee,
