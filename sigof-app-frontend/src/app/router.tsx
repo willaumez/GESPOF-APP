@@ -7,23 +7,23 @@ const MotDePasseOublie = lazy(() => import("@/pages/MotDePasseOublie"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const PortailSelection = lazy(() => import("@/pages/PortailSelection"));
 
-const SofPage = lazy(() => import("@/pages/sof/SofPage"));
-const SofDashboard = lazy(() => import("@/pages/sof/Dashboard"));
-const SofExecution = lazy(() => import("@/pages/sof/Execution"));
-const SofReglements = lazy(() => import("@/pages/sof/Reglements"));
-const SofCompensation = lazy(() => import("@/pages/sof/Compensation"));
-const SofSrot = lazy(() => import("@/pages/sof/Srot"));
-const SofUtilisateurs = lazy(() => import("@/pages/sof/Utilisateurs"));
-const SofProfile = lazy(() => import("@/pages/sof/Profile"));
+const SofPage = lazy(() => import("@/portails/Sof/layout/SofLayout"));
+const SofDashboard = lazy(() => import("@/portails/Sof/pages/Dashboard"));
+const SofExecution = lazy(() => import("@/portails/Sof/pages/Execution"));
+const SofReglements = lazy(() => import("@/portails/Sof/pages/Reglements"));
+const SofCompensation = lazy(() => import("@/portails/Sof/pages/Compensation"));
+const SofSrot = lazy(() => import("@/portails/Sof/pages/Srot"));
+const SofUtilisateurs = lazy(() => import("@/portails/Sof/pages/Utilisateurs"));
+const SofProfile = lazy(() => import("@/portails/Sof/pages/Profile"));
 
-const SpPage = lazy(() => import("@/pages/sp/SpPage"));
-const SpDashboard = lazy(() => import("@/pages/sp/Dashboard"));
-const SpTbot = lazy(() => import("@/pages/sp/Tbot"));
-const SpPrevisions = lazy(() => import("@/pages/sp/Previsions"));
-const SpTitres = lazy(() => import("@/pages/sp/Titres"));
-const SpImports = lazy(() => import("@/pages/sp/Imports"));
-const SpUtilisateurs = lazy(() => import("@/pages/sp/Utilisateurs"));
-const SpProfile = lazy(() => import("@/pages/sp/Profile"));
+const SpPage = lazy(() => import("@/portails/Sp/layout/SpLayout"));
+const SpDashboard = lazy(() => import("@/portails/Sp/pages/Dashboard"));
+const SpTbot = lazy(() => import("@/portails/Sp/pages/Tbot"));
+const SpPrevisions = lazy(() => import("@/portails/Sp/pages/Previsions"));
+const SpTitres = lazy(() => import("@/portails/Sp/pages/Titres"));
+const SpImports = lazy(() => import("@/portails/Sp/pages/Imports"));
+const SpUtilisateurs = lazy(() => import("@/portails/Sp/pages/Utilisateurs"));
+const SpProfile = lazy(() => import("@/portails/Sp/pages/Profile"));
 
 const DrPage = lazy(() => import("@/portails/Dr/layout/DrLayout"));
 const Generation = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/Generation"));
@@ -34,10 +34,10 @@ const Profile = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/
 const UtilisateursSR = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/UtilisateursSR"));
 const Historique = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/Historique"));
 
-const AdminPage = lazy(() => import("@/pages/admin/AdminPage"));
-const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
-const AdminUtilisateurs = lazy(() => import("@/pages/admin/Utilisateurs"));
-const AdminProfile = lazy(() => import("@/pages/admin/Profile"));
+const AdminPage = lazy(() => import("@/portails/Admin/layout/AdminLayout"));
+const AdminDashboard = lazy(() => import("@/portails/Admin/pages/Dashboard"));
+const AdminUtilisateurs = lazy(() => import("@/portails/Admin/pages/Utilisateurs"));
+const AdminProfile = lazy(() => import("@/portails/Admin/pages/Profile"));
 
 function FicheDetailRoute() {
   const { reference } = useParams();
