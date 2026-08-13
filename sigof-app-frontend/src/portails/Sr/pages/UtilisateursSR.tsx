@@ -7,11 +7,11 @@ import {
 import { toast } from "sonner";
 import { requeteApi, ErreurApi } from "@/shared/lib/api";
 import { PAGINATION } from "@/shared/config/app";
-import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
 import { optionsTaillePagination } from "@/shared/lib/pagination";
 import { useAuth } from "@/shared/hooks/use-auth";
 import { cn } from "@/shared/lib/utils";
-import type { UtilisateurSR, UtilisateurCree, RoleSR, UtilisateursSRResponse } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { UtilisateurSR, UtilisateurCree, RoleSR, UtilisateursSRResponse } from "@/portails/Sr/types";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import {

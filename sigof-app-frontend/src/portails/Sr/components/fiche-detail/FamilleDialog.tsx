@@ -10,7 +10,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { cn } from "@/shared/lib/utils";
 import { formatMontant } from "@/shared/lib/format";
-import type { FicheDepotDetail, LigneMouvement, LigneSystacDetail } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { FicheDepotDetail, LigneMouvement, LigneSystacDetail } from "@/portails/Sr/types";
 import { SYSTAC_COL_WIDTHS, TYPE_CFG, type SectionMouvement, type TypeMouvement } from "./constants";
 import { TableSystac } from "./TableSystac";
 import { TableMouvementsFamille } from "./TableMouvementsFamille";

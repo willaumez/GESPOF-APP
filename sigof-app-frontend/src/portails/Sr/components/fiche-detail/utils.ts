@@ -1,4 +1,4 @@
-import type { LigneMouvement } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { LigneMouvement } from "@/portails/Sr/types";
 import type { LigneFiltrable } from "./constants";
 
 export function correspondFiltre(ligne: LigneFiltrable, filtre: string): boolean {

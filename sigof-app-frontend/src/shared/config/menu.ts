@@ -33,7 +33,7 @@ export function getNavItem(menu: MenuPortal, id: string): MenuLookupItem | undef
 }
 
 const SOUS_PAGES_VERS_MENU: { prefix: string; path: string }[] = [
-  { prefix: "/dr/fiche/", path: "/dr/fiches-depenses" },
+  { prefix: "/sr/fiche/", path: "/sr/fiches-depenses" },
 ];
 
 export function resolveNavPath(pathname: string): string {

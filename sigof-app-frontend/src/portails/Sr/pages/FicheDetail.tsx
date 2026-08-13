@@ -3,12 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Inbox } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi, requeteApiBlob } from "@/shared/lib/api";
-import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
 import { useAuth } from "@/shared/hooks/use-auth";
-import { useCountUp } from "@/portails/Dr/modules/ServiceReglement/hooks/useCountUp";
+import { useCountUp } from "@/portails/Sr/hooks/useCountUp";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
-import type { FicheDepotDetail, LigneMouvement } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { FicheDepotDetail, LigneMouvement } from "@/portails/Sr/types";
 import type { SectionMouvement, TypeMouvement } from "../components/fiche-detail/constants";
 import { parseMontant } from "../components/fiche-detail/utils";
 import { FicheEnTete } from "../components/fiche-detail/FicheEnTete";
@@ -101,7 +101,7 @@ export default function FicheDetail() {
         { method: "DELETE" },
       );
       toast.success("Fiche de dépôt supprimée.");
-      navigate("/dr/fiches-depenses");
+      navigate("/sr/fiches-depenses");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur lors de la suppression.");
     } finally {

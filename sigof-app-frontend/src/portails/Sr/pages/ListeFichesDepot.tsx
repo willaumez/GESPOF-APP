@@ -4,7 +4,7 @@ import { FileSearch, FileDown, Search, ChevronLeft, ChevronRight, Trash2, Loader
 import { toast } from "sonner";
 import { requeteApi } from "@/shared/lib/api";
 import { PAGINATION } from "@/shared/config/app";
-import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
 import { formatMontant } from "@/shared/lib/format";
 import { optionsTaillePagination } from "@/shared/lib/pagination";
 import { useAuth } from "@/shared/hooks/use-auth";
@@ -23,7 +23,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
   AlertDialogMedia,
 } from "@/shared/components/ui/alert-dialog";
-import type { Stats, Fiche, FichesDepotResponse } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { Stats, Fiche, FichesDepotResponse } from "@/portails/Sr/types";
 
 type StatutCfg = { badge: string; label: string; row: string };
 const STATUT_CFG: Record<string, StatutCfg> = {
@@ -280,7 +280,7 @@ export default function ListeFichesDepot() {
                       <TableRow
                         key={f.reference}
                         className={`cursor-pointer ${st.row}`}
-                        onClick={() => navigate(`/dr/fiche/${encodeURIComponent(f.reference)}`)}
+                        onClick={() => navigate(`/sr/fiche/${encodeURIComponent(f.reference)}`)}
                       >
                         <TableCell className="font-mono font-semibold text-primary">{f.reference}</TableCell>
                         <TableCell className="text-muted-foreground">{f.date_creation}</TableCell>
@@ -322,7 +322,7 @@ export default function ListeFichesDepot() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => navigate(`/dr/fiche/${encodeURIComponent(f.reference)}`)}
+                                  onClick={() => navigate(`/sr/fiche/${encodeURIComponent(f.reference)}`)}
                                 >
                                   <FileSearch className="size-4 text-blue-600 dark:text-blue-400" />
                                 </Button>

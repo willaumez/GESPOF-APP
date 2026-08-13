@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi } from "@/shared/lib/api";
-import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
 import { formatMontant } from "@/shared/lib/format";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -18,7 +18,7 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
-import type { DonneesMouvement, LigneMouvement } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { DonneesMouvement, LigneMouvement } from "@/portails/Sr/types";
 import { versEntreeDate } from "./utils";
 
 interface LigneFormulaireDialogProps {

@@ -25,14 +25,14 @@ const SpImports = lazy(() => import("@/portails/Sp/pages/Imports"));
 const SpUtilisateurs = lazy(() => import("@/portails/Sp/pages/Utilisateurs"));
 const SpProfile = lazy(() => import("@/portails/Sp/pages/Profile"));
 
-const DrPage = lazy(() => import("@/portails/Dr/layout/DrLayout"));
-const Generation = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/Generation"));
-const GenererFiche = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/GenererFiche"));
-const FicheDetail = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/FicheDetail"));
-const ListeFichesDepot = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/ListeFichesDepot"));
-const Profile = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/Profile"));
-const UtilisateursSR = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/UtilisateursSR"));
-const Historique = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/Historique"));
+const SrPage = lazy(() => import("@/portails/Sr/layout/SrLayout"));
+const Generation = lazy(() => import("@/portails/Sr/pages/Generation"));
+const GenererFiche = lazy(() => import("@/portails/Sr/pages/GenererFiche"));
+const FicheDetail = lazy(() => import("@/portails/Sr/pages/FicheDetail"));
+const ListeFichesDepot = lazy(() => import("@/portails/Sr/pages/ListeFichesDepot"));
+const Profile = lazy(() => import("@/portails/Sr/pages/Profile"));
+const UtilisateursSR = lazy(() => import("@/portails/Sr/pages/UtilisateursSR"));
+const Historique = lazy(() => import("@/portails/Sr/pages/Historique"));
 
 const AdminPage = lazy(() => import("@/portails/Admin/layout/AdminLayout"));
 const AdminDashboard = lazy(() => import("@/portails/Admin/pages/Dashboard"));
@@ -93,10 +93,10 @@ export function AppRoutes() {
           <Route path="profile" element={<SpProfile />} />
         </Route>
         <Route
-          path="/dr"
-          element={<ProtectedRoute><DrPage /></ProtectedRoute>}
+          path="/sr"
+          element={<ProtectedRoute><SrPage /></ProtectedRoute>}
         >
-          <Route index element={<Navigate to="/dr/tableau-de-bord" replace />} />
+          <Route index element={<Navigate to="/sr/tableau-de-bord" replace />} />
           <Route path="tableau-de-bord" element={<Generation />} />
           <Route path="generer"    element={<GenererFiche />} />
           <Route path="fiche/:reference" element={<FicheDetailRoute />} />

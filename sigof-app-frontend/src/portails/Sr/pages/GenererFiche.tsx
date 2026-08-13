@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { API_CONFIG } from "@/shared/config/app";
-import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
 import { lireJeton } from "@/shared/lib/auth-stockage";
 import { useAuth } from "@/shared/hooks/use-auth";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
@@ -50,7 +50,7 @@ import {
 import type {
   ResultatGenerationFiche,
   FicheNonValidee,
-} from "@/portails/Dr/modules/ServiceReglement/types";
+} from "@/portails/Sr/types";
 
 const STEPS = [
   {
@@ -210,7 +210,7 @@ export default function GenererFiche() {
               toast.success(
                 `fiche de dépôt générée pour le ${dateFormatee}.`,
               );
-              navigate(`/dr/fiche/${encodeURIComponent(resultat.reference)}`);
+              navigate(`/sr/fiche/${encodeURIComponent(resultat.reference)}`);
               return;
             } else if (currentEvent === "message") {
               toast.warning(data.message || "Aucune donnée pour cette date.");

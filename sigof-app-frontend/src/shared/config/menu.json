@@ -202,14 +202,14 @@
       ]
     },
     {
-      "id": "dr",
+      "id": "sr",
       "title": "Service Règlement",
-      "subtitle": "Pool DR",
+      "subtitle": "Pool SR",
       "description": "Génération de la fiche de dépôt et transmission vers SP.",
       "icon": "Landmark",
-      "path": "/dr",
+      "path": "/sr",
       "badge": "NOUVEAU",
-      "ctaLabel": "Accéder au Pool DR",
+      "ctaLabel": "Accéder au Pool SR",
       "roles": ["AGENT_SR"],
       "theme": {
         "topColor": "#1e4d8c",
@@ -224,63 +224,63 @@
           "id": "section-generation",
           "label": "GÉNÉRATION",
           "items": [
-            "dr-generation",
-            "dr-generer"
+            "sr-generation",
+            "sr-generer"
           ]
         },
         {
           "id": "section-consultation",
           "label": "CONSULTATION",
           "items": [
-            "dr-fiches-depenses",
-            "dr-historique"
+            "sr-fiches-depenses",
+            "sr-historique"
           ]
         },
         {
           "id": "section-gestion",
           "label": "GESTION",
           "items": [
-            "dr-utilisateurs"
+            "sr-utilisateurs"
           ]
         }
       ],
       "nav": [
         {
-          "id": "dr-generation",
+          "id": "sr-generation",
           "label": "Tableau de bord",
-          "path": "/dr/tableau-de-bord",
+          "path": "/sr/tableau-de-bord",
           "icon": "Zap",
           "roles": ["AGENT_SR"],
           "children": []
         },
         {
-          "id": "dr-generer",
+          "id": "sr-generer",
           "label": "Générer une fiche de dépôt",
-          "path": "/dr/generer",
+          "path": "/sr/generer",
           "icon": "FilePlus",
           "roles": ["AGENT_SR"],
           "children": []
         },
         {
-          "id": "dr-fiches-depenses",
+          "id": "sr-fiches-depenses",
           "label": "Liste des fiches de dépôt",
-          "path": "/dr/fiches-depenses",
+          "path": "/sr/fiches-depenses",
           "icon": "Clock",
           "roles": ["AGENT_SR"],
           "children": []
         },
         {
-          "id": "dr-historique",
+          "id": "sr-historique",
           "label": "Historique",
-          "path": "/dr/historique",
+          "path": "/sr/historique",
           "icon": "History",
           "roles": ["AGENT_SR"],
           "children": []
         },
         {
-          "id": "dr-utilisateurs",
+          "id": "sr-utilisateurs",
           "label": "Gestion utilisateurs",
-          "path": "/dr/utilisateurs",
+          "path": "/sr/utilisateurs",
           "icon": "Users",
           "roles": ["CHEF_SR"],
           "children": []
@@ -288,9 +288,9 @@
       ],
       "accountMenu": [
         {
-          "id": "dr-profile",
+          "id": "sr-profile",
           "label": "Profil",
-          "path": "/dr/profile",
+          "path": "/sr/profile",
           "icon": "User",
           "roles": null
         }

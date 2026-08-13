@@ -7,10 +7,10 @@ import {
 import { toast } from "sonner";
 import { requeteApi } from "@/shared/lib/api";
 import { PAGINATION } from "@/shared/config/app";
-import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
 import { optionsTaillePagination } from "@/shared/lib/pagination";
 import { useAuth } from "@/shared/hooks/use-auth";
-import type { HistoriqueEntree, HistoriqueResponse, UtilisateursSRResponse } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { HistoriqueEntree, HistoriqueResponse, UtilisateursSRResponse } from "@/portails/Sr/types";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import {
@@ -269,14 +269,14 @@ export default function Historique() {
                       className={h.fiche_reference ? "cursor-pointer" : undefined}
                       onClick={() =>
                         h.fiche_reference &&
-                        navigate(`/dr/fiche/${encodeURIComponent(h.fiche_reference)}`)
+                        navigate(`/sr/fiche/${encodeURIComponent(h.fiche_reference)}`)
                       }
                     >
                       <TableCell className="whitespace-nowrap text-muted-foreground">{h.date_action}</TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         {h.fiche_reference ? (
                           <button
-                            onClick={() => navigate(`/dr/fiche/${encodeURIComponent(h.fiche_reference!)}`)}
+                            onClick={() => navigate(`/sr/fiche/${encodeURIComponent(h.fiche_reference!)}`)}
                             className="font-mono font-semibold text-primary hover:underline"
                           >
                             {h.fiche_reference}
@@ -325,7 +325,7 @@ export default function Historique() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => navigate(`/dr/fiche/${encodeURIComponent(h.fiche_reference!)}`)}
+                                  onClick={() => navigate(`/sr/fiche/${encodeURIComponent(h.fiche_reference!)}`)}
                                 >
                                   <FileSearch className="size-4 text-blue-600 dark:text-blue-400" />
                                 </Button>

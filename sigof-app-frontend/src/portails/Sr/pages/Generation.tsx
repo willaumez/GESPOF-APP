@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi, requeteApiBlob } from "@/shared/lib/api";
-import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
 import { getPortalMenu } from "@/shared/config/menu";
 import { formatMontant } from "@/shared/lib/format";
 import { useAuth } from "@/shared/hooks/use-auth";
@@ -62,7 +62,7 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@/shared/components/ui/empty";
-import type { Resume, FicheRecente } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { Resume, FicheRecente } from "@/portails/Sr/types";
 
 type StatutCfg = { badge: string; label: string };
 const STATUT_CFG: Record<string, StatutCfg> = {
@@ -84,7 +84,7 @@ const STATUT_JOUR_LABEL: Record<string, string> = {
 
 const THEME_VERT = getPortalMenu("sof").theme;
 const THEME_JAUNE = getPortalMenu("sp").theme;
-const THEME_BLEU = getPortalMenu("dr").theme;
+const THEME_BLEU = getPortalMenu("sr").theme;
 
 export default function Generation() {
   const navigate = useNavigate();
@@ -173,7 +173,7 @@ export default function Generation() {
         {peutGenerer && (
           <Button
             size="lg"
-            onClick={() => navigate("/dr/generer")}
+            onClick={() => navigate("/sr/generer")}
             className="gap-2 px-5 shadow-[0_3px_12px_rgba(15,23,42,0.25)]"
           >
             <Zap className="size-4" strokeWidth={2.2} />
@@ -346,7 +346,7 @@ export default function Generation() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate("/dr/fiches-depenses")}
+              onClick={() => navigate("/sr/fiches-depenses")}
             >
               Voir tout
               <ArrowRight className="ml-1 size-3.5" />
@@ -447,7 +447,7 @@ export default function Generation() {
                         }
                         onClick={() =>
                           peutConsulter &&
-                          navigate(`/dr/fiche/${encodeURIComponent(f.reference)}`)
+                          navigate(`/sr/fiche/${encodeURIComponent(f.reference)}`)
                         }
                       >
                         <TableCell className="font-mono font-semibold text-primary">
@@ -493,7 +493,7 @@ export default function Generation() {
                                     disabled={!peutConsulter}
                                     onClick={() =>
                                       peutConsulter &&
-                                      navigate(`/dr/fiche/${encodeURIComponent(f.reference)}`)
+                                      navigate(`/sr/fiche/${encodeURIComponent(f.reference)}`)
                                     }
                                   >
                                     <Eye className="size-4 text-blue-600 dark:text-blue-400" />
@@ -604,7 +604,7 @@ export default function Generation() {
                   quelques clics.
                 </p>
                 <Button
-                  onClick={() => navigate("/dr/generer")}
+                  onClick={() => navigate("/sr/generer")}
                   className="w-full bg-white text-primary hover:bg-white/90"
                 >
                   Démarrer
@@ -620,7 +620,7 @@ export default function Generation() {
             <CardContent className="flex flex-col gap-1">
               {peutGenerer && (
                 <button
-                  onClick={() => navigate("/dr/generer")}
+                  onClick={() => navigate("/sr/generer")}
                   className="flex items-center gap-3 rounded-xl border border-transparent px-2 py-2.5 text-sm font-medium text-foreground/80 transition-all duration-150 hover:border-border hover:bg-muted active:scale-[0.98]"
                 >
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -633,7 +633,7 @@ export default function Generation() {
                 </button>
               )}
               <button
-                onClick={() => navigate("/dr/fiches-depenses")}
+                onClick={() => navigate("/sr/fiches-depenses")}
                 className="flex items-center gap-3 rounded-xl border border-transparent px-2 py-2.5 text-sm font-medium text-foreground/80 transition-all duration-150 hover:border-border hover:bg-muted active:scale-[0.98]"
               >
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">

@@ -22,7 +22,7 @@ import {
 } from "@/shared/components/ui/empty";
 import { cn } from "@/shared/lib/utils";
 import { formatMontant } from "@/shared/lib/format";
-import type { FicheDepotDetail } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { FicheDepotDetail } from "@/portails/Sr/types";
 import { TYPE_CFG, type SectionMouvement, type TypeMouvement } from "./constants";
 import { correspondFiltre } from "./utils";
 

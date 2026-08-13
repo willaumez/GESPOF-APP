@@ -27,7 +27,7 @@ export const API_ENDPOINTS = {
     CHANGER_MOT_DE_PASSE: "/api/v1/auth/change-password",
   },
   // Les endpoints du module Service Règlement vivent désormais dans
-  // portails/Dr/modules/ServiceReglement/api/endpoints.ts (colocalisation par module).
+  // portails/Sr/api/endpoints.ts (colocalisation par module).
 } as const;
 
 

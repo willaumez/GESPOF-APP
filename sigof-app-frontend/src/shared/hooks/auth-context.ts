@@ -12,7 +12,7 @@ export type RoleUtilisateur =
   | "DIRECTION_DG"
   | "SUPERVISEUR";
 
-export type Portail = "sof" | "sp" | "dr" | "admin";
+export type Portail = "sof" | "sp" | "sr" | "admin";
 
 export interface User {
   email: string;

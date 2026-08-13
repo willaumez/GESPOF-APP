@@ -6,17 +6,17 @@ import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { AppTopBar } from "@/shared/components/layout/AppTopBar";
 import { AppSidebar } from "@/shared/components/layout/AppSidebar";
 
-const PORTAL = "dr" as const;
+const PORTAL = "sr" as const;
 
 function findHeading(pathname: string, fallback: string): string {
-  const ficheMatch = pathname.match(/^\/dr\/fiche\/(.+)$/);
+  const ficheMatch = pathname.match(/^\/sr\/fiche\/(.+)$/);
   if (ficheMatch) {
     return `Détail de la fiche ${decodeURIComponent(ficheMatch[1])}`;
   }
   return fallback;
 }
 
-export default function DrPage() {
+export default function SrPage() {
   const isMobile = useIsMobile();
   const [collapsedManuel, setCollapsedManuel] = useState(false);
   const collapsed = isMobile || collapsedManuel;
