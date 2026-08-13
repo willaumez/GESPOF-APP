@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>DOMF-APP — Cahier des Charges — Module Service Règlement (DR)</title>
+<style>
+  body {
+    font-family: "Times New Roman", Times, serif;
+    color: #1A1F26;
+    font-size: 12pt;
+    line-height: 1.5;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    background: #ffffff;
+  }
+  h1, h2, h3 { font-family: "Aptos Display", Arial, sans-serif; font-weight: normal; }
+  h1 {
+    background: #14355C; color: #ffffff; margin: 32px -24px 14px -24px;
+    padding: 10px 24px; font-size: 17pt;
+  }
+  h1 u { text-decoration: underline; }
+  h2 {
+    background: #1F7A6B; color: #ffffff; margin: 24px 0 10px 0;
+    padding: 8px 14px; font-size: 13.5pt;
+  }
+  h3 { color: #14355C; font-size: 12.5pt; margin: 18px 0 6px 0; }
+  p { text-align: justify; margin: 6px 0; }
+  code {
+    font-family: Consolas, "Courier New", monospace; font-size: 9.5pt;
+    color: #0D2440; background: #EEF3F8; padding: 1px 4px; border-radius: 3px;
+  }
+  a { color: #467886; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px 0; font-size: 10pt; }
+  th {
+    background: #14355C; color: #ffffff; border: 1px solid #0D2440;
+    padding: 7px 9px; text-align: left; font-weight: bold;
+  }
+  td { border: 1px solid #C9D3DC; padding: 7px 9px; vertical-align: top; }
+  tr:nth-child(even) td { background: #EEF3F8; }
+  ul { margin: 6px 0; padding-left: 26px; }
+  li { margin: 3px 0; text-align: justify; }
+  .cover { text-align: center; }
+  .cover .ministere { font-weight: bold; color: #14355C; letter-spacing: .5pt; }
+  .cover .direction { font-weight: bold; color: #14355C; }
+  .cover .domf { color: #1F7A6B; font-size: 11pt; }
+  .cover-title {
+    background: #14355C; color: #ffffff; padding: 20px; margin: 40px 0 24px 0;
+    font-size: 22pt; font-weight: bold; letter-spacing: .5pt;
+  }
+  .cover-module { color: #14355C; font-weight: bold; font-size: 14pt; margin-top: 24px; }
+  .cover-sub { color: #4A5568; font-style: italic; font-size: 10.5pt; }
+  .meta-table td:first-child { background: #EAF1F8; font-weight: bold; color: #14355C; width: 30%; }
+  .toc { margin: 20px 0 32px 0; }
+  .toc-title { font-family: "Aptos Display", Arial, sans-serif; font-weight: bold; font-size: 14pt; color: #14355C; margin-bottom: 8px; }
+  .toc a { text-decoration: none; color: #1A1F26; }
+  .toc a:hover { text-decoration: underline; color: #467886; }
+  .toc .lvl1 { font-weight: bold; margin-top: 8px; }
+  .toc .lvl2 { margin-left: 18px; }
+  .toc .lvl3 { margin-left: 36px; font-size: 10.5pt; }
+  .callout { padding: 10px 14px; margin: 10px 0; border-radius: 3px; }
+  .callout .label { display: block; font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: .5pt; margin-bottom: 4px; }
+  .callout-info { background: #EAF1F8; }
+  .callout-info .label { color: #14355C; }
+  .callout-warn { background: #FBF1DF; }
+  .callout-warn .label { color: #92620A; }
+  .callout-fix { background: #E9F7EF; border-left: 4px solid #1F7A6B; }
+  .callout-fix .label { color: #1F7A6B; }
+  .footer { text-align: center; font-size: 9pt; color: #4A5568; margin-top: 40px; }
+  .revision-note { background: #FBF1DF; border-left: 4px solid #d97706; padding: 12px 16px; margin: 20px 0; font-size: 10.5pt; }
+  .revision-note b { color: #92620A; }
+  strong { font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <p class="ministere">MINISTÈRE DE L'ÉCONOMIE, DES FINANCES, DE LA DETTE ET DES PARTICIPATIONS</p>
+  <p class="direction">DIRECTION GÉNÉRALE DE LA COMPTABILITÉ PUBLIQUE ET DU TRÉSOR</p>
+  <p class="domf">Direction des Opérations Monétaires et Financières (DOMF)</p>
+
+  <div class="cover-title">CAHIER DES CHARGES</div>
+
+  <p class="cover-module">Module Service Règlement (DR)</p>
+  <p class="cover-sub">Automatisation de la production de la Fiche des Dépenses Validées — sous-module de DOMF-APP</p>
+</div>
+
+<table class="meta-table" style="width:85%;margin:32px auto;">
+  <tr><td>Version</td><td>3.1 (revue de conformité code)</td></tr>
+  <tr><td>Date</td><td>Août 2026</td></tr>
+  <tr><td>Rédacteur</td><td>Direction des Systèmes d'Information DGCPT (synthèse des CDC v1/v2) — révision v3.1 vérifiée par relecture du code source (backend Symfony + frontend React) le 06/08/2026</td></tr>
+  <tr><td>Statut</td><td>Document de travail</td></tr>
+  <tr><td>Destinataire</td><td>Service Règlement (Pool DR) / Service de Prévision (SP)</td></tr>
+  <tr><td>Rattachement</td><td>Sous-module de DOMF-APP — cf. Cahier des Charges général DOMF-APP v1.0 (Mars 2026)</td></tr>
+</table>
+
+<div class="revision-note">
+  <b>Note de révision (v3.1).</b> Cette version corrige la v3.0 sur plusieurs points où le code diffère de ce qui était décrit : le périmètre SYGMA (§2.3, RG-01), le workflow de statut à la transmission (§2.4), la règle d'immutabilité de la fiche (§4.3) et le modèle de contrôle d'accès (§3.1, §5.1). Deux règles auparavant « à confirmer » (RG-07, RG-08) sont désormais vérifiées dans le code. Les corrections sont signalées par un encadré <span style="color:#1F7A6B;font-weight:bold;">vert « Corrigé en v3.1 »</span> à l'endroit concerné ; le reste du contenu (objectifs, fonctionnalités déjà livrées, sécurité, glossaire) a été confronté au code et n'appelait pas de correction.
+</div>
+
+<div class="toc">
+  <p class="toc-title">Sommaire</p>
+  <p class="lvl1"><a href="#s1">1. Contexte et objectifs</a></p>
+  <p class="lvl2"><a href="#s11">1.1 Contexte général</a></p>
+  <p class="lvl2"><a href="#s12">1.2 Objectifs du module</a></p>
+  <p class="lvl2"><a href="#s13">1.3 Rattachement à DOMF-APP</a></p>
+  <p class="lvl1"><a href="#s2">2. Périmètre fonctionnel</a></p>
+  <p class="lvl2"><a href="#s21">2.1 Source de données (SGP / application DC)</a></p>
+  <p class="lvl2"><a href="#s22">2.2 Processus de production de la Fiche des Dépenses</a></p>
+  <p class="lvl2"><a href="#s23">2.3 Règles de gestion</a></p>
+  <p class="lvl2"><a href="#s24">2.4 Transmission vers le Service de Prévision</a></p>
+  <p class="lvl1"><a href="#s3">3. Fonctionnalités de l'application</a></p>
+  <p class="lvl2"><a href="#s31">3.1 Module commun — Authentification et navigation</a></p>
+  <p class="lvl2"><a href="#s32">3.2 Portail Service Règlement (Pool DR)</a></p>
+  <p class="lvl3"><a href="#s321">3.2.1 Tableau de bord</a></p>
+  <p class="lvl3"><a href="#s322">3.2.2 Génération d'une fiche de dépenses</a></p>
+  <p class="lvl3"><a href="#s323">3.2.3 Détail d'une fiche</a></p>
+  <p class="lvl3"><a href="#s324">3.2.4 Liste des fiches de dépenses</a></p>
+  <p class="lvl3"><a href="#s325">3.2.5 Historique</a></p>
+  <p class="lvl3"><a href="#s326">3.2.6 Gestion des utilisateurs du Service Règlement</a></p>
+  <p class="lvl3"><a href="#s327">3.2.7 Profil</a></p>
+  <p class="lvl1"><a href="#s4">4. Architecture technique</a></p>
+  <p class="lvl2"><a href="#s41">4.1 Stack technologique</a></p>
+  <p class="lvl2"><a href="#s42">4.2 Architecture de déploiement</a></p>
+  <p class="lvl2"><a href="#s43">4.3 Modèle de données</a></p>
+  <p class="lvl1"><a href="#s5">5. Sécurité et conformité</a></p>
+  <p class="lvl2"><a href="#s51">5.1 Sécurité applicative</a></p>
+  <p class="lvl2"><a href="#s52">5.2 Confidentialité des données</a></p>
+  <p class="lvl2"><a href="#s53">5.3 Disponibilité et performances</a></p>
+  <p class="lvl1"><a href="#s6">6. État d'avancement et livrables</a></p>
+  <p class="lvl2"><a href="#s61">6.1 Livrables réalisés</a></p>
+  <p class="lvl2"><a href="#s62">6.2 Écarts et reste à faire</a></p>
+  <p class="lvl1"><a href="#s7">7. Glossaire</a></p>
+</div>
+
+<h1 id="s1">1. <u>CONTEXTE ET OBJECTIFS</u></h1>
+
+<h2 id="s11">1.1 Contexte général</h2>
+<p>Le pool de règlement de la DOMF produit chaque jour, manuellement, la Fiche des Dépenses Validées à partir des données du Système de Gestion des Paiements (SGP), consultées via l'application DC. Ce travail consiste à extraire les lots de dépenses du jour, enrichir chaque bordereau de virement (BV) avec l'intitulé de son ou ses règlements, calculer les totaux et vérifier leur concordance avant transmission au Service de Prévision (SP).</p>
+
+<div class="callout callout-info">
+  <span class="label">Problème central — Le processus actuel</span>
+  repose sur des consultations manuelles répétées de l'application DC (lots de dépenses, bordereaux, règlements) et un fichier Excel intermédiaire enrichi à la main. Il mobilise un temps agent important chaque jour et constitue une source d'erreurs de saisie et de rapprochement.
+</div>
+
+<h2 id="s12">1.2 Objectifs du module</h2>
+<p>Digitaliser et automatiser intégralement ce processus :</p>
+<ul>
+  <li>Extraction automatique et en lecture seule des données SGP, sans export ni import manuel de fichier.</li>
+  <li>Enrichissement automatique de chaque bordereau de virement par l'intitulé de règlement associé.</li>
+  <li>Calcul et contrôle automatique des totaux avant toute validation.</li>
+  <li>Génération et conservation de la Fiche des Dépenses, sous forme de fichier et de données structurées.</li>
+  <li>Traçabilité complète : auteur, horodatage, historique des statuts.</li>
+</ul>
+
+<h2 id="s13">1.3 Rattachement à DOMF-APP</h2>
+<p>Le module Service Règlement (désigné « DR » en atelier) est un sous-module autonome de DOMF-APP, distinct des portails SOF et SP décrits dans le Cahier des Charges général DOMF-APP v1.0 (Mars 2026). Il partage avec ces portails le Module Commun (authentification, gestion des utilisateurs) mais dispose de son propre périmètre fonctionnel, détaillé dans le présent document. Son unique livrable, la Fiche des Dépenses, est transmis au portail SP conformément au flux EF-69 déjà documenté au niveau du projet DOMF-APP.</p>
+<p>À ce jour, l'application expose quatre portails dans le Module Commun : DR (Service Règlement — seul portail fonctionnel), SOF, SP et Admin — ces trois derniers déjà présents dans la navigation et le routage, mais dont les écrans affichent encore un état « en construction » (cf. §6.2).</p>
+
+<h1 id="s2">2. <u>PÉRIMÈTRE FONCTIONNEL</u></h1>
+
+<h2 id="s21">2.1 Source de données (SGP / application DC)</h2>
+<table>
+  <tr><th>Source</th><th>Localisation</th><th>Donnée récupérée</th></tr>
+  <tr>
+    <td>Lots de dépenses</td>
+    <td>Base Oracle SGP, vue <code>v_recap_dsgp</code> (connexion dédiée en lecture seule)</td>
+    <td>Lignes de dépenses du jour : origine, date de présentation, numéro de bordereau (N° BV), nombre de règlements, montant Systac, dates de traitement (réception / génération)</td>
+  </tr>
+  <tr>
+    <td>Règlements</td>
+    <td>Base Oracle SGP, table des règlements (<code>dmc.regt</code>)</td>
+    <td>Règlements associés à un N° BV : numéro d'émission, numéro de règlement, Net à Payer (montant réglé, précompte/TVA déduit)</td>
+  </tr>
+  <tr>
+    <td>Intitulés</td>
+    <td>Base Oracle SGP, table des règlements (colonne intitulé)</td>
+    <td>Intitulé du règlement, par couple (numéro d'émission, numéro de règlement)</td>
+  </tr>
+  <tr>
+    <td>Mouvements SIGMA (BEAC)</td>
+    <td>Base Oracle SGP, table <code>OP_BEAC</code> (lecture seule, filtrée sur les opérations de dépôt)</td>
+    <td>Mouvements individuels (un mouvement = une ligne, sans agrégation) : bénéficiaire, montant, banque, objet, commentaire — intégrés à la fiche comme une famille à part entière (cf. RG-01 corrigée ci-dessous)</td>
+  </tr>
+</table>
+<div class="callout callout-fix">
+  <span class="label">Corrigé en v3.1 — RG-01</span>
+  La version précédente affirmait que seul SYSTAC était traité et que SYGMA était exclu. Le code montre le contraire : une famille de mouvements « SYGMA » (classes <code>MouvementSygma</code> / <code>LigneSygma</code>), alimentée depuis <code>OP_BEAC</code>, est gérée par le module au même titre que NUMÉRAIRE (saisie manuelle) et SYSTAC (import SGP) — cf. RG-01 révisée en §2.3.
+</div>
+
+<h2 id="s22">2.2 Processus de production de la Fiche des Dépenses</h2>
+<p>Le processus est automatisé en 3 grandes étapes, exécutées en un seul traitement déclenché par l'agent, avec un suivi de progression détaillé (7 sous-étapes) affiché en temps réel :</p>
+<table>
+  <tr><th>Étape</th><th>Contenu</th></tr>
+  <tr>
+    <td><strong>1. Récupération des données</strong></td>
+    <td>Lecture des lots de dépenses du jour sélectionné (SYSTAC) et des mouvements SIGMA (BEAC) du même jour, extraction des numéros de BV distincts, recherche des règlements et des intitulés associés.</td>
+  </tr>
+  <tr>
+    <td><strong>2. Complétion et agrégation</strong></td>
+    <td>Regroupement des règlements par bordereau, puis par intitulé pour les bordereaux à règlements multiples ; démultiplication en une ligne par intitulé ; calcul des totaux.</td>
+  </tr>
+  <tr>
+    <td><strong>3. Vérification et validation</strong></td>
+    <td>Contrôle de concordance entre le total du montant Systac et le total du montant groupé ; la fiche n'est générée et conservée que si les totaux concordent.</td>
+  </tr>
+</table>
+<p>Il n'y a pas d'étape de saisie manuelle pendant la génération, ni de session de travail à reprendre en cas d'interruption : le traitement, une fois relancé, recommence intégralement depuis les données sources. En revanche, une fois la fiche créée, ses lignes Numéraire et SIGMA restent modifiables a posteriori dans l'écran de détail (cf. §3.2.3 et la règle corrigée en §4.3).</p>
+
+<h2 id="s23">2.3 Règles de gestion</h2>
+<table>
+  <tr><th>Réf.</th><th>Règle</th></tr>
+  <tr>
+    <td>RG-01 <em>(corrigée, à reconfirmer avec le métier)</em></td>
+    <td>Les lots SYSTAC sont extraits de <code>v_recap_dsgp</code> ; en parallèle, les mouvements SIGMA (BEAC) sont extraits de <code>OP_BEAC</code> et intégrés à la fiche comme famille distincte, éditable manuellement au même titre que NUMÉRAIRE. <em>Le document v3.0 indiquait l'inverse (SYGMA explicitement exclu) : à faire confirmer par le métier si « SYGMA/SIGMA » désigne bien le même système dans les deux cas, ou s'il y a eu une confusion de terminologie entre le Système de Gestion des Marchés (glossaire) et les mouvements BEAC.</em></td>
+  </tr>
+  <tr>
+    <td>RG-02</td>
+    <td>Toute ligne dont la date de réception (<code>d_creation_ip</code>) ou la date de génération (<code>d_arret_ip</code>) est absente est écartée dès l'extraction : la dépense n'est pas considérée comme passée.</td>
+  </tr>
+  <tr>
+    <td>RG-03</td>
+    <td>En l'absence d'intitulé pour un règlement, la valeur « Autres Opérations » est utilisée.</td>
+  </tr>
+  <tr>
+    <td>RG-04</td>
+    <td>Un bordereau de virement à plusieurs règlements est démultiplié en autant de lignes que d'intitulés distincts, avec cumul du Net à Payer par intitulé.</td>
+  </tr>
+  <tr>
+    <td>RG-05</td>
+    <td>La fiche des dépenses n'est validée, et donc générée, que si le total du montant Systac correspond au total du montant groupé (tolérance d'arrondi d'un centime).</td>
+  </tr>
+  <tr>
+    <td>RG-06</td>
+    <td>Pour un bordereau démultiplié en plusieurs lignes, le montant Systac de chaque ligne est réparti au prorata du poids de chaque intitulé dans le total des règlements du bordereau.</td>
+  </tr>
+  <tr>
+    <td>RG-07 <em>(confirmée en v3.1)</em></td>
+    <td>Le Net à Payer d'un règlement est calculé comme le montant réglé, déduction faite du précompte/TVA retenu à la source — formule <code>m_regl − m_prec_tva</code> vérifiée dans la requête d'extraction des règlements.</td>
+  </tr>
+  <tr>
+    <td>RG-08 <em>(confirmée en v3.1)</em></td>
+    <td>Une ligne est également écartée si sa date de valeur est absente, ou si son montant Systac n'est pas strictement positif — filtres <code>d_valeur IS NOT NULL</code> et <code>montant_systac &gt; 0</code> vérifiés dans la requête d'extraction des lots.</td>
+  </tr>
+</table>
+
+<div class="callout callout-warn">
+  <span class="label">Point à valider avec le métier</span>
+  RG-01 a été mise à jour d'après le code (§ ci-dessus) mais reste à faire confirmer formellement par le métier, la terminologie « SYGMA » désignant potentiellement deux systèmes distincts (Système de Gestion des Marchés vs mouvements BEAC). RG-07 et RG-08, en revanche, sont désormais vérifiées et peuvent être considérées comme définitives.
+</div>
+
+<h2 id="s24">2.4 Transmission vers le Service de Prévision</h2>
+<table>
+  <tr><th>Élément</th><th>État</th></tr>
+  <tr>
+    <td>Déclencheur</td>
+    <td>La fiche est créée avec le statut « Créée » dès que sa génération réussit (totaux concordants). Le passage au statut « Envoyée » est une action <strong>manuelle et distincte</strong>, déclenchée depuis l'écran de détail de la fiche par un Chef du Service Règlement.</td>
+  </tr>
+  <tr>
+    <td>Destinataire</td>
+    <td>Service de Prévision (SP) — portail non encore développé à ce jour (écrans « en construction »).</td>
+  </tr>
+  <tr>
+    <td>Notification</td>
+    <td>Notification automatique par e-mail (auteur, montant, horodatage) — non implémentée.</td>
+  </tr>
+  <tr>
+    <td>Statut « Reçue »</td>
+    <td>Existe dans le modèle de données et peut être affiché/filtré, mais n'est déclenché par aucune action, automatique ou manuelle, disponible dans ce module à ce jour — faute de portail SP en réception.</td>
+  </tr>
+</table>
+<div class="callout callout-fix">
+  <span class="label">Corrigé en v3.1</span>
+  La version précédente indiquait que le statut passait automatiquement à « Envoyée » dès la génération, sans étape de validation séparée. Le code fait l'inverse par construction : la fiche est persistée au statut « Créée », et l'envoi au SP est une action de validation explicite réservée au Chef SR (bouton dédié, visible uniquement tant que la fiche est au statut « Créée »). C'est cette action manuelle qui constitue la validation avant transmission.
+</div>
+
+<h1 id="s3">3. <u>FONCTIONNALITÉS DE L'APPLICATION</u></h1>
+
+<h2 id="s31">3.1 Module commun — Authentification et navigation</h2>
+<ul>
+  <li>Connexion sécurisée par identifiant et mot de passe, avec jeton d'authentification (JWT).</li>
+  <li>Changement de mot de passe imposé à la première connexion de chaque utilisateur.</li>
+  <li>Contrôle d'accès par rôles (RBAC) avec hiérarchie : un rôle « Chef » hérite automatiquement des droits du rôle « Agent » qu'il encadre (ex. Chef SR hérite d'Agent SR) ; le rôle Administrateur hérite de l'ensemble des rôles Chef et des rôles transversaux (Directeur DOMF, Direction Générale, Superviseur). Le modèle couvre déjà les quatre portails (SOF, SP, SR, Admin), même si seul SR est fonctionnel.</li>
+  <li>Absence d'authentification à deux facteurs (2FA / TOTP) à ce jour — écart avec le standard prescrit par le Cahier des Charges général DOMF-APP.</li>
+</ul>
+<div class="callout callout-fix">
+  <span class="label">Corrigé en v3.1</span>
+  La version précédente décrivait « un modèle de permissions fines et nommées (générer une fiche, valider une fiche, …) ». Le code implémente en réalité un contrôle d'accès par rôles Symfony classique (<code>ROLE_AGENT_SR</code>, <code>ROLE_CHEF_SR</code>, etc.) avec hiérarchie de rôles, et non un système de permissions nommées par action.
+</div>
+
+<h2 id="s32">3.2 Portail Service Règlement (Pool DR)</h2>
+
+<h3 id="s321">3.2.1 Tableau de bord</h3>
+<ul>
+  <li>Fiche du jour (générée ou non).</li>
+  <li>Dernier montant transmis (dernière fiche passée au statut « Reçue »).</li>
+  <li>Nombre de fiches en attente côté Service de Prévision (statut « Envoyée »).</li>
+  <li>Liste des fiches récentes, avec accès rapide au détail et au téléchargement.</li>
+</ul>
+
+<h3 id="s322">3.2.2 Génération d'une fiche de dépenses</h3>
+<ul>
+  <li>Sélection d'une date (traitement d'une journée à la fois).</li>
+  <li>Lancement du traitement avec suivi de progression en temps réel, en 7 étapes : récupération des lots, recherche des règlements manquants, recherche des désignations, agrégation des règlements, création de la fiche, validation de la fiche, visualisation de la fiche.</li>
+  <li>En cas de non-concordance des totaux (RG-05), affichage des lignes en écart, sans création de la fiche.</li>
+  <li>En cas de succès, affichage immédiat de la fiche générée (statut « Créée »).</li>
+</ul>
+
+<h3 id="s323">3.2.3 Détail d'une fiche</h3>
+<ul>
+  <li>Rapprochement visuel entre le montant Systac et le montant groupé (concordance ou écart).</li>
+  <li>Tableau détaillé des lignes par famille (Numéraire, SIGMA, Systac) : origine, désignation, date de présentation, numéro de bordereau, nombre de règlements, montants Systac et groupé, dates de traitement.</li>
+  <li>Ajout, modification et suppression de lignes Numéraire et SIGMA directement depuis cet écran, tant que la fiche n'a pas été envoyée (ou sans limite pour un administrateur) ; les lignes Systac restent en lecture seule, importées de SGP. Le fichier Excel est régénéré automatiquement après chaque modification.</li>
+  <li>Passage au statut « Envoyée », réservé au Chef SR.</li>
+  <li>Suppression complète de la fiche, réservée au Chef SR (ou à un administrateur si déjà envoyée/reçue).</li>
+  <li>Aperçu et téléchargement du fichier Excel généré (4 onglets : vue d'ensemble « Règlement du jour », puis un onglet dédié par famille — Systac, SIGMA, Numéraire).</li>
+</ul>
+<div class="callout callout-fix">
+  <span class="label">Corrigé en v3.1</span>
+  Les capacités d'édition/suppression des lignes après création, et la règle qui les encadre, n'étaient pas décrites dans la v3.0 — voir aussi la correction de la « règle d'immutabilité » en §4.3.
+</div>
+
+<h3 id="s324">3.2.4 Liste des fiches de dépenses</h3>
+<ul>
+  <li>Recherche, pagination et filtre par statut.</li>
+  <li>Compteurs de fiches par statut (Créée / Envoyée / Reçue).</li>
+</ul>
+
+<h3 id="s325">3.2.5 Historique</h3>
+<ul>
+  <li>Journal des actions (création de fiche, changement de statut), filtrable par date et par utilisateur.</li>
+  <li>Suppression d'une entrée d'historique, réservée aux profils habilités.</li>
+</ul>
+
+<h3 id="s326">3.2.6 Gestion des utilisateurs du Service Règlement</h3>
+<ul>
+  <li>Création, modification, désactivation, réactivation et réinitialisation de mot de passe.</li>
+  <li>Deux rôles disponibles sur cet écran : Agent du Service Règlement, Chef du Service Règlement (ce dernier disposant en plus des droits de validation et de gestion des utilisateurs). Le modèle de rôles sous-jacent (Module Commun) en prévoit davantage pour les autres portails — cf. §3.1.</li>
+</ul>
+
+<h3 id="s327">3.2.7 Profil</h3>
+<ul>
+  <li>Consultation des informations personnelles et changement de mot de passe.</li>
+</ul>
+
+<h1 id="s4">4. <u>ARCHITECTURE TECHNIQUE</u></h1>
+
+<h2 id="s41">4.1 Stack technologique</h2>
+<table>
+  <tr><th>Composant</th><th>Technologie retenue</th><th>Remarque</th></tr>
+  <tr>
+    <td>Frontend</td>
+    <td>React 19 + Vite + TypeScript + Tailwind CSS / shadcn-ui</td>
+    <td>Cohérence avec DOMF-APP / SEB-P601</td>
+  </tr>
+  <tr>
+    <td>Backend</td>
+    <td>Symfony 8.1 (PHP 8.4) + Doctrine ORM</td>
+    <td>Cohérence avec DOMF-APP / SEB-P601</td>
+  </tr>
+  <tr>
+    <td>Base applicative</td>
+    <td>PostgreSQL — base <code>domf_app</code></td>
+    <td>Base de données principale DGCPT</td>
+  </tr>
+  <tr>
+    <td>Source SGP</td>
+    <td>Oracle, connexion dédiée en lecture seule</td>
+    <td>Aucune écriture possible depuis DOMF-APP vers SGP</td>
+  </tr>
+  <tr>
+    <td>Authentification</td>
+    <td>JWT (LexikJWTAuthenticationBundle)</td>
+    <td>Pas de 2FA à ce jour — écart avec le CDC général</td>
+  </tr>
+  <tr>
+    <td>Génération de fichiers</td>
+    <td>Bibliothèque de génération Excel (export uniquement)</td>
+    <td>Pas d'import Excel — lecture directe de SGP</td>
+  </tr>
+  <tr>
+    <td>Temps réel</td>
+    <td>Flux d'événements serveur (SSE)</td>
+    <td>Suivi de progression de la génération</td>
+  </tr>
+</table>
+
+<h2 id="s42">4.2 Architecture de déploiement</h2>
+<ul>
+  <li>Backend : API REST exposant deux connexions séparées — écriture vers PostgreSQL (base applicative), lecture seule vers Oracle SGP.</li>
+  <li>Frontend : portail dédié au sein de l'application DOMF-APP.</li>
+  <li>Fichiers générés (Fiche des Dépenses au format Excel) stockés sur le système de fichiers du serveur applicatif ; seul le chemin d'accès est conservé en base.</li>
+</ul>
+
+<h2 id="s43">4.3 Modèle de données</h2>
+<ul>
+  <li><strong>fiche_depenses</strong> : référence (identifiant), totaux (montant Systac, montant groupé, numéraire, SIGMA), date de création, date de présentation, statut, chemin du fichier, empreinte du fichier, utilisateur générateur.</li>
+  <li><strong>ligne_systac</strong> et <strong>ligne_sygma</strong> : lignes brutes issues de SGP (une par bordereau ou par mouvement BEAC), rattachées à un mouvement consolidé.</li>
+  <li><strong>mouvement_systac</strong>, <strong>mouvement_sygma</strong>, <strong>mouvement_numeraire</strong> : une table par famille, chacune portant bénéficiaire, montant, banque, numéro d'OV, date de virement et observations. Systac est consolidé par désignation ; SIGMA et Numéraire sont soit importés (SIGMA), soit saisis manuellement (Numéraire), et tous deux restent éditables après création de la fiche.</li>
+  <li><strong>observation</strong> : table partagée, une observation pouvant être rattachée à plusieurs lignes Numéraire/SIGMA à la fois (ex. un même virement bancaire couvrant plusieurs dépenses).</li>
+  <li><strong>historique_fiche</strong> : identifiant, référence de la fiche, action, commentaire, date de l'action, ancien statut, nouveau statut, utilisateur.</li>
+  <li><strong>utilisateur</strong> : identifiant, matricule, e-mail, nom, prénom, mot de passe (haché), état de connexion, rôle(s), statut actif, date de création, dernière connexion — table du Module Commun, partagée avec les futurs portails SOF et SP.</li>
+</ul>
+
+<div class="callout callout-fix">
+  <span class="label">Corrigé en v3.1 — Règle d'immutabilité</span>
+  La version précédente affirmait qu'une fiche et ses lignes ne sont plus jamais modifiées après création, et que toute correction nécessite d'annuler la fiche et d'en régénérer une nouvelle. Ce n'est vrai que pour les lignes <strong>Systac</strong> (données importées de SGP, réellement en lecture seule). Les lignes <strong>Numéraire</strong> et <strong>SIGMA</strong> peuvent être ajoutées, modifiées ou supprimées après création, tant que la fiche n'a pas été envoyée au SP — un administrateur peut le faire même après envoi. Le fichier Excel est régénéré automatiquement à chaque modification pour rester synchronisé. La suppression complète d'une fiche obéit à la même règle d'autorisation.
+</div>
+
+<h1 id="s5">5. SÉCURITÉ ET CONFORMITÉ</h1>
+
+<h2 id="s51">5.1 Sécurité applicative</h2>
+<ul>
+  <li>Authentification obligatoire (JWT) sur l'ensemble des routes du module.</li>
+  <li>Contrôle d'accès basé sur des rôles (RBAC) avec hiérarchie, vérifié à chaque point d'entrée de l'API (cf. §3.1).</li>
+  <li>Absence d'authentification à deux facteurs (2FA) — écart avec le Cahier des Charges général DOMF-APP.</li>
+</ul>
+<div class="callout callout-warn">
+  <span class="label">Point de vigilance</span>
+  Un mécanisme crée automatiquement, à chaque démarrage de l'application, des comptes de démonstration à mot de passe par défaut (« admin123 »), sans distinction d'environnement — vérifié toujours actif dans le code (aucune condition sur l'environnement d'exécution). Ce point est reconnu comme une faille à corriger avant toute mise en production.
+</div>
+
+<h2 id="s52">5.2 Confidentialité des données</h2>
+<ul>
+  <li>Les données SGP sont lues en lecture seule exclusivement ; aucune écriture n'est possible depuis DOMF-APP vers le système source.</li>
+  <li>Les fichiers générés sont stockés sur le serveur applicatif et ne sont transmis à aucun service externe.</li>
+</ul>
+
+<h2 id="s53">5.3 Disponibilité et performances</h2>
+<ul>
+  <li>Le traitement de génération, potentiellement long (lecture Oracle, agrégation des règlements), s'exécute avec un suivi de progression en temps réel plutôt qu'en appel bloquant.</li>
+  <li>Les exigences générales de disponibilité et de performance restent celles définies au Cahier des Charges général DOMF-APP (§5.3).</li>
+</ul>
+
+<h1 id="s6">6. <u>ÉTAT D'AVANCEMENT ET LIVRABLES</u></h1>
+
+<h2 id="s61">6.1 Livrables réalisés</h2>
+<table>
+  <tr><th>Livrable</th><th>État</th></tr>
+  <tr><td>Base de données du module</td><td>Réalisé — tables dédiées par famille de mouvement (Numéraire, SIGMA, Systac), observations partagées, historique, plus réutilisation de la table utilisateur commune</td></tr>
+  <tr><td>API backend</td><td>Réalisé — génération, consultation, édition des lignes Numéraire/SIGMA, changement de statut, historique, gestion des utilisateurs du Service Règlement</td></tr>
+  <tr><td>Portail Service Règlement (frontend)</td><td>Réalisé — tableau de bord, génération, détail (avec édition de lignes), liste, historique, gestion des utilisateurs, profil</td></tr>
+  <tr><td>Génération et export du fichier Excel</td><td>Réalisé — 4 onglets (vue d'ensemble + un par famille)</td></tr>
+  <tr><td>Suivi de progression en temps réel</td><td>Réalisé</td></tr>
+  <tr><td>Authentification et permissions</td><td>Réalisé, modèle RBAC à hiérarchie de rôles (hors authentification à deux facteurs)</td></tr>
+  <tr><td>Édition post-génération des lignes Numéraire/SIGMA</td><td>Réalisé — non documenté dans la v3.0</td></tr>
+</table>
+
+<h2 id="s62">6.2 Écarts et reste à faire</h2>
+<table>
+  <tr><th>Sujet</th><th>État</th></tr>
+  <tr><td>Notification e-mail automatique vers le Service de Prévision</td><td>Non réalisé</td></tr>
+  <tr><td>Authentification à deux facteurs (2FA)</td><td>Non réalisé</td></tr>
+  <tr><td>Troisième statut « Traité »</td><td>Non réalisé — en attente de validation métier avec le Chef SP</td></tr>
+  <tr><td>Contrôle Compensation (étape optionnelle)</td><td>Non réalisé — un point de menu « Compensation Interbancaire » existe déjà côté portail SOF (non développé)</td></tr>
+  <tr><td>Correction du mécanisme de comptes de démonstration</td><td>À corriger avant mise en production</td></tr>
+  <tr><td>Portails SOF, SP et Admin</td><td>Non développés — écrans « en construction » déjà en place dans la navigation</td></tr>
+  <tr><td>Clarification du périmètre SYGMA (RG-01)</td><td>À valider avec le métier — cf. §2.3</td></tr>
+  <tr><td>Tests de recette automatisés</td><td>Non réalisés</td></tr>
+</table>
+
+<h1 id="s7">7. GLOSSAIRE</h1>
+<table>
+  <tr><th>Terme</th><th>Définition</th></tr>
+  <tr><td>BV</td><td>Bordereau de Virement</td></tr>
+  <tr><td>DC</td><td>Application de gestion des dépenses au sein de SGP, source des lots de dépenses</td></tr>
+  <tr><td>DGCPT</td><td>Direction Générale de la Comptabilité Publique et du Trésor</td></tr>
+  <tr><td>DOMF</td><td>Direction des Opérations Monétaires et Financières</td></tr>
+  <tr><td>EF-69</td><td>Référence du flux de transmission Service Règlement → Service de Prévision, documenté au Cahier des Charges général DOMF-APP</td></tr>
+  <tr><td>FCFA</td><td>Franc CFA, monnaie de la CEMAC</td></tr>
+  <tr><td>Fiche des Dépenses</td><td>Document produit par ce module, récapitulant les dépenses validées du jour</td></tr>
+  <tr><td>Intitulé</td><td>Libellé du règlement (anciennement « catégorie / désignation de la dépense »)</td></tr>
+  <tr><td>JWT</td><td>JSON Web Token — protocole d'authentification</td></tr>
+  <tr><td>Net à Payer</td><td>Montant réglé, déduction faite du précompte / TVA retenu à la source</td></tr>
+  <tr><td>OP_BEAC</td><td>Table SGP source des mouvements SIGMA (opérations BEAC) — cf. §2.1</td></tr>
+  <tr><td>Pool DR / Pool SR</td><td>Désignation en atelier du module Service Règlement</td></tr>
+  <tr><td>RG</td><td>Règle de Gestion</td></tr>
+  <tr><td>SGP</td><td>Système de Gestion des Paiements</td></tr>
+  <tr><td>SP</td><td>Service de Prévision</td></tr>
+  <tr><td>SYSTAC</td><td>Système de Télécompensation d'Afrique Centrale — système de dépenses principal traité par ce module</td></tr>
+  <tr><td>SYGMA</td><td>Terme désignant à la fois, dans la documentation d'origine, le « Système de Gestion des Marchés » (hors périmètre), et dans le code, la famille de mouvements alimentée depuis <code>OP_BEAC</code> (BEAC) et gérée par ce module — ambiguïté à lever avec le métier, cf. RG-01 (§2.3).</td></tr>
+</table>
+
+<p class="footer">DOMF-APP — Cahier des Charges — Module Service Règlement — Version 3.1 (revue de conformité code) — Août 2026 — DGCPT Gabon</p>
+
+</body>
+</html>

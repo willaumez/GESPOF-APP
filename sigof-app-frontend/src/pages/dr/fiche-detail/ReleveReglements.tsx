@@ -1,0 +1,288 @@
+import { Fragment, useState } from "react";
+import { Inbox, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { cn } from "@/lib/utils";
+import { formatMontant } from "@/lib/format";
+import type { FicheDepotDetail } from "@/interfaces/pool-sr";
+import { TYPE_CFG, type SectionMouvement, type TypeMouvement } from "./constants";
+import { correspondFiltre } from "./utils";
+
+interface ReleveReglementsProps {
+  detail: FicheDepotDetail | null;
+  loading: boolean;
+  error: boolean;
+  sections: SectionMouvement[];
+  totalLignesAffichees: number;
+  totalLignesTableau: number;
+  totalAnime: number;
+  totauxSystacCorrespondent: boolean;
+  onOuvrirFamille: (type: TypeMouvement) => void;
+}
+
+export function ReleveReglements({
+  detail,
+  loading,
+  error,
+  sections,
+  totalLignesAffichees,
+  totalLignesTableau,
+  totalAnime,
+  totauxSystacCorrespondent,
+  onOuvrirFamille,
+}: ReleveReglementsProps) {
+  const [recherche, setRecherche] = useState("");
+  const filtre = recherche.trim().toLowerCase();
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="mb-2 flex shrink-0 items-center justify-between gap-2">
+        <p className="text-sm font-semibold text-foreground">Relevé des règlements</p>
+        {detail && totalLignesAffichees > 0 && (
+          <Badge variant="secondary" className="font-normal">
+            {totalLignesAffichees} ligne
+            {totalLignesAffichees > 1 ? "s" : ""}
+          </Badge>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-8 w-full" />
+          ))}
+        </div>
+      ) : error ? (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon" className="bg-destructive/10 text-destructive">
+              <Inbox />
+            </EmptyMedia>
+            <EmptyTitle>Erreur de chargement</EmptyTitle>
+            <EmptyDescription>
+              Impossible de récupérer les lignes de cette fiche.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : !detail || totalLignesTableau === 0 ? (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Inbox />
+            </EmptyMedia>
+            <EmptyTitle>Aucune ligne</EmptyTitle>
+            <EmptyDescription>
+              Cette fiche ne contient aucune ligne de règlement.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col gap-2">
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher par bénéficiaire, banque ou n° O.V…"
+                value={recherche}
+                onChange={(e) => setRecherche(e.target.value)}
+                className="h-8 w-full pl-8 text-xs"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {sections.map(({ type, montant }, index) => {
+                const cfg = TYPE_CFG[type];
+                const estSystac = type === "systac";
+                const enErreur = estSystac && !totauxSystacCorrespondent;
+
+                const bouton = (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "h-8 gap-1.5 text-xs",
+                      estSystac &&
+                        (totauxSystacCorrespondent
+                          ? "border-[#2a7f62] bg-[#2a7f62]/5 hover:bg-[#2a7f62]/10"
+                          : "border-destructive bg-destructive/5 hover:bg-destructive/10"),
+                    )}
+                    onClick={() => onOuvrirFamille(type)}
+                  >
+                    <span className="text-muted-foreground">{cfg.label}</span>
+                    <span
+                      className={cn(
+                        "font-semibold tabular-nums",
+                        enErreur ? "text-destructive" : "text-[#1e4d8c]",
+                      )}
+                    >
+                      {formatMontant(String(montant))} FCFA
+                    </span>
+                  </Button>
+                );
+
+                return (
+                  <Fragment key={type}>
+                    {index > 0 && (
+                      <span
+                        className="text-sm font-semibold text-muted-foreground"
+                        aria-hidden="true"
+                      >
+                        +
+                      </span>
+                    )}
+                    {estSystac ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>{bouton}</TooltipTrigger>
+                        <TooltipContent side="top">
+                          {totauxSystacCorrespondent
+                            ? "Montant Systac et montant groupé identiques."
+                            : `Écart : Systac ${formatMontant(detail?.total_systac ?? "0")} FCFA — Groupé ${formatMontant(detail?.total_groupe ?? "0")} FCFA`}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      bouton
+                    )}
+                  </Fragment>
+                );
+              })}
+
+              <span className="text-sm font-semibold text-muted-foreground" aria-hidden="true">
+                =
+              </span>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled
+                className="h-8 gap-1.5 text-xs disabled:cursor-default disabled:opacity-100"
+              >
+                <span className="text-muted-foreground">Total général</span>
+                {loading ? (
+                  <Skeleton className="h-3.5 w-16" />
+                ) : (
+                  <span className="font-semibold tabular-nums text-[#1e4d8c]">
+                    {formatMontant(String(totalAnime))} FCFA
+                  </span>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border">
+            <Table containerClassName="min-h-0 flex-1 overflow-auto">
+              <TableHeader className="sticky top-0 z-20 bg-muted">
+                <TableRow className="bg-muted hover:bg-muted">
+                  <TableHead className="whitespace-nowrap">Date du virement</TableHead>
+                  <TableHead className="min-w-[200px]">Bénéficiaires</TableHead>
+                  <TableHead className="whitespace-nowrap">N° O.V.</TableHead>
+                  <TableHead className="whitespace-nowrap">Banques</TableHead>
+                  <TableHead className="whitespace-nowrap text-right">Dépenses</TableHead>
+                  <TableHead className="min-w-[160px]">Observations</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sections.map(({ type, lignes, total, totalGroupe }) => {
+                  const cfg = TYPE_CFG[type];
+                  const lignesFiltrees = lignes.filter((l) =>
+                    correspondFiltre({ ...l, type }, filtre),
+                  );
+
+                  return (
+                    <Fragment key={type}>
+                      <TableRow className={cn("hover:bg-inherit", cfg.bar)}>
+                        <TableCell
+                          colSpan={4}
+                          className="text-[11px] font-bold uppercase tracking-wide"
+                        >
+                          {cfg.label}
+                        </TableCell>
+                        <TableCell className="text-right text-[13px] font-bold tabular-nums" />
+                        <TableCell />
+                      </TableRow>
+                      {lignesFiltrees.map((l) => (
+                        <TableRow key={`${type}-${l.id}`}>
+                          <TableCell className="whitespace-nowrap text-muted-foreground">
+                            {l.date_virement ?? "—"}
+                          </TableCell>
+                          <TableCell
+                            className="max-w-[260px] truncate font-medium text-foreground"
+                            title={l.beneficiaire}
+                          >
+                            {l.beneficiaire}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-muted-foreground">
+                            {l.numero_ov ?? "—"}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-muted-foreground">
+                            {l.banque ?? "—"}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-right tabular-nums font-medium text-foreground">
+                            {formatMontant(
+                              String(type === "systac" ? (l.montant_groupe ?? l.depenses) : l.depenses),
+                            )}
+                          </TableCell>
+                          <TableCell
+                            className="max-w-[220px] truncate text-muted-foreground"
+                            title={l.observations.map((o) => o.contenu).join(" · ")}
+                          >
+                            {l.observations.length > 0
+                              ? l.observations.map((o) => o.contenu).join(" · ")
+                              : "—"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      <TableRow className={cn("hover:bg-inherit", cfg.subtotal)}>
+                        <TableCell
+                          colSpan={4}
+                          className="text-[11px] font-bold uppercase tracking-wide"
+                        >
+                          {`Total règlements ${cfg.label.toLowerCase()}`}
+                        </TableCell>
+                        <TableCell className="text-right text-[13px] font-bold tabular-nums">
+                          {(() => {
+                            const valeur = type === "systac" ? (totalGroupe ?? total) : total;
+                            return valeur !== undefined ? formatMontant(valeur) : "";
+                          })()}
+                        </TableCell>
+                        <TableCell />
+                      </TableRow>
+                    </Fragment>
+                  );
+                })}
+                <TableRow className="bg-primary/15 text-foreground hover:bg-primary/15">
+                  <TableCell colSpan={4} className="text-[11px] font-bold uppercase tracking-wide">
+                    Total général
+                  </TableCell>
+                  <TableCell className="text-right text-sm font-bold tabular-nums">
+                    {formatMontant(detail.montant_total)}
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

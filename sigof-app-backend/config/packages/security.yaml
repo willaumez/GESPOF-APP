@@ -1,0 +1,71 @@
+security:
+    # Un métier "chef" ou transverse hérite des droits du métier "agent" qu'il encadre :
+    # on évite ainsi de dupliquer des permissions détaillées par action.
+    role_hierarchy:
+        ROLE_CHEF_SOF: [ROLE_AGENT_SOF]
+        ROLE_CHEF_SP: [ROLE_AGENT_SP]
+        ROLE_CHEF_SR: [ROLE_AGENT_SR]
+        ROLE_DIRECTEUR_DOMF: [ROLE_AGENT_SOF, ROLE_AGENT_SP, ROLE_AGENT_SR]
+        ROLE_ADMINISTRATEUR: [ROLE_CHEF_SOF, ROLE_CHEF_SP, ROLE_CHEF_SR, ROLE_DIRECTEUR_DOMF, ROLE_DIRECTION_DG, ROLE_SUPERVISEUR]
+
+    password_hashers:
+        App\Entity\Utilisateur:
+            algorithm: bcrypt
+            cost: 12
+
+    providers:
+        app_user_provider:
+            id: App\Security\UserProvider
+        gsr_users:
+            entity:
+                class: App\Entity\Utilisateur
+                property: email
+        gsr_login_provider:
+            id: App\Security\GsrLoginUserProvider
+        gsr_aware_user_provider:
+            id: App\Security\GsrAwareUserProvider
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        uploads:
+            pattern: ^/uploads
+            stateless: true
+            security: false
+        gsr_login:
+            pattern: ^/api/auth/login$
+            stateless: true
+            provider: gsr_login_provider
+            json_login:
+                check_path: /api/auth/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        gsr_public:
+            pattern: ^/api/public
+            stateless: true
+            security: false
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
+            provider: gsr_aware_user_provider
+        main:
+            lazy: true
+            provider: app_user_provider
+
+    access_control:
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/public, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+
+when@test:
+    security:
+        password_hashers:
+            App\Entity\Utilisateur:
+                algorithm: bcrypt
+                cost: 4

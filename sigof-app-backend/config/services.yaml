@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+# See also https://symfony.com/doc/current/service_container/import.html
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters: {}
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    # Couche Service ServiceReglement : lie chaque interface à son implémentation concrète.
+    App\Service\ServiceReglement\FicheDepotServiceInterface: '@App\Implementation\ServiceReglement\FicheDepotService'
+    App\Service\ServiceReglement\DashboardServiceInterface: '@App\Implementation\ServiceReglement\DashboardService'
+    App\Service\ServiceReglement\FicheDepotExcelGeneratorInterface: '@App\Implementation\ServiceReglement\FicheDepotExcelGenerator'
+    App\Service\ServiceReglement\UtilisateurServiceInterface: '@App\Implementation\ServiceReglement\UtilisateurService'
+    App\Service\ServiceReglement\HistoriqueServiceInterface: '@App\Implementation\ServiceReglement\HistoriqueService'
+
+    App\Implementation\ServiceReglement\FicheDepotExcelGenerator:
+        bind:
+            string $dossierFiches: '%kernel.project_dir%/public/fiche_depences'
+
+    App\Implementation\ServiceReglement\FicheDepotService:
+        bind:
+            string $dossierFiches: '%kernel.project_dir%/public/fiche_depences'

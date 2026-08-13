@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(git mv *)",
+      "Bash(mv src/pages/pool-sr/Historique.tsx src/pages/pool-sr/ListeFichesDepences.tsx)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(chromium-cli --help)"
+    ]
+  }
+}

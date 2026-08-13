@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($json = Get-Content \"c:\\\\Users\\\\owani\\\\WORKS\\\\Projects\\\\DOMF-PROJET\\\\App-Code\\\\domf-app-backend\\\\src\\\\Data\\\\fiches_depenses_test.json\" -Raw | ConvertFrom-Json; Write-Output \"Fiches: $\\($json.fiches.Count\\)\"; Write-Output \"Stats: cree=$\\($json.stats.cree\\) envoyee=$\\($json.stats.envoyee\\) recue=$\\($json.stats.recue\\) en_attente=$\\($json.stats.en_attente\\)\"; Write-Output \"Lignes fiche[0]: $\\($json.fiches[0].lignes.Count\\)\"; Write-Output \"Ref[0]: $\\($json.fiches[0].reference\\)\")"
+    ]
+  }
+}

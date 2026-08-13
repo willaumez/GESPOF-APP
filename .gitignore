@@ -1,0 +1,9 @@
+sigof-app-backend/vendor/
+sigof-app-backend/var/
+sigof-app-frontend/node_modules/
+sigof-app-frontend/dist/
+sigof-app-frontend/build/
+sigof-app-backend/.env
+sigof-app-backend/.env.dev
+sigof-app-backend/.env.*.local
+sigof-app-backend/.env.local
