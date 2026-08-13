@@ -14,6 +14,8 @@ final class AppConfig
     public function __construct(
         private readonly string $kernelProjectDir,
         private readonly string $appEnv,
+        private readonly string $defaultUri,
+        private readonly string $corsAllowOriginPattern,
     ) {
     }
 
@@ -25,6 +27,16 @@ final class AppConfig
     public function environnement(): string
     {
         return $this->appEnv;
+    }
+
+    public function defaultUri(): string
+    {
+        return $this->defaultUri;
+    }
+
+    public function corsAllowOriginPattern(): string
+    {
+        return $this->corsAllowOriginPattern;
     }
 
     public function ficheDepensesDir(): string

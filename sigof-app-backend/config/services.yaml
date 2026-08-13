@@ -28,6 +28,8 @@ services:
         bind:
             string $kernelProjectDir: '%kernel.project_dir%'
             string $appEnv: '%kernel.environment%'
+            string $defaultUri: '%env(DEFAULT_URI)%'
+            string $corsAllowOriginPattern: '%env(CORS_ALLOW_ORIGIN)%'
 
     # Couche Service ServiceReglement : lie chaque interface à son implémentation concrète.
     # Interfaces et implémentations vivent toutes deux dans Module/ServiceReglement/Service/.
