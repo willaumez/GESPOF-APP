@@ -30,16 +30,12 @@ services:
             string $appEnv: '%kernel.environment%'
 
     # Couche Service ServiceReglement : lie chaque interface à son implémentation concrète.
-    App\Service\ServiceReglement\FicheDepotServiceInterface: '@App\Implementation\ServiceReglement\FicheDepotService'
-    App\Service\ServiceReglement\DashboardServiceInterface: '@App\Implementation\ServiceReglement\DashboardService'
-    App\Service\ServiceReglement\FicheDepotExcelGeneratorInterface: '@App\Implementation\ServiceReglement\FicheDepotExcelGenerator'
-    App\Service\ServiceReglement\UtilisateurServiceInterface: '@App\Implementation\ServiceReglement\UtilisateurService'
-    App\Service\ServiceReglement\HistoriqueServiceInterface: '@App\Implementation\ServiceReglement\HistoriqueService'
+    # Interfaces et implémentations vivent toutes deux dans Module/ServiceReglement/Service/.
+    App\Module\ServiceReglement\Service\FicheDepotServiceInterface: '@App\Module\ServiceReglement\Service\FicheDepotService'
+    App\Module\ServiceReglement\Service\DashboardServiceInterface: '@App\Module\ServiceReglement\Service\DashboardService'
+    App\Module\ServiceReglement\Service\FicheDepotExcelGeneratorInterface: '@App\Module\ServiceReglement\Service\FicheDepotExcelGenerator'
+    App\Module\ServiceReglement\Service\UtilisateurServiceInterface: '@App\Module\ServiceReglement\Service\UtilisateurService'
+    App\Module\ServiceReglement\Service\HistoriqueServiceInterface: '@App\Module\ServiceReglement\Service\HistoriqueService'
 
-    App\Implementation\ServiceReglement\FicheDepotExcelGenerator:
-        bind:
-            string $dossierFiches: '%kernel.project_dir%/public/fiche_depences'
-
-    App\Implementation\ServiceReglement\FicheDepotService:
-        bind:
-            string $dossierFiches: '%kernel.project_dir%/public/fiche_depences'
+    # Le dossier des fiches generees passe desormais par Shared/Config/AppConfig
+    # (injecte automatiquement, plus besoin de bind explicite ici).
