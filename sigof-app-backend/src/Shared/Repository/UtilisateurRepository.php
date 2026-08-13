@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Repository;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Shared\Enum\RoleAcces;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;

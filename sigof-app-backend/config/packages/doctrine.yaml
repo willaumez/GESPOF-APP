@@ -43,14 +43,14 @@ doctrine:
                     AppShared:
                         type: attribute
                         is_bundle: false
-                        dir: '%kernel.project_dir%/src/Shared/Model'
-                        prefix: 'App\Shared\Model'
+                        dir: '%kernel.project_dir%/src/Shared/Entite'
+                        prefix: 'App\Shared\Entite'
                         alias: AppShared
                     AppServiceReglement:
                         type: attribute
                         is_bundle: false
-                        dir: '%kernel.project_dir%/src/Module/ServiceReglement/Model'
-                        prefix: 'App\Module\ServiceReglement\Model'
+                        dir: '%kernel.project_dir%/src/Module/ServiceReglement/Entite'
+                        prefix: 'App\Module\ServiceReglement\Entite'
                         alias: AppServiceReglement
 
             # Entity manager dédié à la base Oracle SGP, schéma SGP — lecture seule.

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Service;
 
-use App\Module\ServiceReglement\Model\FicheDepot;
-use App\Module\ServiceReglement\Model\MouvementNumeraire;
-use App\Module\ServiceReglement\Model\MouvementSygma;
-use App\Module\ServiceReglement\Model\MouvementSystac;
+use App\Module\ServiceReglement\Entite\FicheDepot;
+use App\Module\ServiceReglement\Entite\MouvementNumeraire;
+use App\Module\ServiceReglement\Entite\MouvementSygma;
+use App\Module\ServiceReglement\Entite\MouvementSystac;
 use App\Module\ServiceReglement\Service\FicheDepotExcelGeneratorInterface;
 use App\Shared\Config\AppConfig;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;

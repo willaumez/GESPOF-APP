@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Model;
+namespace App\Shared\Entite;
 
 use App\Shared\Enum\RoleAcces;
 use App\Shared\Repository\UtilisateurRepository;

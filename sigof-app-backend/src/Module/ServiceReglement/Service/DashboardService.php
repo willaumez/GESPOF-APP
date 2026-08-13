@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Service;
 
-use App\Module\ServiceReglement\Model\FicheDepot;
+use App\Module\ServiceReglement\Entite\FicheDepot;
 use App\Module\ServiceReglement\Repository\FicheDepotRepository;
 use App\Module\ServiceReglement\Repository\HistoriqueFicheRepository;
 use App\Module\ServiceReglement\Service\DashboardServiceInterface;

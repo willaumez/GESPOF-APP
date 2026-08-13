@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Controller;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Module\ServiceReglement\Service\Exception\ApiExceptionInterface;
 use App\Module\ServiceReglement\Service\Exception\AucuneLigneTrouveeException;
 use App\Module\ServiceReglement\Service\Exception\DateInvalideException;
@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/api/v1/dr/service-reglement/fiches')]
+#[Route('/api/v1/sr/service-reglement/fiches')]
 final class FicheDepotController extends AbstractController
 {
     use DomainExceptionResponseTrait;

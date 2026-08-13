@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Controller;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Module\ServiceReglement\Service\UtilisateurServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/api/v1/dr/service-reglement/utilisateurs')]
+#[Route('/api/v1/sr/service-reglement/utilisateurs')]
 #[IsGranted('ROLE_CHEF_SR')]
 final class UtilisateurController extends AbstractController
 {

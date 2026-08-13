@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Service;
 
-use App\Module\ServiceReglement\Model\HistoriqueFiche;
+use App\Module\ServiceReglement\Entite\HistoriqueFiche;
 use App\Module\ServiceReglement\Repository\HistoriqueFicheRepository;
 use App\Module\ServiceReglement\Service\Exception\DateInvalideException;
 use App\Module\ServiceReglement\Service\Exception\HistoriqueIntrouvableException;

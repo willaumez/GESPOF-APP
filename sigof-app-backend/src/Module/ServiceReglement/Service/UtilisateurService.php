@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Service;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Shared\Enum\RoleAcces;
 use App\Module\ServiceReglement\Repository\FicheDepotRepository;
 use App\Module\ServiceReglement\Repository\HistoriqueFicheRepository;

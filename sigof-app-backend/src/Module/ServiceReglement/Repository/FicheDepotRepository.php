@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Repository;
 
-use App\Module\ServiceReglement\Model\FicheDepot;
+use App\Module\ServiceReglement\Entite\FicheDepot;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;

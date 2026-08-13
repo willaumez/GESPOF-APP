@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Repository;
 
-use App\Module\ServiceReglement\Model\MouvementSystac;
+use App\Module\ServiceReglement\Entite\MouvementSystac;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

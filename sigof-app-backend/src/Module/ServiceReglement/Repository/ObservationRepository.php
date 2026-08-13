@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Repository;
 
-use App\Module\ServiceReglement\Model\Observation;
+use App\Module\ServiceReglement\Entite\Observation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

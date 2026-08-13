@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\EventListener;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Shared\Enum\RoleAcces;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;

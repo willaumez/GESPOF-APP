@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Module\ServiceReglement\Model;
+namespace App\Module\ServiceReglement\Entite;
 
 use App\Module\ServiceReglement\Repository\MouvementSygmaRepository;
 use Doctrine\Common\Collections\ArrayCollection;

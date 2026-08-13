@@ -9,7 +9,7 @@ security:
         ROLE_ADMINISTRATEUR: [ROLE_CHEF_SOF, ROLE_CHEF_SP, ROLE_CHEF_SR, ROLE_DIRECTEUR_DOMF, ROLE_DIRECTION_DG, ROLE_SUPERVISEUR]
 
     password_hashers:
-        App\Shared\Model\Utilisateur:
+        App\Shared\Entite\Utilisateur:
             algorithm: bcrypt
             cost: 12
 
@@ -18,7 +18,7 @@ security:
             id: App\Shared\Security\UserProvider
         gsr_users:
             entity:
-                class: App\Shared\Model\Utilisateur
+                class: App\Shared\Entite\Utilisateur
                 property: email
         gsr_login_provider:
             id: App\Shared\Security\GsrLoginUserProvider
@@ -66,6 +66,6 @@ security:
 when@test:
     security:
         password_hashers:
-            App\Shared\Model\Utilisateur:
+            App\Shared\Entite\Utilisateur:
                 algorithm: bcrypt
                 cost: 4

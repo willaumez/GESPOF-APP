@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Service;
 
-use App\Module\ServiceReglement\Model\FicheDepot;
-use App\Module\ServiceReglement\Model\HistoriqueFiche;
-use App\Module\ServiceReglement\Model\LigneSygma;
-use App\Module\ServiceReglement\Model\LigneSystac;
-use App\Module\ServiceReglement\Model\MouvementNumeraire;
-use App\Module\ServiceReglement\Model\MouvementSygma;
-use App\Module\ServiceReglement\Model\MouvementSystac;
-use App\Module\ServiceReglement\Model\Observation;
-use App\Shared\Model\Utilisateur;
+use App\Module\ServiceReglement\Entite\FicheDepot;
+use App\Module\ServiceReglement\Entite\HistoriqueFiche;
+use App\Module\ServiceReglement\Entite\LigneSygma;
+use App\Module\ServiceReglement\Entite\LigneSystac;
+use App\Module\ServiceReglement\Entite\MouvementNumeraire;
+use App\Module\ServiceReglement\Entite\MouvementSygma;
+use App\Module\ServiceReglement\Entite\MouvementSystac;
+use App\Module\ServiceReglement\Entite\Observation;
+use App\Shared\Entite\Utilisateur;
 use App\Module\ServiceReglement\Enum\StatutFiche;
 use App\Module\ServiceReglement\Repository\FicheDepotRepository;
 use App\Module\ServiceReglement\Repository\HistoriqueFicheRepository;

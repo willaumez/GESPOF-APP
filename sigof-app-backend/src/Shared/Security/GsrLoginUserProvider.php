@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Security;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Shared\Repository\UtilisateurRepository;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;

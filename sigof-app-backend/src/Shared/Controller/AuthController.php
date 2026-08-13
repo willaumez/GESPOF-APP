@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Controller;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Shared\Repository\UtilisateurRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

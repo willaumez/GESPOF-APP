@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Service;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Module\ServiceReglement\Service\Exception\ActionInterditeException;
 use App\Module\ServiceReglement\Service\Exception\AucuneLigneTrouveeException;
 use App\Module\ServiceReglement\Service\Exception\DateInvalideException;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Module\ServiceReglement\Model;
+namespace App\Module\ServiceReglement\Entite;
 
-use App\Shared\Model\Utilisateur;
+use App\Shared\Entite\Utilisateur;
 use App\Module\ServiceReglement\Repository\FicheDepotRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
