@@ -69,9 +69,9 @@ export default function MotDePasseOublie() {
                     </span>
                     <input
                       id="email-oublie"
-                      name="domf-email-oublie"
+                      name="sigof-email-oublie"
                       type="email"
-                      placeholder="prenom.nom@domf.local"
+                      placeholder="prenom.nom@sigof.local"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required

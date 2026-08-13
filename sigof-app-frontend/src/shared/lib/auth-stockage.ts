@@ -1,5 +1,5 @@
-const CLE_JETON = "domf_token";
-const CLE_USER  = "domf_user";
+const CLE_JETON = "sigof_token";
+const CLE_USER  = "sigof_user";
 
 export function lireJeton(): string | null {
   return localStorage.getItem(CLE_JETON) ?? sessionStorage.getItem(CLE_JETON);

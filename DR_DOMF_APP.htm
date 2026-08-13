@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>DOMF-APP — Cahier des Charges — Module Service Règlement (DR)</title>
+<title>SIGOF-APP — Cahier des Charges — Module Service Règlement (DR)</title>
 <style>
   body {
     font-family: "Times New Roman", Times, serif;
@@ -82,7 +82,7 @@
   <div class="cover-title">CAHIER DES CHARGES</div>
 
   <p class="cover-module">Module Service Règlement (DR)</p>
-  <p class="cover-sub">Automatisation de la production de la Fiche des Dépenses Validées — sous-module de DOMF-APP</p>
+  <p class="cover-sub">Automatisation de la production de la Fiche des Dépenses Validées — sous-module de SIGOF-APP</p>
 </div>
 
 <table class="meta-table" style="width:85%;margin:32px auto;">
@@ -91,7 +91,7 @@
   <tr><td>Rédacteur</td><td>Direction des Systèmes d'Information DGCPT (synthèse des CDC v1/v2) — révision v3.1 vérifiée par relecture du code source (backend Symfony + frontend React) le 06/08/2026</td></tr>
   <tr><td>Statut</td><td>Document de travail</td></tr>
   <tr><td>Destinataire</td><td>Service Règlement (Pool DR) / Service de Prévision (SP)</td></tr>
-  <tr><td>Rattachement</td><td>Sous-module de DOMF-APP — cf. Cahier des Charges général DOMF-APP v1.0 (Mars 2026)</td></tr>
+  <tr><td>Rattachement</td><td>Sous-module de SIGOF-APP — cf. Cahier des Charges général SIGOF-APP v1.0 (Mars 2026)</td></tr>
 </table>
 
 <div class="revision-note">
@@ -103,7 +103,7 @@
   <p class="lvl1"><a href="#s1">1. Contexte et objectifs</a></p>
   <p class="lvl2"><a href="#s11">1.1 Contexte général</a></p>
   <p class="lvl2"><a href="#s12">1.2 Objectifs du module</a></p>
-  <p class="lvl2"><a href="#s13">1.3 Rattachement à DOMF-APP</a></p>
+  <p class="lvl2"><a href="#s13">1.3 Rattachement à SIGOF-APP</a></p>
   <p class="lvl1"><a href="#s2">2. Périmètre fonctionnel</a></p>
   <p class="lvl2"><a href="#s21">2.1 Source de données (SGP / application DC)</a></p>
   <p class="lvl2"><a href="#s22">2.2 Processus de production de la Fiche des Dépenses</a></p>
@@ -153,8 +153,8 @@
   <li>Traçabilité complète : auteur, horodatage, historique des statuts.</li>
 </ul>
 
-<h2 id="s13">1.3 Rattachement à DOMF-APP</h2>
-<p>Le module Service Règlement (désigné « DR » en atelier) est un sous-module autonome de DOMF-APP, distinct des portails SOF et SP décrits dans le Cahier des Charges général DOMF-APP v1.0 (Mars 2026). Il partage avec ces portails le Module Commun (authentification, gestion des utilisateurs) mais dispose de son propre périmètre fonctionnel, détaillé dans le présent document. Son unique livrable, la Fiche des Dépenses, est transmis au portail SP conformément au flux EF-69 déjà documenté au niveau du projet DOMF-APP.</p>
+<h2 id="s13">1.3 Rattachement à SIGOF-APP</h2>
+<p>Le module Service Règlement (désigné « DR » en atelier) est un sous-module autonome de SIGOF-APP, distinct des portails SOF et SP décrits dans le Cahier des Charges général SIGOF-APP v1.0 (Mars 2026). Il partage avec ces portails le Module Commun (authentification, gestion des utilisateurs) mais dispose de son propre périmètre fonctionnel, détaillé dans le présent document. Son unique livrable, la Fiche des Dépenses, est transmis au portail SP conformément au flux EF-69 déjà documenté au niveau du projet SIGOF-APP.</p>
 <p>À ce jour, l'application expose quatre portails dans le Module Commun : DR (Service Règlement — seul portail fonctionnel), SOF, SP et Admin — ces trois derniers déjà présents dans la navigation et le routage, mais dont les écrans affichent encore un état « en construction » (cf. §6.2).</p>
 
 <h1 id="s2">2. <u>PÉRIMÈTRE FONCTIONNEL</u></h1>
@@ -281,7 +281,7 @@
   <li>Connexion sécurisée par identifiant et mot de passe, avec jeton d'authentification (JWT).</li>
   <li>Changement de mot de passe imposé à la première connexion de chaque utilisateur.</li>
   <li>Contrôle d'accès par rôles (RBAC) avec hiérarchie : un rôle « Chef » hérite automatiquement des droits du rôle « Agent » qu'il encadre (ex. Chef SR hérite d'Agent SR) ; le rôle Administrateur hérite de l'ensemble des rôles Chef et des rôles transversaux (Directeur DOMF, Direction Générale, Superviseur). Le modèle couvre déjà les quatre portails (SOF, SP, SR, Admin), même si seul SR est fonctionnel.</li>
-  <li>Absence d'authentification à deux facteurs (2FA / TOTP) à ce jour — écart avec le standard prescrit par le Cahier des Charges général DOMF-APP.</li>
+  <li>Absence d'authentification à deux facteurs (2FA / TOTP) à ce jour — écart avec le standard prescrit par le Cahier des Charges général SIGOF-APP.</li>
 </ul>
 <div class="callout callout-fix">
   <span class="label">Corrigé en v3.1</span>
@@ -351,22 +351,22 @@
   <tr>
     <td>Frontend</td>
     <td>React 19 + Vite + TypeScript + Tailwind CSS / shadcn-ui</td>
-    <td>Cohérence avec DOMF-APP / SEB-P601</td>
+    <td>Cohérence avec SIGOF-APP / SEB-P601</td>
   </tr>
   <tr>
     <td>Backend</td>
     <td>Symfony 8.1 (PHP 8.4) + Doctrine ORM</td>
-    <td>Cohérence avec DOMF-APP / SEB-P601</td>
+    <td>Cohérence avec SIGOF-APP / SEB-P601</td>
   </tr>
   <tr>
     <td>Base applicative</td>
-    <td>PostgreSQL — base <code>domf_app</code></td>
+    <td>PostgreSQL — base <code>sigof-db</code></td>
     <td>Base de données principale DGCPT</td>
   </tr>
   <tr>
     <td>Source SGP</td>
     <td>Oracle, connexion dédiée en lecture seule</td>
-    <td>Aucune écriture possible depuis DOMF-APP vers SGP</td>
+    <td>Aucune écriture possible depuis SIGOF-APP vers SGP</td>
   </tr>
   <tr>
     <td>Authentification</td>
@@ -388,7 +388,7 @@
 <h2 id="s42">4.2 Architecture de déploiement</h2>
 <ul>
   <li>Backend : API REST exposant deux connexions séparées — écriture vers PostgreSQL (base applicative), lecture seule vers Oracle SGP.</li>
-  <li>Frontend : portail dédié au sein de l'application DOMF-APP.</li>
+  <li>Frontend : portail dédié au sein de l'application SIGOF-APP.</li>
   <li>Fichiers générés (Fiche des Dépenses au format Excel) stockés sur le système de fichiers du serveur applicatif ; seul le chemin d'accès est conservé en base.</li>
 </ul>
 
@@ -413,7 +413,7 @@
 <ul>
   <li>Authentification obligatoire (JWT) sur l'ensemble des routes du module.</li>
   <li>Contrôle d'accès basé sur des rôles (RBAC) avec hiérarchie, vérifié à chaque point d'entrée de l'API (cf. §3.1).</li>
-  <li>Absence d'authentification à deux facteurs (2FA) — écart avec le Cahier des Charges général DOMF-APP.</li>
+  <li>Absence d'authentification à deux facteurs (2FA) — écart avec le Cahier des Charges général SIGOF-APP.</li>
 </ul>
 <div class="callout callout-warn">
   <span class="label">Point de vigilance</span>
@@ -422,14 +422,14 @@
 
 <h2 id="s52">5.2 Confidentialité des données</h2>
 <ul>
-  <li>Les données SGP sont lues en lecture seule exclusivement ; aucune écriture n'est possible depuis DOMF-APP vers le système source.</li>
+  <li>Les données SGP sont lues en lecture seule exclusivement ; aucune écriture n'est possible depuis SIGOF-APP vers le système source.</li>
   <li>Les fichiers générés sont stockés sur le serveur applicatif et ne sont transmis à aucun service externe.</li>
 </ul>
 
 <h2 id="s53">5.3 Disponibilité et performances</h2>
 <ul>
   <li>Le traitement de génération, potentiellement long (lecture Oracle, agrégation des règlements), s'exécute avec un suivi de progression en temps réel plutôt qu'en appel bloquant.</li>
-  <li>Les exigences générales de disponibilité et de performance restent celles définies au Cahier des Charges général DOMF-APP (§5.3).</li>
+  <li>Les exigences générales de disponibilité et de performance restent celles définies au Cahier des Charges général SIGOF-APP (§5.3).</li>
 </ul>
 
 <h1 id="s6">6. <u>ÉTAT D'AVANCEMENT ET LIVRABLES</u></h1>
@@ -466,7 +466,7 @@
   <tr><td>DC</td><td>Application de gestion des dépenses au sein de SGP, source des lots de dépenses</td></tr>
   <tr><td>DGCPT</td><td>Direction Générale de la Comptabilité Publique et du Trésor</td></tr>
   <tr><td>DOMF</td><td>Direction des Opérations Monétaires et Financières</td></tr>
-  <tr><td>EF-69</td><td>Référence du flux de transmission Service Règlement → Service de Prévision, documenté au Cahier des Charges général DOMF-APP</td></tr>
+  <tr><td>EF-69</td><td>Référence du flux de transmission Service Règlement → Service de Prévision, documenté au Cahier des Charges général SIGOF-APP</td></tr>
   <tr><td>FCFA</td><td>Franc CFA, monnaie de la CEMAC</td></tr>
   <tr><td>Fiche des Dépenses</td><td>Document produit par ce module, récapitulant les dépenses validées du jour</td></tr>
   <tr><td>Intitulé</td><td>Libellé du règlement (anciennement « catégorie / désignation de la dépense »)</td></tr>
@@ -481,7 +481,7 @@
   <tr><td>SYGMA</td><td>Terme désignant à la fois, dans la documentation d'origine, le « Système de Gestion des Marchés » (hors périmètre), et dans le code, la famille de mouvements alimentée depuis <code>OP_BEAC</code> (BEAC) et gérée par ce module — ambiguïté à lever avec le métier, cf. RG-01 (§2.3).</td></tr>
 </table>
 
-<p class="footer">DOMF-APP — Cahier des Charges — Module Service Règlement — Version 3.1 (revue de conformité code) — Août 2026 — DGCPT Gabon</p>
+<p class="footer">SIGOF-APP — Cahier des Charges — Module Service Règlement — Version 3.1 (revue de conformité code) — Août 2026 — DGCPT Gabon</p>
 
 </body>
 </html>

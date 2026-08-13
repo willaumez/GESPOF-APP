@@ -20,7 +20,7 @@ final class DefaultAdminBootstrapListener
     private const COMPTES_PAR_DEFAUT = [
         [
             'matricule' => '999070G',
-            'email' => '999070G@domf.local',
+            'email' => '999070G@sigof.local',
             'nom' => 'Administrateur',
             'prenom' => 'Système',
             'roles' => [RoleAcces::ADMINISTRATEUR],
@@ -28,7 +28,7 @@ final class DefaultAdminBootstrapListener
         ],
         [
             'matricule' => '999070',
-            'email' => '999070@domf.local',
+            'email' => '999070@sigof.local',
             'nom' => 'Agent',
             'prenom' => 'Service Règlement',
             'roles' => [RoleAcces::AGENT_SR],
@@ -36,7 +36,7 @@ final class DefaultAdminBootstrapListener
         ],
         [
             'matricule' => '999070B',
-            'email' => '999070B@domf.local',
+            'email' => '999070B@sigof.local',
             'nom' => 'Chef',
             'prenom' => 'Service Règlement',
             'roles' => [RoleAcces::CHEF_SR],

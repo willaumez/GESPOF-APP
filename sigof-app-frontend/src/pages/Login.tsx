@@ -30,7 +30,7 @@ interface CompteTest {
 const COMPTES_TEST: CompteTest[] = [
   {
     matricule: "999070G",
-    email: "999070G@domf.local",
+    email: "999070G@sigof.local",
     role: "ADMINISTRATEUR",
     motDePasse: "admin123",
     libelle: "Administrateur",
@@ -38,7 +38,7 @@ const COMPTES_TEST: CompteTest[] = [
   },
   {
     matricule: "999070",
-    email: "999070@domf.local",
+    email: "999070@sigof.local",
     role: "AGENT_SR",
     motDePasse: "admin123",
     libelle: "Agent SR",
@@ -46,7 +46,7 @@ const COMPTES_TEST: CompteTest[] = [
   },
   {
     matricule: "999070B",
-    email: "999070B@domf.local",
+    email: "999070B@sigof.local",
     role: "CHEF_SR",
     motDePasse: "admin123",
     libelle: "Chef SR",
@@ -181,7 +181,7 @@ export default function Login() {
                     </span>
                     <input
                       id="email"
-                      name="domf-identifiant"
+                      name="sigof-identifiant"
                       type="text"
                       placeholder="Matricule ou e-mail professionnel"
                       value={email}
@@ -212,7 +212,7 @@ export default function Login() {
                     </span>
                     <input
                       id="password"
-                      name="domf-secret"
+                      name="sigof-secret"
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       value={password}
