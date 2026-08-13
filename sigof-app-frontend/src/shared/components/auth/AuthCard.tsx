@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { ShieldCheck } from "lucide-react";
-import logo from "@/shared/assets/SIGOF-logo-tr.png";
 import logoDGCPT from "@/shared/assets/logo_tresor_v3.webp";
 import { AuthEntranceContext, useEstPremierChargementAuth } from "./AuthEntranceContext";
 
@@ -26,14 +25,13 @@ export function AuthCard({ children }: { children: ReactNode }) {
       {}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
-          className={estPremierChargement ? "absolute inset-0 [animation:fadeIn_1.4s_ease_both]" : "absolute inset-0"}
+          className={estPremierChargement ? "absolute -inset-4 [animation:fadeIn_1.4s_ease_both]" : "absolute -inset-4"}
           style={{
-            backgroundImage: `url(${logo})`,
+            backgroundImage: "url(/tresor-public.jpeg)",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
-            backgroundSize: "min(60vh, 620px)",
-            opacity: 0.5,
-            filter: "blur(2px)",
+            backgroundSize: "cover",
+            filter: "blur(6px)",
           }}
         />
         <div
