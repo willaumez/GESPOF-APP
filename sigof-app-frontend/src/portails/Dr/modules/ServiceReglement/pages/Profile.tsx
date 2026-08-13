@@ -3,7 +3,7 @@ import { useAuth } from "@/shared/hooks/use-auth";
 import { requeteApi } from "@/shared/lib/api";
 import { API_ENDPOINTS } from "@/shared/config/app";
 import { getAccessiblePortails } from "@/shared/config/menu";
-import type { UtilisateurProfil } from "@/entity/pool-sr";
+import type { UtilisateurProfil } from "@/portails/Dr/modules/ServiceReglement/types/profil.interface";
 import { User, Mail, Shield, Calendar, Activity, Lock, CheckCircle2, Eye, EyeOff, Loader2, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import {

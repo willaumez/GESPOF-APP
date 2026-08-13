@@ -6,10 +6,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi } from "@/shared/lib/api";
-import { API_ENDPOINTS, PAGINATION } from "@/shared/config/app";
+import { PAGINATION } from "@/shared/config/app";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
 import { optionsTaillePagination } from "@/shared/lib/pagination";
 import { useAuth } from "@/shared/hooks/use-auth";
-import type { HistoriqueEntree, HistoriqueResponse, UtilisateursSRResponse } from "@/interfaces/pool-sr";
+import type { HistoriqueEntree, HistoriqueResponse, UtilisateursSRResponse } from "@/portails/Dr/modules/ServiceReglement/types";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import {
@@ -66,7 +67,7 @@ export default function Historique() {
 
   useEffect(() => {
     if (!peutConsulter) return;
-    requeteApi<UtilisateursSRResponse>(`${API_ENDPOINTS.POOL_SR.UTILISATEURS}?limit=all`)
+    requeteApi<UtilisateursSRResponse>(`${SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS}?limit=all`)
       .then((data) => {
         setUtilisateurs((data.utilisateurs ?? []).map((u) => ({
           id: u.id,
@@ -83,7 +84,7 @@ export default function Historique() {
     if (dateDebut) params.set("date_debut", dateDebut);
     if (dateFin) params.set("date_fin", dateFin);
     if (filterUtilisateur !== "all") params.set("utilisateur_id", filterUtilisateur);
-    return requeteApi<HistoriqueResponse>(`${API_ENDPOINTS.POOL_SR.HISTORIQUE}?${params.toString()}`)
+    return requeteApi<HistoriqueResponse>(`${SERVICE_REGLEMENT_ENDPOINTS.HISTORIQUE}?${params.toString()}`)
       .then((data) => {
         setHistorique(data.historique ?? []);
         setTotal(data.pagination?.total ?? 0);
@@ -110,7 +111,7 @@ export default function Historique() {
     if (!deleting) return;
     setDeletingLoading(true);
     try {
-      await requeteApi<{ ok: boolean }>(`${API_ENDPOINTS.POOL_SR.HISTORIQUE}/${deleting.id}`, {
+      await requeteApi<{ ok: boolean }>(`${SERVICE_REGLEMENT_ENDPOINTS.HISTORIQUE}/${deleting.id}`, {
         method: "DELETE",
       });
       toast.success("Entrée d'historique supprimée.");

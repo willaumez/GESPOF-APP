@@ -1,4 +1,4 @@
-import type { LigneMouvement } from "@/interfaces/pool-sr";
+import type { LigneMouvement } from "@/portails/Dr/modules/ServiceReglement/types";
 
 export const STATUT_CFG: Record<
   string,

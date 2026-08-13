@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi, requeteApiBlob } from "@/shared/lib/api";
-import { API_ENDPOINTS } from "@/shared/config/app";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
 import { getPortalMenu } from "@/shared/config/menu";
 import { formatMontant } from "@/shared/lib/format";
 import { useAuth } from "@/shared/hooks/use-auth";
@@ -62,7 +62,7 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@/shared/components/ui/empty";
-import type { Resume, FicheRecente } from "@/interfaces/pool-sr";
+import type { Resume, FicheRecente } from "@/portails/Dr/modules/ServiceReglement/types";
 
 type StatutCfg = { badge: string; label: string };
 const STATUT_CFG: Record<string, StatutCfg> = {
@@ -126,7 +126,7 @@ export default function Generation() {
   };
 
   useEffect(() => {
-    requeteApi<Resume>(API_ENDPOINTS.POOL_SR.DASHBOARD_RESUME)
+    requeteApi<Resume>(SERVICE_REGLEMENT_ENDPOINTS.DASHBOARD_RESUME)
       .then((data) => {
         console.log("[Generation] resume backend:", data);
         setResume(data);
@@ -139,7 +139,7 @@ export default function Generation() {
   }, []);
 
   useEffect(() => {
-    requeteApi<FicheRecente[]>(API_ENDPOINTS.POOL_SR.DASHBOARD_FICHES_RECENTES)
+    requeteApi<FicheRecente[]>(SERVICE_REGLEMENT_ENDPOINTS.DASHBOARD_FICHES_RECENTES)
       .then((data) => {
         console.log("[Generation] fiches récentes backend:", data);
         setFiches(data);

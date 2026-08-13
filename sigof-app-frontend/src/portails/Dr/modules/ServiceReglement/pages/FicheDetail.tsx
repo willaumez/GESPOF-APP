@@ -3,21 +3,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Inbox } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi, requeteApiBlob } from "@/shared/lib/api";
-import { API_ENDPOINTS } from "@/shared/config/app";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
 import { useAuth } from "@/shared/hooks/use-auth";
-import { useCountUp } from "@/hooks/useCountUp";
+import { useCountUp } from "@/portails/Dr/modules/ServiceReglement/hooks/useCountUp";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
-import type { FicheDepotDetail, LigneMouvement } from "@/interfaces/pool-sr";
-import type { SectionMouvement, TypeMouvement } from "./fiche-detail/constants";
-import { parseMontant } from "./fiche-detail/utils";
-import { FicheEnTete } from "./fiche-detail/FicheEnTete";
-import { ReleveReglements } from "./fiche-detail/ReleveReglements";
-import { FamilleDialog } from "./fiche-detail/FamilleDialog";
-import { LigneFormulaireDialog } from "./fiche-detail/LigneFormulaireDialog";
-import { ConfirmerSuppressionLigneDialog } from "./fiche-detail/ConfirmerSuppressionLigneDialog";
-import { ConfirmerEnvoiDialog } from "./fiche-detail/ConfirmerEnvoiDialog";
-import { ConfirmerSuppressionFicheDialog } from "./fiche-detail/ConfirmerSuppressionFicheDialog";
+import type { FicheDepotDetail, LigneMouvement } from "@/portails/Dr/modules/ServiceReglement/types";
+import type { SectionMouvement, TypeMouvement } from "../components/fiche-detail/constants";
+import { parseMontant } from "../components/fiche-detail/utils";
+import { FicheEnTete } from "../components/fiche-detail/FicheEnTete";
+import { ReleveReglements } from "../components/fiche-detail/ReleveReglements";
+import { FamilleDialog } from "../components/fiche-detail/FamilleDialog";
+import { LigneFormulaireDialog } from "../components/fiche-detail/LigneFormulaireDialog";
+import { ConfirmerSuppressionLigneDialog } from "../components/fiche-detail/ConfirmerSuppressionLigneDialog";
+import { ConfirmerEnvoiDialog } from "../components/fiche-detail/ConfirmerEnvoiDialog";
+import { ConfirmerSuppressionFicheDialog } from "../components/fiche-detail/ConfirmerSuppressionFicheDialog";
 
 export default function FicheDetail() {
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ export default function FicheDetail() {
     setEnvoiEnCours(true);
     try {
       await requeteApi<{ ok: boolean; statut: string }>(
-        `${API_ENDPOINTS.POOL_SR.FICHE_DETAIL}/${encodeURIComponent(reference)}/statut`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.FICHE_DETAIL}/${encodeURIComponent(reference)}/statut`,
         { method: "POST", body: JSON.stringify({ statut: "envoyee" }) },
       );
       setDetail((d) => (d ? { ...d, statut: "envoyee" } : d));
@@ -97,7 +97,7 @@ export default function FicheDetail() {
     setSuppressionEnCours(true);
     try {
       await requeteApi<{ ok: boolean }>(
-        `${API_ENDPOINTS.POOL_SR.FICHE_DETAIL}/${encodeURIComponent(reference)}`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.FICHE_DETAIL}/${encodeURIComponent(reference)}`,
         { method: "DELETE" },
       );
       toast.success("Fiche de dépôt supprimée.");
@@ -114,7 +114,7 @@ export default function FicheDetail() {
     if (!reference) return;
     try {
       const data = await requeteApi<FicheDepotDetail>(
-        `${API_ENDPOINTS.POOL_SR.FICHE_DETAIL}/${encodeURIComponent(reference)}`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.FICHE_DETAIL}/${encodeURIComponent(reference)}`,
       );
       setDetail(data);
     } catch (err) {
@@ -128,7 +128,7 @@ export default function FicheDetail() {
     try {
       const familleApi = ligneASupprimer.famille === "sigma" ? "sygma" : "numeraire";
       await requeteApi<{ ok: boolean }>(
-        `${API_ENDPOINTS.POOL_SR.FICHE_DETAIL}/${encodeURIComponent(reference)}/mouvements/${familleApi}/${ligneASupprimer.ligne.id}`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.FICHE_DETAIL}/${encodeURIComponent(reference)}/mouvements/${familleApi}/${ligneASupprimer.ligne.id}`,
         { method: "DELETE" },
       );
       toast.success("Ligne supprimée.");
@@ -161,7 +161,7 @@ export default function FicheDetail() {
     });
 
     requeteApi<FicheDepotDetail>(
-      `${API_ENDPOINTS.POOL_SR.FICHE_DETAIL}/${encodeURIComponent(reference)}`,
+      `${SERVICE_REGLEMENT_ENDPOINTS.FICHE_DETAIL}/${encodeURIComponent(reference)}`,
     )
       .then((data) => {
         if (actif) setDetail(data);

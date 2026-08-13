@@ -6,11 +6,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi, ErreurApi } from "@/shared/lib/api";
-import { API_ENDPOINTS, PAGINATION } from "@/shared/config/app";
+import { PAGINATION } from "@/shared/config/app";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
 import { optionsTaillePagination } from "@/shared/lib/pagination";
 import { useAuth } from "@/shared/hooks/use-auth";
 import { cn } from "@/shared/lib/utils";
-import type { UtilisateurSR, UtilisateurCree, RoleSR, UtilisateursSRResponse } from "@/interfaces/pool-sr";
+import type { UtilisateurSR, UtilisateurCree, RoleSR, UtilisateursSRResponse } from "@/portails/Dr/modules/ServiceReglement/types";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import {
@@ -104,7 +105,7 @@ export default function UtilisateursSR() {
     if (debouncedSearch) params.set("search", debouncedSearch);
     if (filterRole !== "all") params.set("role", filterRole);
     if (filterStatut !== "all") params.set("statut", filterStatut);
-    return requeteApi<UtilisateursSRResponse>(`${API_ENDPOINTS.POOL_SR.UTILISATEURS}?${params.toString()}`)
+    return requeteApi<UtilisateursSRResponse>(`${SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS}?${params.toString()}`)
       .then((data) => {
         setUtilisateurs(data.utilisateurs ?? []);
         setTotal(data.pagination?.total ?? 0);
@@ -132,7 +133,7 @@ export default function UtilisateursSR() {
     setReactivatingId(u.id);
     try {
       await requeteApi<{ ok: boolean }>(
-        `${API_ENDPOINTS.POOL_SR.UTILISATEURS}/${u.id}/reactiver`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS}/${u.id}/reactiver`,
         { method: "POST" }
       );
       toast.success(`${u.prenom} ${u.nom} a été réactivé(e).`);
@@ -149,7 +150,7 @@ export default function UtilisateursSR() {
     const cible = deactivating;
     try {
       await requeteApi<{ ok: boolean }>(
-        `${API_ENDPOINTS.POOL_SR.UTILISATEURS}/${cible.id}/desactiver`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS}/${cible.id}/desactiver`,
         { method: "POST" }
       );
       toast.success(`${cible.prenom} ${cible.nom} a été désactivé(e).`);
@@ -167,7 +168,7 @@ export default function UtilisateursSR() {
     setDeleteLoading(true);
     try {
       await requeteApi<{ ok: boolean }>(
-        `${API_ENDPOINTS.POOL_SR.UTILISATEURS}/${cible.id}`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS}/${cible.id}`,
         { method: "DELETE" }
       );
       toast.success(`${cible.prenom} ${cible.nom} a été supprimé(e) définitivement.`);
@@ -185,7 +186,7 @@ export default function UtilisateursSR() {
     setResetLoading(true);
     try {
       const res = await requeteApi<{ ok: boolean; mot_de_passe_temporaire: string }>(
-        `${API_ENDPOINTS.POOL_SR.UTILISATEURS}/${resetState.user.id}/reinitialiser-mot-de-passe`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS}/${resetState.user.id}/reinitialiser-mot-de-passe`,
         { method: "POST" }
       );
       setResetState({ user: resetState.user, mdp: res.mot_de_passe_temporaire });
@@ -274,7 +275,7 @@ export default function UtilisateursSR() {
     setCreerErreurs({});
     setCreerLoading(true);
     try {
-      const res = await requeteApi<UtilisateurCree>(API_ENDPOINTS.POOL_SR.UTILISATEURS, {
+      const res = await requeteApi<UtilisateurCree>(SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS, {
         method: "POST",
         body: JSON.stringify({
           matricule: creerMatricule.trim(), email: creerEmail.trim(),
@@ -328,7 +329,7 @@ export default function UtilisateursSR() {
     setModifierErreurs({});
     setModifierLoading(true);
     try {
-      await requeteApi(`${API_ENDPOINTS.POOL_SR.UTILISATEURS}/${editing.id}`, {
+      await requeteApi(`${SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS}/${editing.id}`, {
         method: "PATCH",
         body: JSON.stringify({ nom: modifierNom.trim(), prenom: modifierPrenom.trim(), roles: modifierRoles }),
       });

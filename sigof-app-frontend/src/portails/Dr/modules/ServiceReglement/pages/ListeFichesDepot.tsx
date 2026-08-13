@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FileSearch, FileDown, Search, ChevronLeft, ChevronRight, Trash2, Loader2, X, Clock, Inbox } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi } from "@/shared/lib/api";
-import { API_ENDPOINTS, PAGINATION } from "@/shared/config/app";
+import { PAGINATION } from "@/shared/config/app";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
 import { formatMontant } from "@/shared/lib/format";
 import { optionsTaillePagination } from "@/shared/lib/pagination";
 import { useAuth } from "@/shared/hooks/use-auth";
@@ -22,7 +23,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
   AlertDialogMedia,
 } from "@/shared/components/ui/alert-dialog";
-import type { Stats, Fiche, FichesDepotResponse } from "@/interfaces/pool-sr";
+import type { Stats, Fiche, FichesDepotResponse } from "@/portails/Dr/modules/ServiceReglement/types";
 
 type StatutCfg = { badge: string; label: string; row: string };
 const STATUT_CFG: Record<string, StatutCfg> = {
@@ -89,7 +90,7 @@ export default function ListeFichesDepot() {
     if (debouncedSearch) params.set("search", debouncedSearch);
     if (filterStatut)    params.set("statut", filterStatut);
 
-    return requeteApi<FichesDepotResponse>(`${API_ENDPOINTS.POOL_SR.FICHES_DEPENSES}?${params.toString()}`)
+    return requeteApi<FichesDepotResponse>(`${SERVICE_REGLEMENT_ENDPOINTS.FICHES_DEPENSES}?${params.toString()}`)
       .then((data) => {
         setStats(data.stats ?? null);
         setFiches(data.fiches ?? []);
@@ -111,7 +112,7 @@ export default function ListeFichesDepot() {
     setDeletingLoading(true);
     try {
       await requeteApi<{ ok: boolean }>(
-        `${API_ENDPOINTS.POOL_SR.FICHE_DETAIL}/${encodeURIComponent(deleting.reference)}`,
+        `${SERVICE_REGLEMENT_ENDPOINTS.FICHE_DETAIL}/${encodeURIComponent(deleting.reference)}`,
         { method: "DELETE" },
       );
       toast.success("Fiche de dépôt supprimée.");

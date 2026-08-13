@@ -26,16 +26,8 @@ export const API_ENDPOINTS = {
     VERIFIER_MOT_DE_PASSE: "/api/v1/auth/verify-password",
     CHANGER_MOT_DE_PASSE: "/api/v1/auth/change-password",
   },
-  POOL_SR: {
-    DASHBOARD_RESUME:          "/api/pool-sr/dashboard/resume",
-    DASHBOARD_FICHES_RECENTES: "/api/pool-sr/dashboard/fiches-recentes",
-    FICHES_DEPENSES:           "/api/pool-sr/fiches/fichesDepenses",
-    FICHE_DETAIL:              "/api/pool-sr/fiches",
-    FICHE_GENERER:             "/api/pool-sr/fiches/generer",
-    FICHE_GENERER_PROGRESS:             "/api/pool-sr/fiches/generer-progress",
-    UTILISATEURS:              "/api/pool-sr/utilisateurs",
-    HISTORIQUE:                "/api/pool-sr/historique",
-  },
+  // Les endpoints du module Service Règlement vivent désormais dans
+  // portails/Dr/modules/ServiceReglement/api/endpoints.ts (colocalisation par module).
 } as const;
 
 

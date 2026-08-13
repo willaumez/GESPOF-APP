@@ -12,7 +12,8 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-import { API_CONFIG, API_ENDPOINTS } from "@/shared/config/app";
+import { API_CONFIG } from "@/shared/config/app";
+import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Dr/modules/ServiceReglement/api/endpoints";
 import { lireJeton } from "@/shared/lib/auth-stockage";
 import { useAuth } from "@/shared/hooks/use-auth";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
@@ -49,7 +50,7 @@ import {
 import type {
   ResultatGenerationFiche,
   FicheNonValidee,
-} from "@/interfaces/pool-sr";
+} from "@/portails/Dr/modules/ServiceReglement/types";
 
 const STEPS = [
   {
@@ -130,7 +131,7 @@ export default function GenererFiche() {
 
       const jeton = lireJeton();
       const response = await fetch(
-        `${API_CONFIG.BASE_URL}${API_ENDPOINTS.POOL_SR.FICHE_GENERER_PROGRESS}`,
+        `${API_CONFIG.BASE_URL}${SERVICE_REGLEMENT_ENDPOINTS.FICHE_GENERER_PROGRESS}`,
         {
           method: "POST",
           headers: {

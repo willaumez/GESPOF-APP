@@ -25,14 +25,14 @@ const SpImports = lazy(() => import("@/pages/sp/Imports"));
 const SpUtilisateurs = lazy(() => import("@/pages/sp/Utilisateurs"));
 const SpProfile = lazy(() => import("@/pages/sp/Profile"));
 
-const DrPage = lazy(() => import("@/pages/dr/DrPage"));
-const Generation = lazy(() => import("@/pages/dr/Generation"));
-const GenererFiche = lazy(() => import("@/pages/dr/GenererFiche"));
-const FicheDetail = lazy(() => import("@/pages/dr/FicheDetail"));
-const ListeFichesDepot = lazy(() => import("@/pages/dr/ListeFichesDepot"));
-const Profile = lazy(() => import("@/pages/dr/Profile"));
-const UtilisateursSR = lazy(() => import("@/pages/dr/UtilisateursSR"));
-const Historique = lazy(() => import("@/pages/dr/Historique"));
+const DrPage = lazy(() => import("@/portails/Dr/layout/DrLayout"));
+const Generation = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/Generation"));
+const GenererFiche = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/GenererFiche"));
+const FicheDetail = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/FicheDetail"));
+const ListeFichesDepot = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/ListeFichesDepot"));
+const Profile = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/Profile"));
+const UtilisateursSR = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/UtilisateursSR"));
+const Historique = lazy(() => import("@/portails/Dr/modules/ServiceReglement/pages/Historique"));
 
 const AdminPage = lazy(() => import("@/pages/admin/AdminPage"));
 const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));

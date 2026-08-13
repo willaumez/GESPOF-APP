@@ -10,7 +10,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { formatMontant } from "@/shared/lib/format";
-import type { LigneMouvement } from "@/interfaces/pool-sr";
+import type { LigneMouvement } from "@/portails/Dr/modules/ServiceReglement/types";
 import { regrouperParObservations } from "./utils";
 
 interface TableMouvementsFamilleProps {

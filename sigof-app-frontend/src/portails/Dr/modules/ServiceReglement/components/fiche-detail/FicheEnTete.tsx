@@ -13,7 +13,7 @@ import { Separator } from "@/shared/components/ui/separator";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
-import type { FicheDepotDetail } from "@/interfaces/pool-sr";
+import type { FicheDepotDetail } from "@/portails/Dr/modules/ServiceReglement/types";
 import { STATUT_CFG } from "./constants";
 
 interface FicheEnTeteProps {

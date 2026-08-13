@@ -10,7 +10,7 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import type { LigneMouvement } from "@/interfaces/pool-sr";
+import type { LigneMouvement } from "@/portails/Dr/modules/ServiceReglement/types";
 
 interface ConfirmerSuppressionLigneDialogProps {
   ligne: { famille: "numeraire" | "sigma"; ligne: LigneMouvement } | null;
