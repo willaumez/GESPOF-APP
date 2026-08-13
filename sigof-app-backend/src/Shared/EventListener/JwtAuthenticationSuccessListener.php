@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\EventListener;
+namespace App\Shared\EventListener;
 
-use App\Entity\Utilisateur;
-use App\Enum\RoleAcces;
+use App\Shared\Model\Utilisateur;
+use App\Shared\Enum\RoleAcces;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;

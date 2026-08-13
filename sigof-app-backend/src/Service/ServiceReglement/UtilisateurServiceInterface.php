@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\ServiceReglement;
 
-use App\Entity\Utilisateur;
+use App\Shared\Model\Utilisateur;
 
 interface UtilisateurServiceInterface
 {

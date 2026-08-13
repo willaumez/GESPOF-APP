@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace App\Shared\Command;
 
-use App\Repository\UtilisateurRepository;
+use App\Shared\Repository\UtilisateurRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

@@ -12,7 +12,7 @@ use App\Entity\ServiceReglement\MouvementNumeraire;
 use App\Entity\ServiceReglement\MouvementSygma;
 use App\Entity\ServiceReglement\MouvementSystac;
 use App\Entity\ServiceReglement\Observation;
-use App\Entity\Utilisateur;
+use App\Shared\Model\Utilisateur;
 use App\Enum\ServiceReglement\StatutFiche;
 use App\Repository\ServiceReglement\FicheDepotRepository;
 use App\Repository\ServiceReglement\HistoriqueFicheRepository;

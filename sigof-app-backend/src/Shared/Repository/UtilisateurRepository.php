@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Shared\Repository;
 
-use App\Entity\Utilisateur;
-use App\Enum\RoleAcces;
+use App\Shared\Model\Utilisateur;
+use App\Shared\Enum\RoleAcces;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\ServiceReglement;
 
-use App\Service\Database\DatabaseReader;
+use App\Shared\ExternalSource\DatabaseReader;
 
 class ScriptPoolDr
 {

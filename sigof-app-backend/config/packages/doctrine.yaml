@@ -40,6 +40,12 @@ doctrine:
                     Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
                 auto_mapping: true
                 mappings:
+                    AppShared:
+                        type: attribute
+                        is_bundle: false
+                        dir: '%kernel.project_dir%/src/Shared/Model'
+                        prefix: 'App\Shared\Model'
+                        alias: AppShared
                     App:
                         type: attribute
                         is_bundle: false
@@ -57,8 +63,8 @@ doctrine:
                     Sgp:
                         type: attribute
                         is_bundle: false
-                        dir: '%kernel.project_dir%/src/EntitySgp'
-                        prefix: 'App\EntitySgp'
+                        dir: '%kernel.project_dir%/src/Shared/ExternalSource/Entity'
+                        prefix: 'App\Shared\ExternalSource\Entity'
                         alias: Sgp
 
 when@test:

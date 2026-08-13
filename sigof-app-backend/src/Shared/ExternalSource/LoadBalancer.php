@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Database;
+namespace App\Shared\ExternalSource;
 
 use Doctrine\DBAL\Connection;
 

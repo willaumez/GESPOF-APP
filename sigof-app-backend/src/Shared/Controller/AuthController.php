@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Shared\Controller;
 
-use App\Entity\Utilisateur;
-use App\Repository\UtilisateurRepository;
+use App\Shared\Model\Utilisateur;
+use App\Shared\Repository\UtilisateurRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,7 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-final class GsrAuthController extends AbstractController
+final class AuthController extends AbstractController
 {
     public function __construct(
         private readonly UtilisateurRepository $utilisateurRepository,
@@ -24,13 +24,13 @@ final class GsrAuthController extends AbstractController
     ) {
     }
 
-    #[Route('/api/auth/login', name: 'gsr_api_auth_login', methods: ['POST'])]
+    #[Route('/api/v1/auth/login', name: 'gsr_api_auth_login', methods: ['POST'])]
     public function login(): never
     {
         throw new \LogicException('Intercepted by json_login firewall.');
     }
 
-    #[Route('/api/auth/define-password', name: 'gsr_api_auth_define_password', methods: ['POST'])]
+    #[Route('/api/v1/auth/define-password', name: 'gsr_api_auth_define_password', methods: ['POST'])]
     public function definePassword(Request $request, #[CurrentUser] Utilisateur $user): JsonResponse
     {
         if ($user->getConnection() !== 'first') {
@@ -61,7 +61,7 @@ final class GsrAuthController extends AbstractController
         ]);
     }
 
-    #[Route('/api/auth/verify-password', name: 'gsr_api_auth_verify_password', methods: ['POST'])]
+    #[Route('/api/v1/auth/verify-password', name: 'gsr_api_auth_verify_password', methods: ['POST'])]
     public function verifyPassword(Request $request, #[CurrentUser] Utilisateur $user): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -74,7 +74,7 @@ final class GsrAuthController extends AbstractController
         return new JsonResponse(['valid' => true]);
     }
 
-    #[Route('/api/auth/change-password', name: 'gsr_api_auth_change_password', methods: ['POST'])]
+    #[Route('/api/v1/auth/change-password', name: 'gsr_api_auth_change_password', methods: ['POST'])]
     public function changePassword(Request $request, #[CurrentUser] Utilisateur $user): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -107,13 +107,13 @@ final class GsrAuthController extends AbstractController
         ]);
     }
 
-    #[Route('/api/auth/me', name: 'gsr_api_auth_me', methods: ['GET'])]
+    #[Route('/api/v1/auth/me', name: 'gsr_api_auth_me', methods: ['GET'])]
     public function me(#[CurrentUser] Utilisateur $user): JsonResponse
     {
         return new JsonResponse($user->jsonSerialize());
     }
 
-    #[Route('/api/auth/refresh', name: 'gsr_api_auth_refresh', methods: ['POST'])]
+    #[Route('/api/v1/auth/refresh', name: 'gsr_api_auth_refresh', methods: ['POST'])]
     public function refreshToken(): JsonResponse
     {
         $user = $this->getUser();

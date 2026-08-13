@@ -9,21 +9,21 @@ security:
         ROLE_ADMINISTRATEUR: [ROLE_CHEF_SOF, ROLE_CHEF_SP, ROLE_CHEF_SR, ROLE_DIRECTEUR_DOMF, ROLE_DIRECTION_DG, ROLE_SUPERVISEUR]
 
     password_hashers:
-        App\Entity\Utilisateur:
+        App\Shared\Model\Utilisateur:
             algorithm: bcrypt
             cost: 12
 
     providers:
         app_user_provider:
-            id: App\Security\UserProvider
+            id: App\Shared\Security\UserProvider
         gsr_users:
             entity:
-                class: App\Entity\Utilisateur
+                class: App\Shared\Model\Utilisateur
                 property: email
         gsr_login_provider:
-            id: App\Security\GsrLoginUserProvider
+            id: App\Shared\Security\GsrLoginUserProvider
         gsr_aware_user_provider:
-            id: App\Security\GsrAwareUserProvider
+            id: App\Shared\Security\GsrAwareUserProvider
 
     firewalls:
         dev:
@@ -34,11 +34,11 @@ security:
             stateless: true
             security: false
         gsr_login:
-            pattern: ^/api/auth/login$
+            pattern: ^/api/v1/auth/login$
             stateless: true
             provider: gsr_login_provider
             json_login:
-                check_path: /api/auth/login
+                check_path: /api/v1/auth/login
                 username_path: email
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
@@ -58,7 +58,7 @@ security:
 
     access_control:
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
-        - { path: ^/api/auth/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/auth/login$, roles: PUBLIC_ACCESS }
         - { path: ^/api/public, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/admin, roles: ROLE_ADMIN }
@@ -66,6 +66,6 @@ security:
 when@test:
     security:
         password_hashers:
-            App\Entity\Utilisateur:
+            App\Shared\Model\Utilisateur:
                 algorithm: bcrypt
                 cost: 4

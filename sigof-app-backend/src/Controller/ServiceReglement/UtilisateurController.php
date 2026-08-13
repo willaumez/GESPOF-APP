@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\ServiceReglement;
 
-use App\Entity\Utilisateur;
+use App\Shared\Model\Utilisateur;
 use App\Service\ServiceReglement\UtilisateurServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

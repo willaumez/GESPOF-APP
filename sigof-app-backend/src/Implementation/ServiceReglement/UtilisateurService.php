@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Implementation\ServiceReglement;
 
-use App\Entity\Utilisateur;
-use App\Enum\RoleAcces;
+use App\Shared\Model\Utilisateur;
+use App\Shared\Enum\RoleAcces;
 use App\Repository\ServiceReglement\FicheDepotRepository;
 use App\Repository\ServiceReglement\HistoriqueFicheRepository;
-use App\Repository\UtilisateurRepository;
+use App\Shared\Repository\UtilisateurRepository;
 use App\Service\ServiceReglement\Exception\ActionInterditeException;
 use App\Service\ServiceReglement\Exception\DonneesInvalidesException;
 use App\Service\ServiceReglement\Exception\IdentifiantDejaUtiliseException;

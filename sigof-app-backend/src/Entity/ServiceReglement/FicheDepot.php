@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\ServiceReglement;
 
-use App\Entity\Utilisateur;
+use App\Shared\Model\Utilisateur;
 use App\Repository\ServiceReglement\FicheDepotRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\ServiceReglement;
 
-use App\Entity\Utilisateur;
+use App\Shared\Model\Utilisateur;
 use App\Repository\ServiceReglement\HistoriqueFicheRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

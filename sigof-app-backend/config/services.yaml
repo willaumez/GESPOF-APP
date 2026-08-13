@@ -22,6 +22,13 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    # Point d'accès unique aux paramètres/env (Shared/Config) : aucun autre service
+    # ne doit recevoir un paramètre kernel.*/env(...) lié en dur, il dépend de ce service.
+    App\Shared\Config\AppConfig:
+        bind:
+            string $kernelProjectDir: '%kernel.project_dir%'
+            string $appEnv: '%kernel.environment%'
+
     # Couche Service ServiceReglement : lie chaque interface à son implémentation concrète.
     App\Service\ServiceReglement\FicheDepotServiceInterface: '@App\Implementation\ServiceReglement\FicheDepotService'
     App\Service\ServiceReglement\DashboardServiceInterface: '@App\Implementation\ServiceReglement\DashboardService'

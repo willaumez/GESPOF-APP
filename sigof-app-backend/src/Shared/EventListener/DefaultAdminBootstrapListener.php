@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\EventListener;
+namespace App\Shared\EventListener;
 
-use App\Entity\Utilisateur;
-use App\Enum\RoleAcces;
-use App\Repository\UtilisateurRepository;
+use App\Shared\Model\Utilisateur;
+use App\Shared\Enum\RoleAcces;
+use App\Shared\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;

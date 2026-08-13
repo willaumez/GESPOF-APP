@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace App\Shared\Model;
 
-use App\Enum\RoleAcces;
-use App\Repository\UtilisateurRepository;
+use App\Shared\Enum\RoleAcces;
+use App\Shared\Repository\UtilisateurRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
