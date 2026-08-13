@@ -215,6 +215,22 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
 
     public function jsonSerialize(): array
     {
+        $roles = $this->getRolesAcces();
+
+        // Portail(s) et actions derives automatiquement des metiers ci-dessus
+        // (RoleAcces::portail()/actions()) — pas de saisie ni de stockage
+        // separe, recalcule a chaque lecture.
+        $portails = [];
+        $actionsAutorisees = [];
+        foreach ($roles as $role) {
+            if ($role->portail() !== null) {
+                $portails[$role->portail()->value] = $role->portail()->value;
+            }
+            foreach ($role->actions() as $action) {
+                $actionsAutorisees[$action->value] = $action->value;
+            }
+        }
+
         return [
             'id' => $this->id,
             'matricule' => $this->matricule,
@@ -223,8 +239,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
             'prenom' => $this->prenom,
             'roles' => array_map(
                 static fn (RoleAcces $role): array => ['valeur' => $role->value, 'libelle' => $role->libelle()],
-                $this->getRolesAcces(),
+                $roles,
             ),
+            'portails' => array_values($portails),
+            'actions_autorisees' => array_values($actionsAutorisees),
             'actif' => $this->actif,
             'connection' => $this->connection,
             'date_creation' => $this->dateCreation?->format('d/m/Y H:i:s'),

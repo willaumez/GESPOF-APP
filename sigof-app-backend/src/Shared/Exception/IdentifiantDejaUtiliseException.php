@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Module\ServiceReglement\Service\Exception;
+namespace App\Shared\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 
-class UtilisateurAvecActiviteException extends \RuntimeException implements ApiExceptionInterface
+class IdentifiantDejaUtiliseException extends \RuntimeException implements ApiExceptionInterface
 {
     public function getStatusCode(): int
     {

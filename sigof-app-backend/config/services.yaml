@@ -36,8 +36,16 @@ services:
     App\Module\ServiceReglement\Service\FicheDepotServiceInterface: '@App\Module\ServiceReglement\Service\FicheDepotService'
     App\Module\ServiceReglement\Service\DashboardServiceInterface: '@App\Module\ServiceReglement\Service\DashboardService'
     App\Module\ServiceReglement\Service\FicheDepotExcelGeneratorInterface: '@App\Module\ServiceReglement\Service\FicheDepotExcelGenerator'
-    App\Module\ServiceReglement\Service\UtilisateurServiceInterface: '@App\Module\ServiceReglement\Service\UtilisateurService'
     App\Module\ServiceReglement\Service\HistoriqueServiceInterface: '@App\Module\ServiceReglement\Service\HistoriqueService'
+
+    # Gestion des utilisateurs : transverse (Shared), plus propre a ServiceReglement.
+    App\Shared\Service\UtilisateurServiceInterface: '@App\Shared\Service\UtilisateurService'
+
+    # "Avoir de l'activite" depend de donnees propres a chaque module ; Shared ne
+    # depend que de l'interface, l'implementation concrete vient du module qui a
+    # aujourd'hui les seules donnees pertinentes (fiches/historique ServiceReglement).
+    # A transformer en collection de services tagges si un 2e module en a besoin un jour.
+    App\Shared\Service\UtilisateurActiviteVerifierInterface: '@App\Module\ServiceReglement\Service\UtilisateurActiviteVerifier'
 
     # Le dossier des fiches generees passe desormais par Shared/Config/AppConfig
     # (injecte automatiquement, plus besoin de bind explicite ici).

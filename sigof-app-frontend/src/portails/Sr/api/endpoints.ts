@@ -5,6 +5,5 @@ export const SERVICE_REGLEMENT_ENDPOINTS = {
   FICHE_DETAIL:              "/api/v1/sr/service-reglement/fiches",
   FICHE_GENERER:             "/api/v1/sr/service-reglement/fiches/generer",
   FICHE_GENERER_PROGRESS:    "/api/v1/sr/service-reglement/fiches/generer-progress",
-  UTILISATEURS:              "/api/v1/sr/service-reglement/utilisateurs",
   HISTORIQUE:                "/api/v1/sr/service-reglement/historique",
 } as const;

@@ -32,4 +32,49 @@ enum RoleAcces: string
             self::SUPERVISEUR => 'Superviseur',
         };
     }
+
+    /**
+     * Portail que ce métier implique automatiquement. `null` pour les métiers
+     * transverses (DIRECTEUR_DOMF, DIRECTION_DG, SUPERVISEUR) qui n'ont pas de
+     * portail dédié — comportement déjà en vigueur côté frontend (menu.json),
+     * juste rendu explicite ici pour piloter l'attribution automatique.
+     */
+    public function portail(): ?Portail
+    {
+        return match ($this) {
+            self::ADMINISTRATEUR => Portail::ADMIN,
+            self::AGENT_SOF, self::CHEF_SOF => Portail::SOF,
+            self::AGENT_SP, self::CHEF_SP => Portail::SP,
+            self::AGENT_SR, self::CHEF_SR => Portail::SR,
+            self::DIRECTEUR_DOMF, self::DIRECTION_DG, self::SUPERVISEUR => null,
+        };
+    }
+
+    /**
+     * Actions que ce métier autorise automatiquement. Les métiers "chef" et
+     * l'administrateur ont les 4 actions (dont la gestion des utilisateurs de
+     * leur portail) ; les agents ont tout sauf la suppression ; les métiers
+     * transverses (direction/supervision) sont en lecture seule.
+     *
+     * @return ActionAutorisee[]
+     */
+    public function actions(): array
+    {
+        return match ($this) {
+            self::ADMINISTRATEUR, self::CHEF_SOF, self::CHEF_SP, self::CHEF_SR => [
+                ActionAutorisee::CONSULTER,
+                ActionAutorisee::AJOUTER,
+                ActionAutorisee::MODIFIER,
+                ActionAutorisee::SUPPRIMER,
+            ],
+            self::AGENT_SOF, self::AGENT_SP, self::AGENT_SR => [
+                ActionAutorisee::CONSULTER,
+                ActionAutorisee::AJOUTER,
+                ActionAutorisee::MODIFIER,
+            ],
+            self::DIRECTEUR_DOMF, self::DIRECTION_DG, self::SUPERVISEUR => [
+                ActionAutorisee::CONSULTER,
+            ],
+        };
+    }
 }

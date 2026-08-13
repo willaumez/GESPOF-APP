@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Module\ServiceReglement\Controller;
 
 use App\Shared\Entite\Utilisateur;
-use App\Module\ServiceReglement\Service\Exception\ApiExceptionInterface;
+use App\Shared\Controller\DomainExceptionResponseTrait;
+use App\Shared\Exception\ApiExceptionInterface;
 use App\Module\ServiceReglement\Service\Exception\AucuneLigneTrouveeException;
 use App\Module\ServiceReglement\Service\Exception\DateInvalideException;
 use App\Module\ServiceReglement\Service\FicheDepotServiceInterface;

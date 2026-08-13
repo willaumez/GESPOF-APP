@@ -8,9 +8,11 @@ import { toast } from "sonner";
 import { requeteApi } from "@/shared/lib/api";
 import { PAGINATION } from "@/shared/config/app";
 import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
+import { UTILISATEURS_ENDPOINT } from "@/shared/api/utilisateurs";
 import { optionsTaillePagination } from "@/shared/lib/pagination";
 import { useAuth } from "@/shared/hooks/use-auth";
-import type { HistoriqueEntree, HistoriqueResponse, UtilisateursSRResponse } from "@/portails/Sr/types";
+import type { HistoriqueEntree, HistoriqueResponse } from "@/portails/Sr/types";
+import type { UtilisateursResponse } from "@/shared/types/utilisateur.interface";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
 import {
@@ -67,7 +69,7 @@ export default function Historique() {
 
   useEffect(() => {
     if (!peutConsulter) return;
-    requeteApi<UtilisateursSRResponse>(`${SERVICE_REGLEMENT_ENDPOINTS.UTILISATEURS}?limit=all`)
+    requeteApi<UtilisateursResponse>(`${UTILISATEURS_ENDPOINT}?limit=all`)
       .then((data) => {
         setUtilisateurs((data.utilisateurs ?? []).map((u) => ({
           id: u.id,

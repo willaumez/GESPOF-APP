@@ -1,5 +1,5 @@
-import { ModulePagePlaceholder } from "@/shared/components/module-page/ModulePagePlaceholder";
+import GestionUtilisateurs from "@/shared/components/utilisateurs/GestionUtilisateurs";
 
 export default function Utilisateurs() {
-  return <ModulePagePlaceholder portal="admin" navId="admin-utilisateurs" />;
+  return <GestionUtilisateurs />;
 }

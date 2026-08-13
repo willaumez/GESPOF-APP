@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Module\ServiceReglement\Controller;
 
+use App\Shared\Controller\DomainExceptionResponseTrait;
 use App\Module\ServiceReglement\Service\HistoriqueServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

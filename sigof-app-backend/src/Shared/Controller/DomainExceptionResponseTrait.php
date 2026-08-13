@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Module\ServiceReglement\Controller;
+namespace App\Shared\Controller;
 
-use App\Module\ServiceReglement\Service\Exception\ApiExceptionInterface;
+use App\Shared\Exception\ApiExceptionInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 trait DomainExceptionResponseTrait
