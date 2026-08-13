@@ -34,14 +34,6 @@ export function AuthCard({ children }: { children: ReactNode }) {
             filter: "blur(6px)",
           }}
         />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(160deg,#0b1220 0%,#0f172a 50%,#1e293b 100%)",
-            opacity: 0.82,
-          }}
-        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgba(255,255,255,.08),transparent_55%)]" />
       </div>
 
