@@ -9,16 +9,16 @@ export function AuthCard({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center overflow-y-auto">
       {}
-      <div className="absolute left-4 top-4 z-20 flex max-w-[10rem] items-center gap-2.5 sm:left-6 sm:top-6 sm:max-w-none">
+      <div className="absolute left-4 top-4 z-20 flex max-w-[10rem] items-center gap-2.5 rounded-xl bg-black/35 px-3 py-2 backdrop-blur-md sm:left-6 sm:top-6 sm:max-w-none">
         <img
           src={logoDGCPT}
           alt="Logo Trésor Public"
           className="h-13 w-13 shrink-0 object-contain sm:h-11 sm:w-11"
         />
-        <span className="text-[0.55rem] font-bold leading-tight text-white/95 sm:text-[0.75rem]">
-        <p>Direction Générale de la Comptabilité </p>
-        <p>Publique et du Trésor</p>(DGCPT)
-          
+        <span className="text-[0.55rem] font-bold leading-tight sm:text-[0.75rem]">
+          <p style={{ color: "#3ba776" }}>Direction Générale de la Comptabilité</p>
+          <p style={{ color: "#e0ac1c" }}>Publique et du Trésor</p>
+          <p style={{ color: "#4a90d9" }}>(DGCPT)</p>
         </span>
       </div>
 
