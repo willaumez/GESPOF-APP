@@ -1,0 +1,31 @@
+# Nom de projet fige : sans lui, Docker le derive du nom du dossier, donc
+# renommer le dossier reinitialiserait le volume de la base.
+name: gespof
+
+services:
+###> doctrine/doctrine-bundle ###
+  database:
+    # Version epinglee sur celle declaree par serverVersion=16 dans DATABASE_URL :
+    # "latest" ferait deriver la base vers une majeure differente au prochain pull.
+    image: postgres:16
+    container_name: gespof-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gespof-db}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-gespof-db}", "-U", "${POSTGRES_USER:-postgres}"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+###< doctrine/doctrine-bundle ###
+
+volumes:
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###

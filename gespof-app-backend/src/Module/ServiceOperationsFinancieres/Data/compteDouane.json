@@ -1,0 +1,36 @@
+[
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-101", "libelleCompte": "REC DOUANE A CRD OWENDO" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-102", "libelleCompte": "REC DOUANE A CRD LBV-AEROPORT" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-103", "libelleCompte": "REC DOUANE A CRD PORT-GENTIL" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-104", "libelleCompte": "REC DOUANE A CRD AEROPORT POG" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-105", "libelleCompte": "RECDOUANE A CRD LBV PORT-MOLE" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-106", "libelleCompte": "REC DOUANE A CRD MOANDA" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-107", "libelleCompte": "DOUANE A CREDIT TRI POSTAL" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-108", "libelleCompte": "REC DOUANE A CRD MAYUMBA" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-109", "libelleCompte": "REC DOUANE A CRD NKOK" },
+    { "type": "DOUANE_A_CREDIT", "compte": "4784-111", "libelleCompte": "DOUANE A CRD NEW INT PORT" },
+  
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-201", "libelleCompte": "DOUANE AU COMPTANT OWENDO" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-202", "libelleCompte": "DOUANE AU COMPTANT LBV-AEROPORT" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-203", "libelleCompte": "DOUANE AU COMPTANT PORT POG" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-204", "libelleCompte": "DOUANE AU COMPTANT AEROPORT POG" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-205", "libelleCompte": "DOUANE AU COMPTANT PORT MOLE" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-206", "libelleCompte": "DOUANE AU COMPTANT MOANDA" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-207", "libelleCompte": "DOUANE AU COMPTANT TRI POSTAL" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-208", "libelleCompte": "DOUANE AU COMPTANT MAYUMBA" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-209", "libelleCompte": "DOUANE AU COMPTANT NKOK" },
+    { "type": "DOUANE_AU_COMPTANT", "compte": "4784-211", "libelleCompte": "DOUANE AU COMPTANT NEW INT PORT" },
+  
+    { "type": "DOUANE_MANUELLE", "compte": "4784-31", "libelleCompte": "DOUANE MANUELLE" },
+  
+    { "type": "RUSID", "compte": "4663-218", "libelleCompte": "RUSID" },
+  
+    { "type": "COMPTE_DE_TRANSFERT", "compte": "1812-101", "libelleCompte": "Transfert de Recettes douanes OWENDO" },
+    { "type": "COMPTE_DE_TRANSFERT", "compte": "1812-102", "libelleCompte": "Transfert de Recettes douanes AEROPORT LBV" },
+    { "type": "COMPTE_DE_TRANSFERT", "compte": "1812-103", "libelleCompte": "Transfert de Recettes douanes POG" },
+    { "type": "COMPTE_DE_TRANSFERT", "compte": "1812-104", "libelleCompte": "Transfert de Recettes douanes PORT-MOLE" },
+    { "type": "COMPTE_DE_TRANSFERT", "compte": "1812-105", "libelleCompte": "Transfert de Recettes douanes CENTRE DE TRI" },
+    { "type": "COMPTE_DE_TRANSFERT", "compte": "1812-106", "libelleCompte": "Transfert de Recettes douanes Moanda" },
+    { "type": "COMPTE_DE_TRANSFERT", "compte": "1812-107", "libelleCompte": "Transfert de Recettes douane New Owendo Port" },
+    { "type": "COMPTE_DE_TRANSFERT", "compte": "1812-111", "libelleCompte": "Transfert de Recettes douanes Nouveau Port Owendo" }
+  ]

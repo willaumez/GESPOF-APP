@@ -1,0 +1,40 @@
+# DÃ©pendances
+node_modules/
+vendor/
+
+# Environnement / secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Builds & caches
+dist/
+build/
+var/
+coverage/
+*.tsbuildinfo
+.vite/
+.turbo/
+.phpunit.result.cache
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs & temporaires
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Claude / outils locaux
+.claude/
+
+# Clés JWT (ne jamais versionner la clé privée)
+config/jwt/private.pem
+**/config/jwt/private.pem
+*.pem
+!**/config/jwt/public.pem

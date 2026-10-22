@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { FileText } from "lucide-react";
+import { Library } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { getPortalMenu } from "@/shared/config/menu";
-import { GestionMaquettes } from "@/portails/Sp/components/parametres/fiche-bleue/GestionMaquettes";
+import { BibliothequeSections } from "@/portails/Sp/components/parametres/fiche-bleue/BibliothequeSections";
 
 interface RubriqueParametres {
   id: string;
@@ -14,17 +14,14 @@ interface RubriqueParametres {
   contenu: () => ReactNode;
 }
 
-/**
- * Rubriques de la page Paramètres, affichées dans le menu vertical de droite.
- * Ajouter une rubrique = ajouter une entrée ici, rien d'autre à câbler.
- */
+
 const RUBRIQUES: RubriqueParametres[] = [
   {
-    id: "fiche-bleue",
-    libelle: "Fiche Bleue",
-    description: "Maquettes servant de base aux Fiches Bleues.",
-    icone: FileText,
-    contenu: () => <GestionMaquettes />,
+    id: "bibliotheque-sections",
+    libelle: "Bibliothèque Sections",
+    description: "Sections et sous-sections réutilisables des Fiches Bleues.",
+    icone: Library,
+    contenu: () => <BibliothequeSections />,
   },
 ];
 
@@ -34,8 +31,7 @@ export default function Parametres() {
   const rubrique = RUBRIQUES.find((r) => r.id === rubriqueActive) ?? RUBRIQUES[0];
 
   return (
-    // Menu apres le contenu dans le DOM et flex-row-reverse en mobile : le menu
-    // reste en haut sur petit ecran, a droite des le format bureau.
+
     <div className="flex flex-col-reverse gap-5 lg:flex-row">
       <div className="min-w-0 flex-1">{rubrique.contenu()}</div>
 
