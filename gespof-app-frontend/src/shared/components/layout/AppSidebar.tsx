@@ -20,14 +20,18 @@ function libelleConnexion(valeur: string): string {
   const fr = /^(\d{2})\/(\d{2})\/(\d{4})\D+(\d{2}):(\d{2})/.exec(valeur);
   if (fr) {
     const [, jour, mois, annee, heures, minutes] = fr;
-    const anneeAffichee = Number(annee) !== new Date().getFullYear() ? `/${annee}` : "";
+    const anneeAffichee =
+      Number(annee) !== new Date().getFullYear() ? `/${annee}` : "";
     return `Connecté le ${jour}/${mois}${anneeAffichee} à ${heures}:${minutes}`;
   }
   const date = new Date(valeur);
   if (Number.isNaN(date.getTime())) return `Connecté le ${valeur}`;
   const jj = String(date.getDate()).padStart(2, "0");
   const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const anneeAffichee = date.getFullYear() !== new Date().getFullYear() ? `/${date.getFullYear()}` : "";
+  const anneeAffichee =
+    date.getFullYear() !== new Date().getFullYear()
+      ? `/${date.getFullYear()}`
+      : "";
   const hh = String(date.getHours()).padStart(2, "0");
   const mi = String(date.getMinutes()).padStart(2, "0");
   return `Connecté le ${jj}/${mm}${anneeAffichee} à ${hh}:${mi}`;
@@ -193,7 +197,8 @@ export function AppSidebar({
         <div
           className={cn(
             "group/row flex items-center",
-            expandable && "rounded-md hover:bg-white/70",
+            expandable &&
+              "rounded-md transition-[background-color] duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] hover:bg-white/[0.08]",
           )}
         >
           <Link
@@ -206,50 +211,61 @@ export function AppSidebar({
               }
             }}
             className={cn(
-              "group relative flex flex-1 items-center gap-2 overflow-hidden border-l-[3px] border-b-[2px] border-transparent text-sm font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-[0.98]",
+              "group relative flex flex-1 items-center gap-2 overflow-hidden text-sm font-medium transition-[color,background-color,box-shadow,transform] duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] active:scale-[0.98]",
               collapsed ? "h-10 justify-center px-0" : "h-9 justify-start px-2",
               expandable ? "rounded-l-md rounded-r-none" : "rounded-md",
               active
-                ? "font-semibold shadow-sm"
+                ? "font-semibold"
                 : expandable
                   ? "text-foreground/80 hover:text-foreground"
-                  : "text-foreground/80 hover:bg-white/70 hover:text-foreground hover:shadow-sm",
+                  : "text-foreground/80 hover:bg-white/[0.08] hover:text-foreground",
             )}
             style={
               active
                 ? {
                     color: activeColor,
-                    background: "var(--color-card)",
-                    borderLeftColor: activeColor,
-                    borderBottomColor: activeColor,
+                    background: `linear-gradient(90deg, ${activeColor}38 0%, ${activeColor}0f 100%)`,
+                    boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.35)",
                   }
                 : undefined
             }
           >
+            {active ? (
+              <span
+                aria-hidden
+                className="pointer-events-none absolute left-0 top-2 bottom-2 w-[3px] rounded-r-sm"
+                style={{
+                  background: `linear-gradient(180deg, ${activeColor}, ${activeColor}cc)`,
+                  boxShadow: `0 0 10px ${activeColor}73`,
+                }}
+              />
+            ) : null}
             <Icon
               size={tailleIcone}
-              className="flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+              className="relative flex-shrink-0 transition-transform duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] group-hover:scale-110"
               style={active ? { color: activeColor } : undefined}
             />
             {labelsVisibles ? (
-              <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              <span className="relative min-w-0 flex-1 truncate">
+                {item.label}
+              </span>
             ) : null}
           </Link>
 
           {expandable && (
-            <button
+              <button
               type="button"
               onClick={() => {
                 setExpanded((s) => ({ ...s, [item.id]: !opened }));
               }}
-              className="flex h-9 w-6 shrink-0 items-center justify-center rounded-r-md text-foreground/55 transition-[color,transform] duration-150 hover:text-foreground"
+              className="flex h-9 w-6 shrink-0 items-center justify-center rounded-r-md text-foreground/55 transition-[color,transform] duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] hover:text-foreground"
               aria-label={opened ? "Réduire" : "Développer"}
               aria-expanded={opened}
             >
               <ChevronRight
                 size={14}
                 className={cn(
-                  "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  "transition-transform duration-[180ms] ease-[cubic-bezier(0,0,0.2,1)]",
                   opened && "rotate-90",
                 )}
               />
@@ -287,29 +303,44 @@ export function AppSidebar({
                     title={child.label}
                     data-actif={enfantActif ? "true" : undefined}
                     className={cn(
-                      "group mt-0.5 flex h-8 items-center gap-2 rounded-md px-2 text-[13px] font-medium transition-[color,background-color,box-shadow,transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
+                      "group relative mt-0.5 flex h-8 items-center gap-2 overflow-hidden rounded-md px-2 text-[13px] font-medium transition-[color,background-color,box-shadow,transform,opacity] duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] active:scale-[0.98]",
                       opened
                         ? "translate-x-0 opacity-100"
                         : "-translate-x-1.5 opacity-0",
                       !enfantActif &&
-                        "text-foreground/80 hover:bg-white/70 hover:text-foreground",
-                      enfantActif && "font-semibold shadow-sm",
+                        "text-foreground/80 hover:bg-white/[0.08] hover:text-foreground",
+                      enfantActif && "font-semibold",
                     )}
                     style={{
                       transitionDelay: opened ? `${40 + index * 45}ms` : "0ms",
                       ...(enfantActif
                         ? {
                             color: activeColor,
-                            background: "var(--color-card)",
+                            background: `linear-gradient(90deg, ${activeColor}38 0%, ${activeColor}0f 100%)`,
+                            boxShadow:
+                              "inset 0 1px 0 rgba(255, 255, 255, 0.35)",
                           }
                         : undefined),
                     }}
                   >
+                    {enfantActif ? (
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-sm"
+                        style={{
+                          background: `linear-gradient(180deg, ${activeColor}, ${activeColor}cc)`,
+                          boxShadow: `0 0 10px ${activeColor}73`,
+                        }}
+                      />
+                    ) : null}
                     <ChildIcon
                       size={14}
-                      className="flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+                      className="relative flex-shrink-0 transition-transform duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] group-hover:scale-110"
+                      style={
+                        enfantActif ? { color: activeColor } : undefined
+                      }
                     />
-                    <span className="truncate">{child.label}</span>
+                    <span className="relative truncate">{child.label}</span>
                   </Link>
                 );
               })}
@@ -326,7 +357,17 @@ export function AppSidebar({
   const largeurAside = remplirLargeur
     ? "100%"
     : `${collapsed ? LARGEUR_REPLIEE : largeurDepliee}px`;
-  const largeurCoeur = remplirLargeur && !collapsed ? "100%" : largeurDepliee;
+  // Coeur : en mode deplie, largeur min = largeurMenu pour ne jamais ecraser
+  // les libelles si le panneau Resizable passe sous ce seuil (le aside rogne).
+  // En mode replie + remplirLargeur, on garde la largeur depliee pour que le
+  // parent clippe pendant l'animation au lieu de compresser le flex.
+  const largeurCoeur = collapsed
+    ? remplirLargeur
+      ? largeurDepliee
+      : LARGEUR_REPLIEE
+    : remplirLargeur
+      ? "100%"
+      : largeurDepliee;
 
   return (
     <aside
@@ -348,12 +389,15 @@ export function AppSidebar({
       />
 
       {/*
-        Coeur a largeur depliee fixe : pendant le repli, le parent rogne au lieu
-        de comprimer les libelles / le flex (effet "seque").
+        Coeur a largeur depliee minimale : pendant le repli / un drag trop serre,
+        le parent rogne au lieu de comprimer les libelles / le flex.
       */}
       <div
         className="flex h-full min-h-0 flex-col"
-        style={{ width: largeurCoeur }}
+        style={{
+          width: largeurCoeur,
+          minWidth: collapsed ? undefined : largeurDepliee,
+        }}
       >
         {/* En-tete : logo + identite du service du portail.
             Le repli de la barre est commande depuis AppTopBar. */}
@@ -505,7 +549,9 @@ export function AppSidebar({
               >
                 <Icon size={collapsed ? 18 : 15} className="flex-shrink-0" />
                 {labelsVisibles && (
-                  <span className="truncate">{valeur ? libelleConnexion(valeur) : item.label}</span>
+                  <span className="truncate">
+                    {valeur ? libelleConnexion(valeur) : item.label}
+                  </span>
                 )}
               </div>
             );

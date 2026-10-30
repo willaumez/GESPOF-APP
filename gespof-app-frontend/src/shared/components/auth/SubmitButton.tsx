@@ -18,7 +18,8 @@ export function BoutonSoumission({
       disabled={loading}
       className="group relative flex h-12 w-full cursor-pointer items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-white/10 text-[0.9375rem] font-semibold tracking-[0.02em] text-white shadow-[0_1px_0_rgba(255,255,255,0.12)_inset,0_8px_24px_rgba(15,23,42,0.28)] transition-[box-shadow,filter,opacity] duration-200 ease-out hover:shadow-[0_1px_0_rgba(255,255,255,0.18)_inset,0_12px_32px_rgba(30,77,140,0.45)] hover:brightness-[1.06] active:brightness-95 active:shadow-[0_1px_0_rgba(255,255,255,0.08)_inset,0_4px_14px_rgba(15,23,42,0.28)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:brightness-100 sm:h-[3.125rem]"
       style={{
-        background: "linear-gradient(165deg, #2a5f9e 0%, #1e4d8c 42%, #0f172a 100%)",
+        background:
+          "linear-gradient(165deg, #2a5f9e 0%, #1e4d8c 42%, #0f172a 100%)",
       }}
     >
       <span

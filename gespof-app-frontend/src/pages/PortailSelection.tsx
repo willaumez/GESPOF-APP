@@ -29,6 +29,9 @@ function PortailCard({
         boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
         animation: `popIn 0.45s ease ${0.12 + index * 0.07}s both`,
         ["--tw-ring-color" as string]: accent,
+        ...(portail.id === "sr"
+          ? { fontFamily: "'Inter', Arial, sans-serif" }
+          : {}),
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = `${accent}55`;
@@ -142,7 +145,7 @@ const PortailSelection = () => {
       className="relative min-h-screen overflow-x-hidden"
       style={{
         background:
-          "radial-gradient(ellipse 90% 60% at 8% -10%, rgba(42,127,98,0.09) 0%, transparent 55%), radial-gradient(ellipse 70% 50% at 92% 0%, rgba(30,77,140,0.08) 0%, transparent 50%), radial-gradient(ellipse 50% 40% at 70% 100%, rgba(201,150,10,0.06) 0%, transparent 45%), #f8fafc",
+          "radial-gradient(ellipse 90% 60% at 8% -10%, rgba(42,127,98,0.09) 0%, transparent 55%), radial-gradient(ellipse 70% 50% at 92% 0%, rgba(7,96,168,0.08) 0%, transparent 50%), radial-gradient(ellipse 50% 40% at 70% 100%, rgba(201,150,10,0.06) 0%, transparent 45%), #f8fafc",
       }}
     >
       {/* Motif discret type « papier institutionnel » */}
@@ -194,7 +197,7 @@ const PortailSelection = () => {
       >
         <span className="flex-1 bg-[#2a7f62]" />
         <span className="flex-1 bg-[#c9960a]" />
-        <span className="flex-1 bg-[#1e4d8c]" />
+        <span className="flex-1 bg-[#0760A8]" />
       </div>
 
       <main className="relative z-10 flex flex-col items-center px-4 pb-16 pt-10 sm:px-6 sm:pt-14">

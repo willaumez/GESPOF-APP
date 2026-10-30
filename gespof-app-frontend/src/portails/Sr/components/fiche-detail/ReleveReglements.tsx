@@ -82,7 +82,7 @@ function FiltresFamilles({
             <span
               className={cn(
                 "font-semibold tabular-nums",
-                enErreur ? "text-destructive" : "text-[#1e4d8c]",
+                enErreur ? "text-destructive" : "text-[#0760A8]",
               )}
             >
               {formatMontant(String(montant))} FCFA
@@ -131,7 +131,7 @@ function FiltresFamilles({
         {loading ? (
           <Skeleton className="h-3.5 w-16" />
         ) : (
-          <span className="font-semibold tabular-nums text-[#1e4d8c]">
+          <span className="font-semibold tabular-nums text-[#0760A8]">
             {formatMontant(String(totalAnime))} FCFA
           </span>
         )}

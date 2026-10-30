@@ -198,7 +198,7 @@ export function FicheEnTete({
                       variant="outline"
                       onClick={onDemanderEnvoi}
                       disabled={envoiBloque}
-                      className="h-8 gap-2 border-[#1e4d8c] text-[#1e4d8c] hover:bg-[#1e4d8c]/10"
+                      className="h-8 gap-2 border-[#0760A8] text-[#0760A8] hover:bg-[#0760A8]/10"
                     >
                       <Send className="size-4" />
                       Envoyer

@@ -23,7 +23,7 @@ function SofShell() {
     <AppShell
       portal={PORTAL}
       collapsed={collapsed}
-      onToggleCollapse={() => setCollapsedManuel((c) => !c)}
+      onCollapsedChange={setCollapsedManuel}
       hideToggle={isMobile}
     >
       <TopBarPageActions>

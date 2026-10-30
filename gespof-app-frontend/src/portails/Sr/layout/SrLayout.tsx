@@ -39,7 +39,7 @@ export default function SrPage() {
     <AppShell
       portal={PORTAL}
       collapsed={collapsed}
-      onToggleCollapse={() => setCollapsedManuel((c) => !c)}
+      onCollapsedChange={setCollapsedManuel}
       hideToggle={isMobile}
       actions={<ClocheNotificationsSr />}
     >

@@ -55,7 +55,7 @@ function SpShell() {
     <AppShell
       portal={PORTAL}
       collapsed={collapsed}
-      onToggleCollapse={() => setCollapsedManuel((c) => !c)}
+      onCollapsedChange={setCollapsedManuel}
       hideToggle={isMobile}
       actions={<ClocheNotificationsSp />}
     >

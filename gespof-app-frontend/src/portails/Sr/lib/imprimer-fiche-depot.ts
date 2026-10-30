@@ -113,11 +113,11 @@ function construireHtmlImpression(detail: FicheDepotDetail): string {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    h1 { font-size: 22px; margin: 0 0 6px; color: #1e4d8c; }
+    h1 { font-size: 22px; margin: 0 0 6px; color: #0760A8; }
     .meta { color: #555; margin: 0 0 14px; font-size: 13px; }
     .equation {
       display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px;
-      border: 1px solid rgba(30, 77, 140, 0.2); background: #e8eff9; border-radius: 10px;
+      border: 1px solid rgba(7, 96, 168, 0.2); background: #EFF4FB; border-radius: 10px;
       padding: 12px 14px; margin-bottom: 16px;
     }
     .term { display: inline-flex; flex-direction: column; gap: 4px; padding: 8px 12px; border-radius: 8px; min-width: 140px; }
@@ -126,11 +126,11 @@ function construireHtmlImpression(detail: FicheDepotDetail): string {
     .term.numeraire { background: rgba(139, 92, 246, 0.2); color: #5b21b6; }
     .term.sigma { background: rgba(244, 63, 94, 0.2); color: #9f1239; }
     .term.systac { background: rgba(245, 158, 11, 0.2); color: #92400e; }
-    .term.total { background: rgba(30, 77, 140, 0.13); color: #1e4d8c; }
+    .term.total { background: rgba(7, 96, 168, 0.13); color: #0760A8; }
     .op { color: #64748b; font-weight: 700; font-size: 18px; align-self: center; }
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #cbd5e1; padding: 0; text-align: left; }
-    th { background: #e8eff9; color: #1e4d8c; font-size: 13px; padding: 10px 12px; }
+    th { background: #EFF4FB; color: #0760A8; font-size: 13px; padding: 10px 12px; }
     td { padding: 9px 12px; font-size: 13px; }
     .section td { padding: 0; border-color: transparent; }
     .section-bandeau {
@@ -141,7 +141,7 @@ function construireHtmlImpression(detail: FicheDepotDetail): string {
     .section.sigma .section-bandeau { background: rgba(244, 63, 94, 0.1); color: #9f1239; }
     .section.systac .section-bandeau { background: rgba(245, 158, 11, 0.1); color: #92400e; }
     .total-row td {
-      background: rgba(30, 77, 140, 0.13); color: #1e4d8c; font-weight: 700;
+      background: rgba(7, 96, 168, 0.13); color: #0760A8; font-weight: 700;
       padding: 12px; text-transform: uppercase; font-size: 13px;
     }
     @media print {

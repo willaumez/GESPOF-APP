@@ -18,12 +18,12 @@ export const MENU_SR: MenuPortal = {
   ctaLabel: "Accéder au Pool SR",
   roles: ["AGENT_SR"],
   theme: {
-    topColor: "#1e4d8c",
-    bgColor: "#e8eff9",
-    iconBg: "#d4e2f7",
-    iconColor: "#1e4d8c",
-    ctaColor: "#1e4d8c",
-    hoverColor: "#1a3f73",
+    topColor: "#0760A8",
+    bgColor: "#EFF4FB",
+    iconBg: "#D6E2F5",
+    iconColor: "#0760A8",
+    ctaColor: "#0760A8",
+    hoverColor: "#064A85",
   },
   // Largeur de la barre laterale : "Générer une fiche de dépôt" / "Audit des connexions".
   largeurMenu: 268,

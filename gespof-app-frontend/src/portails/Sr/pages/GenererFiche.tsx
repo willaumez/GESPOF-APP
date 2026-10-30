@@ -636,7 +636,7 @@ export default function GenererFiche() {
                     !isError &&
                       !isDone &&
                       isActive &&
-                      "bg-white shadow-[0_0_0_4px_rgba(30,77,140,0.15)]",
+                      "bg-white shadow-[0_0_0_4px_rgba(7,96,168,0.15)]",
                     !isError &&
                       !isDone &&
                       !isActive &&
