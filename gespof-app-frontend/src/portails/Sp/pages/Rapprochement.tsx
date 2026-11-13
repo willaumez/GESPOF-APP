@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, FileWarning, Loader2, RefreshCw, ShieldAlert, Sparkles } from "lucide-react";
+import {
+  ArrowLeft, FileWarning, Loader2, Pencil, RefreshCw, ShieldAlert, Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/shared/lib/utils";
 import { messageDonneesOuDefaut } from "@/shared/lib/message-utilisateur";
@@ -23,6 +25,7 @@ import {
   validerDepensesJour,
 } from "@/portails/Sp/api/journees-tresorerie";
 import { trouverFicheExecutionJournee } from "@/portails/Sp/api/fiches-execution";
+import { DialogRecettesOracle } from "@/portails/Sp/components/fiche-matinale/DialogRecettesOracle";
 import { ColonneElementsJour } from "@/portails/Sp/components/rapprochement/ColonneElementsJour";
 import {
   BoutonPleinEcran, OverlayPleinEcran,
@@ -93,6 +96,7 @@ export default function Rapprochement({ type }: { type: TypeRapprochement }) {
   const [sectionRecente, setSectionRecente] = useState<number | null>(null);
   const [integration, setIntegration] = useState(false);
   const [pleinEcran, setPleinEcran] = useState(false);
+  const [dialogRecettes, setDialogRecettes] = useState(false);
 
   const referenceValide = reference != null && REF_JT.test(reference);
 
@@ -269,7 +273,29 @@ export default function Rapprochement({ type }: { type: TypeRapprochement }) {
   }
 
   if (erreur || !journee || !fiche || !liste) {
-    return renduIndisponible(erreur ?? "La fiche d'exécution n'a pas pu être chargée.", journee != null);
+    return (
+      <>
+        {renduIndisponible(
+          erreur ?? "La fiche d'exécution n'a pas pu être chargée.",
+          journee != null,
+        )}
+        {type === "recette" && reference ? (
+          <DialogRecettesOracle
+            ouvert={dialogRecettes}
+            onClose={() => setDialogRecettes(false)}
+            referenceJournee={reference}
+            lectureSeule={journee?.etat === "cloture"}
+            onValideeChange={(validee) => {
+              if (validee) {
+                setListe(validee);
+                setErreur(null);
+                setChargement(false);
+              }
+            }}
+          />
+        ) : null}
+      </>
+    );
   }
 
   function renduIndisponible(texte: string, journeeChargee = false) {
@@ -282,14 +308,27 @@ export default function Rapprochement({ type }: { type: TypeRapprochement }) {
           <EmptyTitle>Rapprochement indisponible</EmptyTitle>
           <EmptyDescription>{texte}</EmptyDescription>
         </EmptyHeader>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => void navigate("/sp/fiche-matinale")}
-        >
-          Retour à la fiche matinale
-        </Button>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {type === "recette" && journeeChargee && journee?.etat !== "cloture" ? (
+            <Button
+              type="button"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setDialogRecettes(true)}
+            >
+              <Pencil className="size-3.5" />
+              Valider les recettes Oracle
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => void navigate("/sp/fiche-matinale")}
+          >
+            Retour à la fiche matinale
+          </Button>
+        </div>
       </Empty>
     );
   }
@@ -379,8 +418,8 @@ export default function Rapprochement({ type }: { type: TypeRapprochement }) {
 
   return (
     <div className="flex flex-col gap-3 md:min-h-0 md:flex-1">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
+      <div className="flex shrink-0 flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"
@@ -391,28 +430,47 @@ export default function Rapprochement({ type }: { type: TypeRapprochement }) {
             <ArrowLeft className="size-3.5" />
             Retour
           </Button>
-          <span className="truncate text-[13px] font-semibold tabular-nums">{journee.reference}</span>
+          <span className="min-w-0 truncate text-[13px] font-semibold tabular-nums">
+            {journee.reference}
+          </span>
           {cloturee ? (
-            <Badge className="border-transparent bg-warning/10 text-warning">Journée clôturée</Badge>
+            <Badge className="border-transparent bg-warning/10 text-warning">
+              Journée clôturée
+            </Badge>
           ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted-foreground">
-          <span className="flex items-center gap-3" aria-label="Légende">
-            <span className="flex items-center gap-1.5">
-              <span className="size-3 rounded-sm border bg-background" />
-              À rapprocher
+          {type === "recette" && !cloturee ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setDialogRecettes(true)}
+              title="Revenir aux recettes Oracle pour modifier la liste validée"
+            >
+              <Pencil className="size-3.5" />
+              Modifier les recettes
+            </Button>
+          ) : null}
+          <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="flex items-center gap-3" aria-label="Légende">
+              <span className="flex items-center gap-1.5">
+                <span className="size-3 rounded-sm border bg-background" />
+                À rapprocher
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="size-3 rounded-sm border-l-4 border-l-emerald-500 bg-emerald-100" />
+                Rapprochée
+              </span>
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="size-3 rounded-sm border-l-4 border-l-emerald-500 bg-emerald-100" />
-              Rapprochée
-            </span>
-          </span>
-          <span>{resume}</span>
-          <BoutonPleinEcran
-            actif={pleinEcran}
-            onToggle={() => setPleinEcran((v) => !v)}
-            libelleEnter={`Afficher le rapprochement des ${libelles.pluriel} en plein écran`}
-          />
+            <span>{resume}</span>
+            <BoutonPleinEcran
+              actif={pleinEcran}
+              onToggle={() => setPleinEcran((v) => !v)}
+              libelleEnter={`Afficher le rapprochement des ${libelles.pluriel} en plein écran`}
+            />
+          </div>
         </div>
       </div>
 
@@ -461,6 +519,22 @@ export default function Rapprochement({ type }: { type: TypeRapprochement }) {
       >
         {deuxColonnes}
       </OverlayPleinEcran>
+
+      {type === "recette" ? (
+        <DialogRecettesOracle
+          ouvert={dialogRecettes}
+          onClose={() => setDialogRecettes(false)}
+          referenceJournee={journee.reference}
+          lectureSeule={cloturee}
+          onValideeChange={(validee) => {
+            if (validee) {
+              setListe(validee);
+              setSelection(new Map());
+              setErreur(null);
+            }
+          }}
+        />
+      ) : null}
     </div>
   );
 }

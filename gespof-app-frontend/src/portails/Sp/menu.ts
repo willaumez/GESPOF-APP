@@ -23,10 +23,13 @@ export const MENU_SP: MenuPortal = {
   theme: {
     topColor: "#c9960a",
     bgColor: "#fdfaf0",
-    iconBg: "#fdf6e3",
-    iconColor: "#c9960a",
-    ctaColor: "#c9960a",
-    hoverColor: "#a67a08",
+    iconBg: "#fbf1d6",
+    iconColor: "#7f5d05",
+    ctaColor: "#a67a08",
+    hoverColor: "#8a6406",
+    sidebarBg: "#94690a",
+    borderColor: "#ecd9a3",
+    textColor: "#7f5d05",
   },
   // Largeur de la barre laterale : "Audit des connexions" (sous-menu) + plancher d'en-tête.
   largeurMenu: 260,

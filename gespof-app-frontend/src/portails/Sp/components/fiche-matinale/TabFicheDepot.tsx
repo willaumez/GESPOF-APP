@@ -4,14 +4,10 @@ import { toast } from "sonner";
 import { getPortalMenu } from "@/shared/config/menu";
 import { messageDonneesOuDefaut } from "@/shared/lib/message-utilisateur";
 import { formatMontant } from "@/shared/lib/format";
-import { cn } from "@/shared/lib/utils";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ContenuDetailFicheDepot } from "@/portails/Sp/components/fiche-matinale/PreviewFicheDepotDialog";
 import { TableauFicheDepotExcel } from "@/portails/Sp/components/fiche-depot/TableauFicheDepotExcel";
-import {
-  BoutonPleinEcran, OverlayPleinEcran,
-} from "@/portails/Sp/components/plein-ecran/PleinEcran";
+import { OverlayPleinEcran } from "@/portails/Sp/components/plein-ecran/PleinEcran";
 import { detailFicheDepot, listerFichesDepotDeJournee } from "@/portails/Sp/api/fiches-depot";
 import { demanderFicheDepotJournee } from "@/portails/Sp/api/journees-tresorerie";
 import type {
@@ -19,34 +15,28 @@ import type {
 } from "@/portails/Sp/types/fiche-depot.interface";
 import type { JourneeTresorerie } from "@/portails/Sp/types/journee-tresorerie.interface";
 
-function formaterMontant(valeur: string): string {
-  return formatMontant(valeur);
-}
-
-function formaterDateHeure(iso: string): string {
+function formaterHeureReception(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleString("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
+  return `Reçue à ${date.toLocaleTimeString("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
-  });
+  })}`;
 }
 
-/** Plus récente d'abord (date d'envoi), quel que soit l'ordre renvoyé par l'API. */
+function sourceDepuisReference(ref: string): string {
+  const u = ref.toUpperCase();
+  if (u.includes("SYSTAC") || u.includes("SYS")) return "Systac";
+  if (u.includes("SIGMA") || u.includes("SIG")) return "Sigma";
+  if (u.includes("NUM")) return "Numéraire";
+  return "Fiche de dépôt";
+}
+
+/** Plus récente d'abord (date d'envoi). */
 function trierParRecence(fiches: FicheDepotResumeSp[]): FicheDepotResumeSp[] {
   return [...fiches].sort(
     (a, b) => new Date(b.date_creation).getTime() - new Date(a.date_creation).getTime(),
   );
-}
-
-function libelleStatutDepot(statut: string): string {
-  if (statut === "envoyee") return "Envoyée";
-  if (statut === "recue") return "Reçue";
-  if (statut === "cree") return "Créée";
-  return statut.replace("_", " ");
 }
 
 interface TabFicheDepotProps {
@@ -56,10 +46,7 @@ interface TabFicheDepotProps {
 }
 
 /**
- * Onglet Fiche de dépôt : fiches envoyées par le SR et rattachées
- * à la journée de trésorerie (via la Fiche Bleue du jour).
- * Liste verticale des fiches à gauche (plus récente en tête, affichée par défaut),
- * contenu de la fiche sélectionnée à droite.
+ * Onglet Fiche de dépôt — cartes maquette Prototype v2.
  */
 export function TabFicheDepot({
   journee,
@@ -70,13 +57,10 @@ export function TabFicheDepot({
 
   const [chargement, setChargement] = useState(false);
   const [fiches, setFiches] = useState<FicheDepotResumeSp[]>([]);
-  /** Fiche affichée en plein écran (vue tableur), null = fermé. */
+  const [detailRef, setDetailRef] = useState<string | null>(null);
   const [pleinEcranRef, setPleinEcranRef] = useState<string | null>(null);
   const [detailExcel, setDetailExcel] = useState<FicheDepotDetailSp | null>(null);
-  /** Référence dont le chargement plein écran a échoué (arrête le spinner). */
   const [erreurExcel, setErreurExcel] = useState<string | null>(null);
-  /** Fiche choisie dans le sélecteur ; null → la plus récente. */
-  const [selection, setSelection] = useState<string | null>(null);
   const [demandeEnCours, setDemandeEnCours] = useState(false);
   const [demandeEnvoyee, setDemandeEnvoyee] = useState(false);
 
@@ -108,7 +92,6 @@ export function TabFicheDepot({
     };
   }, [pleinEcranRef]);
 
-  // Détail déjà chargé pour une autre fiche : ignoré tant que le bon n'est pas arrivé.
   const ficheExcel = detailExcel?.reference === pleinEcranRef ? detailExcel : null;
   const chargementExcel =
     pleinEcranRef !== null && ficheExcel === null && erreurExcel !== pleinEcranRef;
@@ -147,7 +130,6 @@ export function TabFicheDepot({
         if (!annule) {
           const liste = trierParRecence(page.fiches ?? []);
           setFiches(liste);
-          setSelection(null);
           onNombreFichesChange?.(liste.length);
         }
       })
@@ -177,7 +159,7 @@ export function TabFicheDepot({
 
   if (chargement) {
     return (
-      <div className="flex min-h-[180px] items-center justify-center text-muted-foreground">
+      <div className="flex min-h-[180px] items-center justify-center text-[#64748b]">
         <Loader2 className="size-6 animate-spin" />
       </div>
     );
@@ -185,21 +167,20 @@ export function TabFicheDepot({
 
   if (fiches.length === 0) {
     return (
-      <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 px-4 text-center">
+      <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 rounded-lg border border-[#e2e8f0] bg-white px-4 text-center">
         <div
-          className="flex size-12 items-center justify-center rounded-2xl"
+          className="flex size-12 items-center justify-center rounded-lg"
           style={{ background: theme.iconBg, color: theme.iconColor }}
         >
           <CreditCard className="size-6" />
         </div>
         <div className="max-w-md space-y-1">
-          <p className="text-[15px] font-semibold text-foreground">
+          <p className="text-[15px] font-semibold text-[#0f172a]">
             Aucune Fiche de dépôt liée à cette journée
           </p>
-          <p className="text-[13px] leading-relaxed text-muted-foreground">
-            Seules les fiches de dépôt envoyées par le Service Règlement et
-            rattachées à la journée {journee.reference} apparaissent ici.
-            Cette étape est optionnelle.
+          <p className="text-[13px] leading-relaxed text-[#64748b]">
+            Seules les fiches envoyées par le Service Règlement et rattachées à{" "}
+            {journee.reference} apparaissent ici. Cette étape est optionnelle.
           </p>
         </div>
         <Button
@@ -208,7 +189,6 @@ export function TabFicheDepot({
           size="sm"
           className="mt-1 gap-1.5"
           disabled={demandeEnCours || demandeEnvoyee || cloturee}
-          title={cloturee ? "Journée clôturée : demande impossible" : undefined}
           onClick={() => void prevenirServiceReglement()}
         >
           {demandeEnCours ? (
@@ -226,89 +206,106 @@ export function TabFicheDepot({
     );
   }
 
-  const ficheAffichee =
-    fiches.find((f) => f.reference === selection) ?? fiches[0];
-
   return (
-    <div className="flex flex-col gap-4 @2xl:flex-row @2xl:items-start">
-      {/* Liste verticale des fiches du jour (plus récente en tête) */}
-      <aside className="flex shrink-0 flex-col overflow-hidden rounded-xl border bg-muted/30 @2xl:w-64">
-        <div className="flex items-center justify-between gap-2 border-b px-3 py-2.5">
-          <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
-            Fiches du jour
-          </p>
-          <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
-            {fiches.length}
-          </span>
-        </div>
-        <ul
-          className="flex max-h-60 flex-col gap-1 overflow-y-auto p-2 @2xl:max-h-[32rem]"
-          aria-label="Fiches de dépôt de la journée"
-        >
-          {fiches.map((fiche, index) => {
-            const affichee = fiche.reference === ficheAffichee.reference;
-            return (
-              <li key={fiche.reference}>
-                <button
-                  type="button"
-                  aria-current={affichee ? "true" : undefined}
-                  onClick={() => setSelection(fiche.reference)}
-                  className={cn(
-                    "relative flex w-full flex-col gap-0.5 overflow-hidden rounded-lg border px-3 py-2 text-left transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-                    affichee
-                      ? "border-primary/50 bg-card shadow-sm"
-                      : "border-transparent hover:bg-card/80",
-                  )}
-                >
-                  {affichee ? (
-                    <span className="absolute inset-y-0 left-0 w-0.5 bg-primary" aria-hidden />
-                  ) : null}
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="truncate text-[12.5px] font-semibold tabular-nums text-foreground">
-                      {fiche.reference}
-                    </span>
-                    {index === 0 ? (
-                      <Badge className="shrink-0 border-transparent bg-primary/10 px-1.5 text-[9.5px] text-primary">
-                        Récente
-                      </Badge>
-                    ) : null}
-                  </span>
-                  <span className="truncate text-[11.5px] font-medium tabular-nums text-foreground/80">
-                    {formaterMontant(fiche.montant_total)}
-                  </span>
-                  <span className="truncate text-[11px] text-muted-foreground tabular-nums">
-                    {formaterDateHeure(fiche.date_creation)} · {libelleStatutDepot(fiche.statut)}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </aside>
+    <>
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: 16,
+        }}
+      >
+        {fiches.map((fiche) => (
+          <button
+            key={fiche.reference}
+            type="button"
+            onClick={() => setDetailRef(fiche.reference)}
+            className="flex flex-col rounded-lg border border-[#e2e8f0] bg-white text-left"
+            style={{
+              gap: 14,
+              padding: 18,
+              borderTop: "3px solid #0760A8",
+            }}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <span className="flex flex-col" style={{ gap: 2 }}>
+                <span className="text-base font-semibold text-[#0f172a]">
+                  {sourceDepuisReference(fiche.reference)}
+                </span>
+                <span className="text-[13px] text-[#64748b]">
+                  {fiche.genere_par ? `Par ${fiche.genere_par}` : "Reçue du Service Règlement"}
+                </span>
+              </span>
+              <span
+                className="shrink-0 whitespace-nowrap"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  padding: "2px 9px",
+                  borderRadius: 4,
+                  background: "#fffbeb",
+                  color: "#b45309",
+                }}
+              >
+                Reçue SP
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[22px] font-semibold tabular-nums text-[#0f172a]">
+                {formatMontant(fiche.montant_total)}
+              </span>
+              <span className="text-xs font-semibold text-[#64748b]">FCFA</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-[#f1f5f9] pt-3 text-[12.5px] text-[#64748b]">
+              <span
+                style={{
+                  fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                  color: "#064A85",
+                }}
+              >
+                {fiche.reference}
+              </span>
+              <span>{formaterHeureReception(fiche.date_creation)}</span>
+            </div>
+          </button>
+        ))}
+      </div>
 
-      {/* Contenu de la fiche sélectionnée */}
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[12px] text-muted-foreground tabular-nums">
-            Reçue le {formaterDateHeure(ficheAffichee.date_creation)}
-            {ficheAffichee.genere_par ? ` · ${ficheAffichee.genere_par}` : ""}
-          </p>
-          <BoutonPleinEcran
-            actif={pleinEcranRef !== null}
-            onToggle={() =>
-              pleinEcranRef !== null
-                ? fermerPleinEcran()
-                : setPleinEcranRef(ficheAffichee.reference)
-            }
-            libelleEnter="Afficher la Fiche de dépôt en plein écran"
+      {detailRef ? (
+        <div className="mt-4 overflow-hidden rounded-lg border border-[#e2e8f0] bg-white p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <span
+              className="text-[13px] font-medium"
+              style={{
+                fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                color: "#064A85",
+              }}
+            >
+              {detailRef}
+            </span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="h-8 rounded-md border border-[#e2e8f0] bg-white px-3 text-[13px] hover:border-[#94a3b8]"
+                onClick={() => setPleinEcranRef(detailRef)}
+              >
+                Plein écran
+              </button>
+              <button
+                type="button"
+                className="h-8 rounded-md border border-[#e2e8f0] bg-white px-3 text-[13px] hover:border-[#94a3b8]"
+                onClick={() => setDetailRef(null)}
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+          <ContenuDetailFicheDepot
+            reference={detailRef}
+            referenceJournee={journee.reference}
           />
         </div>
-
-        <ContenuDetailFicheDepot
-          reference={ficheAffichee.reference}
-          referenceJournee={journee.reference}
-        />
-      </div>
+      ) : null}
 
       <OverlayPleinEcran
         ouvert={pleinEcranRef !== null}
@@ -319,6 +316,6 @@ export function TabFicheDepot({
       >
         <TableauFicheDepotExcel fiche={ficheExcel} chargement={chargementExcel} />
       </OverlayPleinEcran>
-    </div>
+    </>
   );
 }

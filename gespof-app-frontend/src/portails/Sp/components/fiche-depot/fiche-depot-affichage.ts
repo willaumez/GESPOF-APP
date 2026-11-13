@@ -1,4 +1,6 @@
 import { formatMontant } from "@/shared/lib/format";
+import type { SpTagKind } from "@/portails/Sp/components/layout/SpTag";
+import type { FicheDepotResumeSp } from "@/portails/Sp/types/fiche-depot.interface";
 
 export const STATUT_FICHE_DEPOT: Record<
   string,
@@ -25,4 +27,22 @@ export function formaterMontantDepot(valeur: string | number): string {
 
 export function libelleStatutDepot(statut: string): string {
   return STATUT_FICHE_DEPOT[statut]?.label ?? statut.replace("_", " ");
+}
+
+/** Affichage liste maquette v2 (Reçue / Rapprochée / À rattacher). */
+export function statutDepotMaquette(fiche: FicheDepotResumeSp): {
+  label: string;
+  kind: SpTagKind;
+} {
+  if (!fiche.journee_tresorerie_reference) {
+    return { label: "À rattacher", kind: "warn" };
+  }
+  const s = fiche.statut.toLowerCase();
+  if (s.includes("rapproch")) {
+    return { label: "Rapprochée", kind: "info" };
+  }
+  if (s === "recue" || s === "envoyee") {
+    return { label: "Reçue", kind: "ok" };
+  }
+  return { label: libelleStatutDepot(fiche.statut), kind: "neu" };
 }

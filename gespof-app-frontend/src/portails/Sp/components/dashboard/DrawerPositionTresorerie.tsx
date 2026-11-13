@@ -74,16 +74,16 @@ export function DrawerPositionTresorerie({
         render={
           <Button
             type="button"
-            className="h-9 gap-2 rounded-xl px-3.5 text-[12.5px] font-semibold text-white shadow-sm hover:opacity-90 hover:shadow-md"
+            className="h-[38px] gap-2 rounded-md px-4 text-sm font-semibold text-white hover:opacity-90"
             style={{ background: theme.ctaColor }}
             title="Position de trésorerie et clôture de la journée"
-            aria-label="Clôturer la journée : ouvrir la position de trésorerie"
+            aria-label="Position et clôture"
             disabled={disabled}
           />
         }
       >
-        <Lock className="size-3.5" />
-        Clôturer
+        <Lock className="size-4" />
+        Position et clôture
       </Drawer.Trigger>
 
       <Drawer.Portal>

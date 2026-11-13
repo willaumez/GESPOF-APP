@@ -1,5 +1,10 @@
 -- Connexion: Oracle (lecture seule) — Service des Opérations Financières
 --
+-- ⚠ ANCIENNE VERSION — remplacée pour l'import F2 par
+--   depenses-reglements-ordonnances-xrgv.sql (export XRGV, 37 colonnes).
+-- Conservée pour comparaison / justification historique uniquement.
+-- Ne pas brancher dans ScriptPoolSof pour les nouveaux imports.
+--
 -- Règlements de l'exercice (origine budgétaire B).
 -- Tables: gtr.REGT, RATT, DORD, BENE, BENC
 --

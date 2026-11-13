@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
-import { getPortalMenu, findPageInfo } from "@/shared/config/menu";
+import { Outlet } from "react-router-dom";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { AppShell } from "@/shared/components/layout/AppShell";
 import { TopBarPageActions } from "@/shared/components/layout/TopBarPageActions";
-import { PeriodDatePicker } from "@/shared/components/date/PeriodDatePicker";
-import { PeriodeProvider, usePeriode } from "@/portails/Sof/hooks/PeriodeContext";
+import { PeriodeProvider } from "@/portails/Sof/hooks/PeriodeContext";
+import { SofPeriodeMoisPicker } from "@/portails/Sof/components/layout/SofPeriodeMoisPicker";
 
 const PORTAL = "sof" as const;
 
@@ -13,11 +12,6 @@ function SofShell() {
   const isMobile = useIsMobile();
   const [collapsedManuel, setCollapsedManuel] = useState(false);
   const collapsed = isMobile || collapsedManuel;
-  const location = useLocation();
-  const menu = getPortalMenu(PORTAL);
-  const theme = menu.theme;
-  const { label: pageTitle } = findPageInfo(PORTAL, location.pathname);
-  const { periode, setPeriode } = usePeriode();
 
   return (
     <AppShell
@@ -27,26 +21,16 @@ function SofShell() {
       hideToggle={isMobile}
     >
       <TopBarPageActions>
-        <PeriodDatePicker
-          portail={PORTAL}
-          variant="topbar"
-          libelle="Exercice"
-          value={periode}
-          onChange={setPeriode}
-        />
+        <SofPeriodeMoisPicker />
       </TopBarPageActions>
-      <main className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
-        <div className="w-full">
-          <div className="mb-4 flex justify-end">
-            <div
-              className="flex w-fit items-center pr-2"
-              style={{ borderRight: `3px solid ${theme.topColor}` }}
-            >
-              <h1 className="text-[17px] font-bold leading-tight text-[#0f172a] sm:text-[21px]">
-                {pageTitle}
-              </h1>
-            </div>
-          </div>
+      <main
+        className="min-h-0 min-w-0 flex-1 overflow-y-auto"
+        style={{
+          padding: isMobile ? "20px 16px 40px" : "22px 32px 56px",
+          background: "#f8fafc",
+        }}
+      >
+        <div className="mx-auto flex w-full max-w-[1480px] flex-col gap-[18px]">
           <Outlet />
         </div>
       </main>

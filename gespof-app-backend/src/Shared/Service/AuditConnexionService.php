@@ -261,6 +261,7 @@ class AuditConnexionService implements AuditConnexionServiceInterface
                 'prenom' => $s->getPrenom(),
                 'nom_complet' => trim($s->getPrenom() . ' ' . $s->getNom()),
                 'email' => $s->getEmail(),
+                'a_photo' => (bool) $s->getUtilisateur()?->aUnePhoto(),
             ],
             'role' => [
                 'valeur' => $s->getRole(),
@@ -282,6 +283,7 @@ class AuditConnexionService implements AuditConnexionServiceInterface
                 'libelle' => $motif->libelle(),
             ],
             'adresse_ip' => $s->getAdresseIp(),
+            'user_agent' => $s->getUserAgent(),
         ];
     }
 

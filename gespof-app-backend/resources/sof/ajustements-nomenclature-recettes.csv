@@ -1,0 +1,89 @@
+code;libelle;C_NIVEAU;C_TAB;C_LIG;N_ORDRE
+1;Recettes pétrolières;3;TBREC; 100;1
+1A;I.S. pétrole;6;TBREC; 1000;1
+1C;Dividendes;;;;
+1B;R.M.P.;6;TBREC; 2000;1
+1D;Redevance superficiaire;6;TBREC; 4000;1
+1F;Profit oil;;;;
+1H;Profit gaz;;;;
+1X;Discount et Bonus;6;TBREC; 5000;1
+1G;Autres recettes pétrolières;;;;
+2;Recettes hors pétrole;3;TBREC;A;1
+;Recettes fiscales;4;TBREC;A1;1
+2A;A. Douanes;5;TBREC;A100;1
+2B;B. Taxes sur les biens et services;5;TBREC;B10;1
+2B1;T.V.A.;6;TBREC;B100;1
+2B11;T.V.A. collectée;7;TBREC;B1000;1
+2B12;Précomptes T.V.A.;7;TBREC;B1010;1
+2B13;Remboursements T.V.A. courants;7;TBREC;B1020;1
+2B14;Remboursements T.V.A. arriérés;;;;
+2B2;Autres taxes sur biens et services;6;TBREC;B200;1
+2B21;T.A.F.;7;TBREC;B2000;1
+2B22;Droits accises;7;TBREC;B3000;1
+2B23;Taxes sur les jeux;7;TBREC;B4000;1
+2B24;Loyers;7;TBREC;B5000;1
+2B25;Transactions;7;TBREC;B6000;1
+2B26;Redevance Audio-Visuelle;7;TBREC;B6500;1
+2B27;Autres taxes;7;TBREC;B7000;1
+2C;C. Impôts sur les sociétés H.P.;5;TBREC;C100;1
+2C1;I.S. normal;6;TBREC;C1000;1
+2C2;I.S. mines;6;TBREC;C2000;1
+2C3;Retenue a la source;6;TBREC;C3000;1
+2D;D. Impôts sur les personnes;5;TBREC;D100;1
+2D1;I.R.P.P.;6;TBREC;D1000;1
+2D2;I.R.P.P. prélèvement employeur;6;TBREC;D2000;1
+2D3;I.F.R.;6;TBREC;D3000;1
+2D4;Taxe Complémentaire;6;TBREC;D4000;1
+2D5;Autres impôts sur les personnes;6;TBREC;D5000;1
+2X;E. Autres recettes fiscales;5;TBREC;E100;1
+2X1;Enregistrement;6;TBREC;E1000;1
+2X2;I.R.V.M.;6;TBREC;E2000;1
+2X3;Pénalités;6;TBREC;E3000;1
+2X4;Autres taxes;6;TBREC;E4000;1
+;Autres recettes;5;TBREC;F10;1
+2F;F. Recettes non fiscales;5;TBREC;F100;1
+2F1;Produits des participations;6;TBREC;F1000;1
+2F2;Domaine minier;6;TBREC;F2000;1
+2F3;Domaine forestier;6;TBREC;F3000;1
+2F4;Domaine foncier;6;TBREC;F4000;1
+2F5;Recettes diverses;6;TBREC;F5000;1
+2G;G. Recettes affectées;5;TBREC;G100;1
+2G1;Patentes;6;TBREC;G1000;1
+2G2;Impôt Syntétique Libératoire;6;TBREC;G1500;1
+2G3;Licences;6;TBREC;G2000;1
+2G4;Foncier bâti;6;TBREC;G3000;1
+2G5;Foncier non bâti;6;TBREC;G4000;1
+2Gg;Contribution Foncière Unique;;;;
+2G6;Fond national de l'habitat;6;TBREC;G5000;1
+2G7;Taxe vicinale;6;TBREC;G6000;1
+2G8;Taxe municipale / carburants;6;TBREC;G7000;1
+2Gf;Contribution pour les ordures ménagères;;;;
+2G9;R.O.A.M. / CSS;6;TBREC;G8000;1
+2Ga;Taxe et transferts fonds;6;TBREC;G9000;1
+2Gb;Retenues assurance maladie;6;TBREC;G9100;1
+2Gc;Pensions;6;TBREC;G9200;1
+2Gd;Fer II (R.U.R.);6;TBREC;G9900;1
+2Ge;Taxe de formation professionnelle;6;TBREC;G9950;1
+3;Recettes budgétaire à répartir;4;TBREC;M1000;1
+;Total recettes budgétaires;2;TBREC;M5000;1
+4;Emprunts;5;TBREC;N100;1
+4A;O.T.A.;6;TBREC;N1000;1
+4B;B.T.A.;6;TBREC;N1100;1
+4D;Facilités de Trésorerie;;;;
+4F;DTS;;;;
+4C;Emprunt obligataire sous-régional;6;TBREC;N1500;1
+4X;Emprunt obligataire international;6;TBREC;N3000;1
+4G;Appuis budgétaires;;;;
+5;Recettes non budgétaires;5;TBREC;P100;1
+5A;Agences comptables;6;TBREC;P1000;1
+5B;Autres correspondants;6;TBREC;P2000;1
+5C;Cautions;6;TBREC;P3000;1
+5D;Consignations;6;TBREC;P4000;1
+5X;Excédents de versement;6;TBREC;P4500;1
+5I;Virements à effectuer;;;;
+5F;Fonds communs;6;TBREC;P5000;1
+5G;Fonds divers;6;TBREC;P6000;1
+5H;Collectivités locales;6;TBREC;P7000;1
+;Total recettes;1;TBREC;X1000;1
+;Mois;;;;
+;En millions de Francs CFA;;;;

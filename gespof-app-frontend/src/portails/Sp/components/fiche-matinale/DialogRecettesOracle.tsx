@@ -724,6 +724,7 @@ interface DialogRecettesOracleProps {
   referenceJournee?: string;
   /** Journée clôturée : la liste validée ne peut plus être remplacée. */
   lectureSeule?: boolean;
+  onValideeChange?: (validee: RecettesJourValidees | null) => void;
 }
 
 export function DialogRecettesOracle({
@@ -731,6 +732,7 @@ export function DialogRecettesOracle({
   onClose,
   referenceJournee,
   lectureSeule = false,
+  onValideeChange,
 }: DialogRecettesOracleProps) {
   return (
     <Dialog open={ouvert} onOpenChange={(o) => { if (!o) onClose(); }}>
@@ -740,6 +742,7 @@ export function DialogRecettesOracle({
           onClose={onClose}
           referenceJournee={referenceJournee}
           lectureSeule={lectureSeule}
+          onValideeChange={onValideeChange}
         />
       </DialogContent>
     </Dialog>

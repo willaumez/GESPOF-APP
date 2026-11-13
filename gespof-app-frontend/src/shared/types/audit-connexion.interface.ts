@@ -7,6 +7,7 @@ export interface SessionConnexionUtilisateur {
   prenom: string;
   nom_complet: string;
   email: string;
+  a_photo?: boolean;
 }
 
 export interface SessionConnexion {
@@ -23,6 +24,7 @@ export interface SessionConnexion {
   statut: StatutSessionConnexion;
   motif_deconnexion: { valeur: string; libelle: string } | null;
   adresse_ip: string | null;
+  user_agent?: string | null;
 }
 
 export interface AuditConnexionsResume {
@@ -38,11 +40,13 @@ export interface AuditConnexionsPointSerie {
 }
 
 export interface AuditConnexionsUtilisateurSerie {
+  id?: number | null;
   matricule: string;
   nom: string;
   prenom: string;
   nom_complet: string;
   email: string;
+  a_photo?: boolean;
   connexions_7j: number;
   connexions_30j: number;
   connexions_90j: number;

@@ -192,7 +192,7 @@ export function FamilleDialog({
             size="sm"
             variant="outline"
             disabled={actionBloquee}
-            className="gap-1.5 border-[#0760A8] text-[#0760A8] hover:bg-[#0760A8]/10"
+            className="gap-1.5 border-[#064A85] text-[#064A85] hover:bg-[#064A85]/10"
             onClick={onAjouterLigne}
           >
             {ajoutEnCours ? (
@@ -226,7 +226,7 @@ export function FamilleDialog({
             size="sm"
             variant="outline"
             disabled={actionBloquee || idsSystacSelection.length < 2}
-            className="gap-1.5 border-[#0760A8] text-[#0760A8] hover:bg-[#0760A8]/10"
+            className="gap-1.5 border-[#064A85] text-[#064A85] hover:bg-[#064A85]/10"
             onClick={onRegrouperSystac}
           >
             {regroupementEnCours ? (
@@ -247,7 +247,7 @@ export function FamilleDialog({
             size="sm"
             variant="outline"
             disabled={actionBloquee}
-            className="gap-1.5 border-[#0760A8] text-[#0760A8] hover:bg-[#0760A8]/10"
+            className="gap-1.5 border-[#064A85] text-[#064A85] hover:bg-[#064A85]/10"
             onClick={onAjouterLigne}
           >
             {ajoutEnCours ? (
@@ -281,7 +281,7 @@ export function FamilleDialog({
             size="sm"
             variant="outline"
             disabled={actionBloquee || idsMouvementSelection.length < 2}
-            className="gap-1.5 border-[#0760A8] text-[#0760A8] hover:bg-[#0760A8]/10"
+            className="gap-1.5 border-[#064A85] text-[#064A85] hover:bg-[#064A85]/10"
             onClick={onRegrouperMouvements}
           >
             {regroupementEnCours ? (

@@ -68,7 +68,14 @@ function formaterDate(iso: string): string {
  * consulte dans « Détail » et s'édite dans « Modifier ». Les lignes se
  * réordonnent par glisser-déposer (poignée à gauche).
  */
-export function BibliothequeSections() {
+export function BibliothequeSections({
+  maquette = false,
+  demandeAjout = 0,
+}: {
+  maquette?: boolean;
+  /** Incrémenté par la page parente pour ouvrir le dialog d'ajout. */
+  demandeAjout?: number;
+}) {
   const { hasRole } = useAuth();
   const peutSupprimer = hasRole("CHEF_SP");
 
@@ -84,6 +91,10 @@ export function BibliothequeSections() {
   const [pages, setPages] = useState(1);
 
   const [dialogAjoutOuvert, setDialogAjoutOuvert] = useState(false);
+
+  useEffect(() => {
+    if (demandeAjout > 0) setDialogAjoutOuvert(true);
+  }, [demandeAjout]);
   const [enDetailId, setEnDetailId] = useState<number | null>(null);
   const [enEditionId, setEnEditionId] = useState<number | null>(null);
 
@@ -186,89 +197,107 @@ export function BibliothequeSections() {
     }
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <CardTitle className="text-[15px]">Bibliothèque des sections</CardTitle>
-            <CardDescription>
-              Sections et sous-sections réutilisables à la composition
-              <br />
-              des Fiches Bleues.
-            </CardDescription>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                value={recherche}
-                onChange={(e) => {
-                  setRecherche(e.target.value);
-                  setPage(1);
-                }}
-                placeholder="Rechercher une section…"
-                aria-label="Rechercher une section ou une sous-section"
-                className="h-8 w-56 pl-8"
-              />
-            </div>
-            <Select
-              value={filtreType || "tous"}
-              onValueChange={(v) => {
-                setFiltreType(v === "tous" ? "" : (v as TypeSectionBibliotheque));
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="h-8 w-40" aria-label="Filtrer par type de section">
-                <SelectValue placeholder="Tous les types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="tous">Tous les types</SelectItem>
-                {TYPES_SECTION_BIBLIOTHEQUE.map((t) => (
-                  <SelectItem key={t.valeur} value={t.valeur}>
-                    {t.libelle}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={reinitialiser}
-              disabled={!filtreActif}
-              title="Réinitialiser les filtres et revenir à la première page"
-            >
-              <FilterX className="size-3.5" />
-              Réinitialiser
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => void rafraichir()}
-              disabled={loading}
-            >
-              <RefreshCw className={loading ? "size-3.5 animate-spin" : "size-3.5"} />
-              Actualiser
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setDialogAjoutOuvert(true)}
-            >
-              <Plus className="size-3.5" />
-              Ajouter
-            </Button>
-          </div>
+  const barreOutils = (
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3",
+        maquette
+          ? "border-b border-[#e2e8f0] px-4 py-3"
+          : undefined,
+      )}
+    >
+      {!maquette ? (
+        <div>
+          <CardTitle className="text-[15px]">Bibliothèque des sections</CardTitle>
+          <CardDescription>
+            Sections et sous-sections réutilisables à la composition
+            <br />
+            des Fiches Bleues.
+          </CardDescription>
         </div>
-      </CardHeader>
+      ) : null}
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <label className="relative flex h-9 w-[min(320px,100%)] items-center">
+          <Search className="pointer-events-none absolute left-2.5 size-3.5 text-[#64748b]" />
+          <Input
+            type="search"
+            value={recherche}
+            onChange={(e) => {
+              setRecherche(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Rechercher une section…"
+            aria-label="Rechercher une section ou une sous-section"
+            className="h-9 border-[#cbd5e1] pl-8"
+          />
+        </label>
+        <Select
+          value={filtreType || "tous"}
+          onValueChange={(v) => {
+            setFiltreType(v === "tous" ? "" : (v as TypeSectionBibliotheque));
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="h-9 w-40 border-[#cbd5e1]" aria-label="Filtrer par type de section">
+            <SelectValue placeholder="Tous les types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="tous">Tous les types</SelectItem>
+            {TYPES_SECTION_BIBLIOTHEQUE.map((t) => (
+              <SelectItem key={t.valeur} value={t.valeur}>
+                {t.libelle}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1.5"
+          onClick={reinitialiser}
+          disabled={!filtreActif}
+          title="Réinitialiser les filtres et revenir à la première page"
+        >
+          <FilterX className="size-3.5" />
+          Réinitialiser
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1.5"
+          onClick={() => void rafraichir()}
+          disabled={loading}
+        >
+          <RefreshCw className={loading ? "size-3.5 animate-spin" : "size-3.5"} />
+          Actualiser
+        </Button>
+        {!maquette ? (
+          <Button
+            type="button"
+            size="sm"
+            className="h-9 gap-1.5"
+            onClick={() => setDialogAjoutOuvert(true)}
+          >
+            <Plus className="size-3.5" />
+            Ajouter
+          </Button>
+        ) : null}
+      </div>
+      {maquette ? (
+        <span className="text-[13px] text-[#64748b]">
+          {loading ? "Chargement…" : `${total} section${total !== 1 ? "s" : ""}`}
+        </span>
+      ) : null}
+    </div>
+  );
 
-      <CardContent className="space-y-4">
+  return (
+    <Card className={cn(maquette && "gap-0 border-0 py-0 shadow-none")}>
+      {maquette ? barreOutils : <CardHeader>{barreOutils}</CardHeader>}
+
+      <CardContent className={cn("space-y-4", maquette && "px-0 pt-0")}>
         {loading ? (
           <div className="space-y-2">
             {[0, 1, 2].map((i) => (

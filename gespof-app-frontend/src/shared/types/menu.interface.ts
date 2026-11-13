@@ -46,6 +46,12 @@ export interface MenuPortalTheme {
   iconColor: string;
   ctaColor: string;
   hoverColor: string;
+  /** Fond barre latérale (maquette Prototype v2 — SB). */
+  sidebarBg: string;
+  /** Bordure claire du thème (maquette TH.bd). */
+  borderColor: string;
+  /** Texte accent sombre (maquette TH.tx). */
+  textColor: string;
 }
 
 /** Sous-page sans entrée de menu : elle garde active l'entrée `path` (ex. /sr/fiche/12). */
@@ -67,6 +73,19 @@ export interface MenuPortal {
    * GESPOF dans l'en-tête de la barre latérale. Omis = nom du service en texte.
    */
   logo?: string;
+  /**
+   * Titre texte de l'en-tête sidebar (maquette). S'il est défini, il prime sur
+   * `logo` dans la barre latérale — le logo reste utilisable ailleurs (sélection
+   * de portail).
+   */
+  sidebarBrandTitle?: string;
+  /** Sous-titre de l'en-tête sidebar (avec `sidebarBrandTitle`). */
+  sidebarBrandSubtitle?: string;
+  /**
+   * Seconde ligne du pied de sidebar. Si définie, remplace l'affichage de la
+   * dernière connexion (ex. maquette SOF : « DOMF · DGCPT »).
+   */
+  sidebarFooterCaption?: string;
   path: string;
   badge: string | null;
   ctaLabel: string;

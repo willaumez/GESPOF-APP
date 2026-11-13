@@ -49,6 +49,32 @@ final class AppConfig
         return $this->kernelProjectDir.'/src/Shared/ModelFichier';
     }
 
+    /** Modèles Excel/PDF publics (exports listes, historiques, etc.). */
+    public function modelFichiersPublicDir(): string
+    {
+        return $this->kernelProjectDir.'/public/model_fichiers';
+    }
+
+    public function modeleListeFichesDepotXlsxPath(): string
+    {
+        return $this->modelFichiersPublicDir().\DIRECTORY_SEPARATOR.'Model-Liste-fiches-depot.xlsx';
+    }
+
+    public function modeleListeFichesDepotPdfPath(): string
+    {
+        return $this->modelFichiersPublicDir().\DIRECTORY_SEPARATOR.'Model-Liste-fiches-depot.pdf';
+    }
+
+    public function modeleHistoriqueXlsxPath(): string
+    {
+        return $this->modelFichiersPublicDir().\DIRECTORY_SEPARATOR.'Model-Historique.xlsx';
+    }
+
+    public function modeleHistoriquePdfPath(): string
+    {
+        return $this->modelFichiersPublicDir().\DIRECTORY_SEPARATOR.'Model-Historique.pdf';
+    }
+
     public function modeleFicheDepotPath(): string
     {
         return $this->modelFichierDir().\DIRECTORY_SEPARATOR.'FICHE_DE_DEPOT_MODELE_CORRIGE.xlsx';

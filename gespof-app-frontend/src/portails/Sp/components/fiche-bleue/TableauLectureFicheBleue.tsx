@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FileText, Inbox, Loader2 } from "lucide-react";
 import { Input } from "@/shared/components/ui/input";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/shared/components/ui/table";
-import { cn } from "@/shared/lib/utils";
-import { formaterMontantFcfa, estConteneurTypeSection, styleIndentSection } from "@/portails/Sp/components/fiche-bleue/fiche-bleue-affichage";
-import { LigneGroupeType } from "@/portails/Sp/components/fiche-bleue/LigneGroupeType";
+import { formaterMontantFcfa } from "@/portails/Sp/components/fiche-bleue/fiche-bleue-affichage";
 import type { FicheBleueDetail, SectionFicheBleue } from "@/portails/Sp/types/fiche-bleue.interface";
 import type { TypeSectionBibliotheque } from "@/portails/Sp/types/bibliotheque.interface";
 
@@ -46,6 +41,8 @@ function normaliserMontant(brut: string): string | null {
   return n.toFixed(2);
 }
 
+const GRILLE = "minmax(0, 1fr) 200px";
+
 /** Programmé saisissable : double-clic pour éditer, Entrée pour valider, Échap pour annuler. */
 function CelluleProgramme({
   valeur,
@@ -79,8 +76,14 @@ function CelluleProgramme({
     if (await onValider(montant)) setEdition(false);
   }
 
+  function demarrerEdition() {
+    const n = Number(valeur.replace(",", "."));
+    setBrouillon(Number.isFinite(n) && n !== 0 ? String(n) : "");
+    setEdition(true);
+  }
+
   if (enregistrement) {
-    return <Loader2 className="ml-auto size-4 animate-spin text-muted-foreground" />;
+    return <Loader2 className="ml-auto size-4 animate-spin text-[#64748b]" />;
   }
 
   if (edition) {
@@ -98,7 +101,7 @@ function CelluleProgramme({
           }
           if (e.key === "Escape") setEdition(false);
         }}
-        className="ml-auto h-7 w-40 text-right tabular-nums"
+        className="ml-auto h-7 w-full max-w-[180px] text-right tabular-nums"
         aria-label="Montant programmé"
       />
     );
@@ -107,19 +110,13 @@ function CelluleProgramme({
   return (
     <button
       type="button"
-      className="ml-auto inline-block min-w-[9rem] cursor-text rounded-md px-1.5 py-0.5 text-right font-semibold tabular-nums hover:bg-primary/10 focus-visible:bg-primary/10 focus-visible:outline-none"
+      className="w-full cursor-text rounded-md px-1 py-0.5 text-right tabular-nums hover:bg-[#f8fafc] focus-visible:outline-none"
       title="Double-cliquer pour modifier le programmé"
-      onDoubleClick={() => {
-        const n = Number(valeur.replace(",", "."));
-        setBrouillon(Number.isFinite(n) && n !== 0 ? String(n) : "");
-        setEdition(true);
-      }}
+      onDoubleClick={demarrerEdition}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === "F2") {
           e.preventDefault();
-          const n = Number(valeur.replace(",", "."));
-          setBrouillon(Number.isFinite(n) && n !== 0 ? String(n) : "");
-          setEdition(true);
+          demarrerEdition();
         }
       }}
     >
@@ -128,6 +125,10 @@ function CelluleProgramme({
   );
 }
 
+/**
+ * Lecture / édition légère de la Fiche Bleue — présentation maquette Prototype v2
+ * (Section / rubrique · Programmé), avec double-clic sur les feuilles.
+ */
 export function TableauLectureFicheBleue({
   fiche,
   chargement,
@@ -143,13 +144,10 @@ export function TableauLectureFicheBleue({
 }) {
   const [sectionEnCours, setSectionEnCours] = useState<number | null>(null);
   const lignes = fiche ? aplatirSections(fiche.sections) : [];
-  let ordreRacine = 0;
-  const idPremiereRecette = lignes.find((l) => l.estRacine && l.type === "recette")?.id;
-  const idPremiereDepense = lignes.find((l) => l.estRacine && l.type === "depense")?.id;
 
   if (chargement && !fiche) {
     return (
-      <div className="flex min-h-44 items-center justify-center rounded-xl border text-muted-foreground">
+      <div className="flex min-h-44 items-center justify-center text-[#64748b]">
         <div className="flex items-center gap-2 text-[13px]">
           <Loader2 className="size-5 animate-spin" />
           Chargement de la Fiche Bleue…
@@ -161,95 +159,100 @@ export function TableauLectureFicheBleue({
   if (!fiche) {
     return (
       <div
-        className="flex min-h-44 flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 text-center"
+        className="flex min-h-44 flex-col items-center justify-center gap-2 px-4 text-center"
         role="status"
       >
-        <FileText className="size-5 text-muted-foreground" aria-hidden />
-        <p className="text-[13px] text-muted-foreground">Aucune Fiche Bleue à afficher.</p>
+        <FileText className="size-5 text-[#64748b]" aria-hidden />
+        <p className="text-[13px] text-[#64748b]">Aucune Fiche Bleue à afficher.</p>
       </div>
     );
   }
 
   return (
-    <Table containerClassName="rounded-xl border-2 border-green-600/55">
-      <TableHeader>
-        <TableRow className="hover:bg-transparent">
-          <TableHead className="w-12 bg-muted">N°</TableHead>
-          <TableHead className="bg-muted">BANCAIRE</TableHead>
-          <TableHead className="w-44 bg-muted text-right">PROGRAMME (FCFA)</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {lignes.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={3} className="py-10 text-center text-muted-foreground">
-              <span className="inline-flex flex-col items-center gap-1.5">
-                <Inbox className="size-5" aria-hidden />
-                <span className="text-[13px]">Aucune section sur cette fiche.</span>
-              </span>
-            </TableCell>
-          </TableRow>
-        ) : (
-          lignes.flatMap((ligne) => {
-            if (ligne.estRacine) ordreRacine += 1;
-            const afficherGroupe =
-              ligne.estRacine
-              && (ligne.type === "recette" || ligne.type === "depense")
-              && ligne.id === (ligne.type === "recette" ? idPremiereRecette : idPremiereDepense)
-              && !estConteneurTypeSection(ligne.nom, ligne.type, true);
-            const row = (
-              <TableRow key={ligne.id}>
-                <TableCell className="tabular-nums text-muted-foreground">
-                  {ligne.estRacine ? ordreRacine : ""}
-                </TableCell>
-                <TableCell className="whitespace-normal">
-                  <div
-                    className={cn(
-                      "min-w-0 font-medium",
-                      ligne.niveau > 0 && "border-l-2 border-muted-foreground/25 text-muted-foreground",
-                    )}
-                    style={styleIndentSection(ligne.niveau)}
-                  >
-                    {ligne.nom}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right font-semibold tabular-nums">
-                  {onModifierProgramme && ligne.estFeuille ? (
-                    <CelluleProgramme
-                      valeur={ligne.montantProgramme}
-                      enregistrement={sectionEnCours === ligne.id}
-                      onValider={async (montant) => {
-                        setSectionEnCours(ligne.id);
-                        try {
-                          return await onModifierProgramme(ligne.id, montant);
-                        } finally {
-                          setSectionEnCours(null);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <span
-                      title={onModifierProgramme && !ligne.estFeuille ? "Montant calculé à partir des sous-sections" : undefined}
-                    >
-                      {formaterMontantFcfa(ligne.montantProgramme)}
-                    </span>
-                  )}
-                </TableCell>
-              </TableRow>
+    <div>
+      <div
+        className="grid items-center border-b border-[#e2e8f0] bg-[#f8fafc] text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]"
+        style={{
+          gridTemplateColumns: GRILLE,
+          gap: 12,
+          padding: "9px 18px",
+        }}
+      >
+        <span>Section / rubrique</span>
+        <span className="text-right">Programmé</span>
+      </div>
+
+      {lignes.length === 0 ? (
+        <div className="flex flex-col items-center gap-1.5 py-10 text-[#64748b]">
+          <Inbox className="size-5" aria-hidden />
+          <span className="text-[13px]">Aucune section sur cette fiche.</span>
+        </div>
+      ) : (
+        lignes.map((ligne) => {
+          if (ligne.estRacine) {
+            return (
+              <div
+                key={ligne.id}
+                className="grid items-center border-y border-[#dbe6f3] text-[12.5px] font-semibold uppercase tracking-[0.06em] text-[#1e3a8a]"
+                style={{
+                  gridTemplateColumns: GRILLE,
+                  gap: 12,
+                  minHeight: 38,
+                  padding: "0 18px",
+                  background: "#eef4fb",
+                }}
+              >
+                <span>{ligne.nom}</span>
+                <span className="text-right tabular-nums tracking-normal">
+                  {formaterMontantFcfa(ligne.montantProgramme)}
+                </span>
+              </div>
             );
-            return afficherGroupe
-              ? [
-                  <LigneGroupeType
-                    key={`groupe-${ligne.type}`}
-                    type={ligne.type}
-                    colSpan={3}
-                  />,
-                  row,
-                ]
-              : [row];
-          })
-        )}
-      </TableBody>
-    </Table>
+          }
+
+          return (
+            <div
+              key={ligne.id}
+              className="grid items-center border-b border-[#f1f5f9] text-[14px] text-[#0f172a]"
+              style={{
+                gridTemplateColumns: GRILLE,
+                gap: 12,
+                minHeight: 40,
+                padding: "0 18px 0 30px",
+              }}
+            >
+              <span>{ligne.nom}</span>
+              <span className="text-right">
+                {onModifierProgramme && ligne.estFeuille ? (
+                  <CelluleProgramme
+                    valeur={ligne.montantProgramme}
+                    enregistrement={sectionEnCours === ligne.id}
+                    onValider={async (montant) => {
+                      setSectionEnCours(ligne.id);
+                      try {
+                        return await onModifierProgramme(ligne.id, montant);
+                      } finally {
+                        setSectionEnCours(null);
+                      }
+                    }}
+                  />
+                ) : (
+                  <span
+                    className="tabular-nums"
+                    title={
+                      onModifierProgramme && !ligne.estFeuille
+                        ? "Montant calculé à partir des sous-sections"
+                        : undefined
+                    }
+                  >
+                    {formaterMontantFcfa(ligne.montantProgramme)}
+                  </span>
+                )}
+              </span>
+            </div>
+          );
+        })
+      )}
+    </div>
   );
 }

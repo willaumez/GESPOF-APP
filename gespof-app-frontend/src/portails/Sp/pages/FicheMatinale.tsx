@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import { CreditCard, FileText, Loader2, Sunrise } from "lucide-react";
+import { ArrowRight, Loader2, Sunrise } from "lucide-react";
 import { toast } from "sonner";
 import { getPortalMenu } from "@/shared/config/menu";
-import { Button } from "@/shared/components/ui/button";
 import { formaterDateSeuleMatinale } from "@/shared/lib/format-date-heure";
-import { ResumeJourneeMatinale } from "@/portails/Sp/components/fiche-matinale/ResumeJourneeMatinale";
+import { JourneeTresorerieVue } from "@/portails/Sp/components/fiche-matinale/JourneeTresorerieVue";
+import { SpPageHeader } from "@/portails/Sp/components/layout/SpPageHeader";
 import {
   creerJourneeTresorerie,
   journeeTresorerieParDate,
@@ -13,52 +13,54 @@ import {
 import { useJourneeSelectionnee } from "@/portails/Sp/hooks/journee-selectionnee";
 import type { JourneeTresorerie } from "@/portails/Sp/types/journee-tresorerie.interface";
 
+const theme = getPortalMenu("sp").theme;
+
 const ETAPES = [
   {
-    numero: 1,
-    titre: "Fiche Bleue",
-    sousTitre: "Programmation du jour",
-    description:
-      "Prévision de trésorerie du jour : composition des sections (Solde d'entrée, recettes, dépenses) et montants programmés pour la date du jour.",
-    icone: FileText,
+    n: "1",
+    l: "Fiche Bleue",
+    s: "Programmation du jour",
+    st: "À composer",
+    k: "neu" as const,
   },
   {
-    numero: 2,
-    titre: "Fiche d'exécution",
-    sousTitre: "Fiche matinale",
-    description:
-      "Suivi de la réalisation au fil de la journée : mise à jour régulière des montants réalisés, soldes bancaires et écarts par rapport à la programmation.",
-    icone: Sunrise,
+    n: "2",
+    l: "Fiche d'exécution",
+    s: "Fiche matinale",
+    st: "En attente",
+    k: "warn" as const,
   },
   {
-    numero: 3,
-    titre: "Fiche de dépôt",
-    sousTitre: "Reçus du Service Règlement",
-    description:
-      "Pièces et mouvements issus du Service Règlement (SR), intégrés pour alimenter et rapprocher l'exécution de la journée de trésorerie.",
-    icone: CreditCard,
+    n: "3",
+    l: "Fiche de dépôt",
+    s: "Reçus du Service Règlement",
+    st: "—",
+    k: "info" as const,
   },
 ] as const;
+
+const TAG = {
+  neu: { bg: "#f1f5f9", fg: "#475569" },
+  warn: { bg: "#fffbeb", fg: "#b45309" },
+  info: { bg: "#eff6ff", fg: "#1d4ed8" },
+} as const;
 
 type EtatNavigationMatinale = {
   journeeValidee?: JourneeTresorerie;
 };
 
 /**
- * Accueil Fiche matinale — journée choisie dans la TopBar (journée du jour par défaut) :
- * - pas de journée du jour → ouverture ;
- * - journée existante → Fiche d'exécution (et boutons vers les autres fiches) ;
- * - « Journée Trésorerie » ouvre le workflow à onglets.
+ * Accueil Fiche matinale — ouverture de journée / reprise (maquette Prototype v2).
  */
 export default function FicheMatinale() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const theme = getPortalMenu("sp").theme;
   const {
-    journee: journeeAvecExecution, chargement, appliquerJournee,
+    journee: journeeAvecExecution,
+    chargement,
+    appliquerJournee,
   } = useJourneeSelectionnee();
   const [maintenant, setMaintenant] = useState(() => new Date());
-  /** Date `?date=` déjà résolue : résolution en cours tant qu'elle diffère de la date du lien. */
   const [dateResolue, setDateResolue] = useState<string | null>(null);
   const [ouvertureEnCours, setOuvertureEnCours] = useState(false);
 
@@ -71,12 +73,10 @@ export default function FicheMatinale() {
     return () => window.clearInterval(id);
   }, []);
 
-  // Retour après « Valider » : la journée validée devient la journée affichée.
   useEffect(() => {
     if (journeeValidee) appliquerJournee(journeeValidee);
   }, [journeeValidee, appliquerJournee]);
 
-  // Lien `?date=` (notification SR) : sélectionne la journée de cette date.
   useEffect(() => {
     if (!dateCible || journeeValidee) return;
     let annule = false;
@@ -94,7 +94,9 @@ export default function FicheMatinale() {
       .catch((e) => {
         if (annule) return;
         toast.error(
-          e instanceof Error ? e.message : "Impossible de vérifier la journée de trésorerie.",
+          e instanceof Error
+            ? e.message
+            : "Impossible de vérifier la journée de trésorerie.",
         );
       })
       .finally(() => {
@@ -117,7 +119,9 @@ export default function FicheMatinale() {
       appliquerJournee(creee);
     } catch (e) {
       toast.error(
-        e instanceof Error ? e.message : "Impossible d'ouvrir la journée de trésorerie.",
+        e instanceof Error
+          ? e.message
+          : "Impossible d'ouvrir la journée de trésorerie.",
       );
     } finally {
       setOuvertureEnCours(false);
@@ -126,7 +130,7 @@ export default function FicheMatinale() {
 
   if (chargement || resolutionLien) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center gap-2 text-muted-foreground">
+      <div className="flex min-h-[40vh] items-center justify-center gap-2 text-[#64748b]">
         <Loader2 className="size-6 animate-spin" />
         <span className="text-[13px]">Vérification de la journée…</span>
       </div>
@@ -135,108 +139,114 @@ export default function FicheMatinale() {
 
   if (journeeAvecExecution) {
     return (
-      <ResumeJourneeMatinale
+      <JourneeTresorerieVue
         key={journeeAvecExecution.reference}
         journee={journeeAvecExecution}
         onJourneeChange={appliquerJournee}
+        ongletInitial="fiche-execution"
       />
     );
   }
 
   return (
-    <div className="flex w-full min-h-[calc(100vh-11rem)] items-center justify-center">
-      <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-8 px-1 py-4 sm:gap-10 sm:px-2 sm:py-6 lg:gap-12">
-        <div className="flex w-full max-w-3xl flex-col items-center gap-5 text-center sm:gap-6">
-          <div
-            className="flex size-12 items-center justify-center rounded-2xl sm:size-14"
-            style={{ background: theme.iconBg, color: theme.iconColor }}
-          >
-            <Sunrise className="size-6 sm:size-7" />
-          </div>
+    <>
+      <SpPageHeader
+        eyebrow={`Service de Prévision · ${dateBouton}`}
+        title="Fiche matinale"
+        description="Programmation (Fiche Bleue), suivi matinal (Fiche d'exécution) et reçus du Service Règlement (Fiche de dépôt)."
+      />
 
-          <div className="space-y-2 sm:space-y-3">
-            <p
-              className="text-[11px] font-semibold tracking-[0.12em] uppercase sm:text-[12px]"
-              style={{ color: theme.iconColor }}
-            >
-              Journée de trésorerie
-            </p>
-            <p className="mx-auto max-w-lg text-[13px] leading-relaxed text-foreground/75 sm:text-[14.5px]">
-              Ouvrir la journée regroupe, pour la date du jour, la programmation
-              (Fiche Bleue), le suivi matinal (Fiche d&apos;exécution) et les reçus
-              du Service Règlement (Fiche de dépôt).
-            </p>
-          </div>
-
-          <Button
-            type="button"
-            size="lg"
-            className="h-11 w-full max-w-md gap-2 px-4 text-[12px] font-semibold tracking-wide uppercase shadow-md transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-lg sm:h-12 sm:w-auto sm:px-8 sm:text-[13px]"
-            style={{ background: theme.ctaColor, color: "#fff" }}
-            disabled={ouvertureEnCours}
-            onClick={() => void ouvrirJournee()}
-          >
-            {ouvertureEnCours && <Loader2 className="size-4 animate-spin" />}
-            Ouvrir la journée trésorerie du {dateBouton}
-          </Button>
+      <div
+        className="flex flex-col items-start rounded-lg border border-[#e2e8f0] bg-white"
+        style={{
+          gap: 18,
+          padding: 40,
+          borderLeft: `4px solid ${theme.topColor}`,
+        }}
+      >
+        <div
+          className="grid size-11 place-items-center rounded-lg"
+          style={{ background: theme.iconBg, color: theme.textColor }}
+        >
+          <Sunrise size={22} />
         </div>
-
-        <ol className="grid w-full grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-          {ETAPES.map((etape) => {
-            const Icone = etape.icone;
-            return (
-              <li
-                key={etape.numero}
-                className="group relative flex min-h-0 flex-col gap-3 rounded-2xl border-2 bg-card p-4 text-left shadow-md transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-xl sm:gap-4 sm:p-5 md:p-6 md:last:col-span-2 lg:last:col-span-1"
-                style={{ borderColor: `${theme.topColor}33` }}
-              >
-                <div
-                  className="absolute -top-2.5 -right-2.5 flex size-7 items-center justify-center rounded-full text-[11px] font-bold text-white shadow-sm sm:-top-3 sm:-right-3"
-                  style={{ background: theme.ctaColor }}
-                >
-                  {etape.numero}
-                </div>
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex size-9 shrink-0 items-center justify-center rounded-xl sm:size-10"
-                    style={{ background: theme.iconBg, color: theme.iconColor }}
-                  >
-                    <Icone className="size-4 sm:size-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-[14px] font-bold text-foreground sm:text-[15px]">
-                      {etape.titre}
-                    </p>
-                    <p className="truncate text-[11.5px] font-medium text-muted-foreground sm:text-[12px]">
-                      {etape.sousTitre}
-                    </p>
-                  </div>
-                </div>
-                <p
-                  className="border-t pt-3 text-[12.5px] leading-relaxed text-foreground/75 sm:text-[13.5px]"
-                  style={{ borderColor: `${theme.topColor}22` }}
-                >
-                  {etape.description}
-                </p>
-                <div className="mt-auto flex items-center gap-2 pt-1 text-[11px] text-muted-foreground">
-                  <span className="h-1 w-full overflow-hidden rounded-full bg-muted">
-                    <span
-                      className="block h-full rounded-full transition-all duration-500 group-hover:w-full"
-                      style={{
-                        width: `${(etape.numero / ETAPES.length) * 100}%`,
-                        background: theme.ctaColor,
-                      }}
-                    />
-                  </span>
-                  <span className="shrink-0 font-mono text-[10px]">
-                    {etape.numero}/{ETAPES.length}
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
+        <div className="flex max-w-[620px] flex-col" style={{ gap: 6 }}>
+          <div
+            className="font-semibold text-[#0f172a]"
+            style={{
+              fontFamily: '"IBM Plex Serif", serif',
+              fontSize: 20,
+            }}
+          >
+            Aucune journée de trésorerie ouverte
+          </div>
+          <div
+            className="text-[14.5px] text-[#475569]"
+            style={{ lineHeight: 1.6 }}
+          >
+            Ouvrir la journée regroupe, pour la date du jour, la programmation
+            (Fiche Bleue), le suivi matinal (Fiche d&apos;exécution) et les
+            reçus du Service Règlement (Fiche de dépôt).
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => void ouvrirJournee()}
+          disabled={ouvertureEnCours}
+          className="flex items-center gap-2.5 rounded-md border-0 px-5 text-[14.5px] font-semibold text-white disabled:opacity-60"
+          style={{ height: 44, background: theme.ctaColor }}
+        >
+          {ouvertureEnCours ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : null}
+          Démarrer la journée trésorerie du {dateBouton}
+          <ArrowRight size={18} />
+        </button>
       </div>
-    </div>
+
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: 12,
+        }}
+      >
+        {ETAPES.map((s) => {
+          const tag = TAG[s.k];
+          return (
+            <div
+              key={s.n}
+              className="flex items-center rounded-lg border border-[#e2e8f0] bg-[#fbfcfd]"
+              style={{ gap: 14, padding: "16px 18px" }}
+            >
+              <span
+                className="grid size-8 shrink-0 place-items-center rounded-md text-sm font-semibold"
+                style={{ background: "#f1f5f9", color: "#475569" }}
+              >
+                {s.n}
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col leading-snug">
+                <span className="text-[15px] font-semibold text-[#0f172a]">
+                  {s.l}
+                </span>
+                <span className="text-[12.5px] text-[#64748b]">{s.s}</span>
+              </span>
+              <span
+                className="shrink-0 font-medium whitespace-nowrap"
+                style={{
+                  fontSize: 12,
+                  padding: "2px 9px",
+                  borderRadius: 4,
+                  background: tag.bg,
+                  color: tag.fg,
+                }}
+              >
+                {s.st}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }

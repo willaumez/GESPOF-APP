@@ -1,39 +1,42 @@
 import { useEffect, useRef, useState } from "react";
-import { FileWarning, Inbox, Loader2, Plus, Sunrise } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  Database, Eye, FileWarning, Inbox, Link2, Loader2, Plus, Sunrise,
+} from "lucide-react";
 import { toast } from "sonner";
 import { getPortalMenu } from "@/shared/config/menu";
 import { cn } from "@/shared/lib/utils";
 import { messageDonneesOuDefaut } from "@/shared/lib/message-utilisateur";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
-import { TooltipProvider } from "@/shared/components/ui/tooltip";
-import { detailJourneeTresorerie } from "@/portails/Sp/api/journees-tresorerie";
+  detailJourneeTresorerie,
+  recettesJourValidees,
+} from "@/portails/Sp/api/journees-tresorerie";
 import {
   appliquerMontantsRealise,
   creerFicheExecutionJournee,
   trouverFicheExecutionJournee,
 } from "@/portails/Sp/api/fiches-execution";
 import { DialogAjoutNonProgramme } from "@/portails/Sp/components/fiche-matinale/DialogAjoutNonProgramme";
-import { TableauFicheExecutionExcel } from "@/portails/Sp/components/fiche-execution/TableauFicheExecutionExcel";
+import { DialogRecettesOracle } from "@/portails/Sp/components/fiche-matinale/DialogRecettesOracle";
+import { PreviewFicheExecutionDialog } from "@/portails/Sp/components/fiche-matinale/PreviewFicheExecutionDialog";
+import { TableauFicheExecutionLecture } from "@/portails/Sp/components/fiche-execution/TableauFicheExecutionLecture";
+import { OverlayPleinEcran } from "@/portails/Sp/components/plein-ecran/PleinEcran";
 import {
-  BoutonPleinEcran, OverlayPleinEcran,
-} from "@/portails/Sp/components/plein-ecran/PleinEcran";
-import { formaterMontantFcfa, styleIndentSection } from "@/portails/Sp/components/fiche-bleue/fiche-bleue-affichage";
+  formaterMontantFcfa,
+  formaterTauxRealise,
+  styleIndentSection,
+} from "@/portails/Sp/components/fiche-bleue/fiche-bleue-affichage";
 import type {
   FicheExecutionDetail,
   SectionFicheExecution,
 } from "@/portails/Sp/types/fiche-execution.interface";
 import type { TypeSectionBibliotheque } from "@/portails/Sp/types/bibliotheque.interface";
-import type { JourneeTresorerie } from "@/portails/Sp/types/journee-tresorerie.interface";
+import type {
+  JourneeTresorerie,
+  RecettesJourValidees,
+} from "@/portails/Sp/types/journee-tresorerie.interface";
 
 const MESSAGE_FICHE_EXECUTION_VIDE = "Aucune Fiche d'exécution.";
 
@@ -93,19 +96,6 @@ function aplatirSections(
   return out;
 }
 
-function fondLigne(
-  type: TypeSectionBibliotheque,
-  nonProgramme: boolean,
-): string | undefined {
-  if (nonProgramme) {
-    if (type === "recette") return "bg-amber-50 hover:bg-amber-100/90";
-    if (type === "depense") return "bg-orange-50 hover:bg-orange-100/90";
-  }
-  if (type === "recette") return "bg-emerald-50/80 hover:bg-emerald-50";
-  if (type === "depense") return "bg-rose-50/80 hover:bg-rose-50";
-  return undefined;
-}
-
 function CelluleRealise({
   valeur,
   edition,
@@ -159,7 +149,7 @@ function CelluleRealise({
           }
         }}
         onClick={(e) => e.stopPropagation()}
-        className="ml-auto h-7 w-44 text-right tabular-nums"
+        className="ml-auto h-7 w-full max-w-[140px] text-right tabular-nums"
         aria-label="Montant réalisé"
       />
     );
@@ -168,8 +158,8 @@ function CelluleRealise({
   return (
     <span
       className={cn(
-        "inline-block min-w-[11rem] rounded-md px-1 py-0.5 text-right font-semibold tabular-nums",
-        !disabled && "cursor-text hover:bg-background/80",
+        "inline-block w-full text-right font-medium tabular-nums",
+        !disabled && "cursor-text",
       )}
       title={disabled ? undefined : "Double-cliquer pour modifier le réalisé"}
       onDoubleClick={(e) => {
@@ -183,45 +173,15 @@ function CelluleRealise({
   );
 }
 
-const CLASSE_TABLE_ALIGNEE = "table-fixed";
-
-function ColonneFicheExecution() {
-  return (
-    <colgroup>
-      <col className="w-12" />
-      <col />
-      <col className="w-44" />
-      <col className="w-56" />
-      <col className="w-44" />
-    </colgroup>
-  );
+function couleurEcart(ecart: string): string {
+  if (estNegatif(ecart)) return "#b91c1c";
+  const n = Number(ecart.replace(",", "."));
+  if (Number.isFinite(n) && n > 0) return "#047857";
+  return "#64748b";
 }
 
-function CelluleNomSection({ ligne }: { ligne: LigneAplat }) {
-  return (
-    <div
-      className={cn(
-        "flex min-w-0 items-center gap-2 font-medium",
-        ligne.niveau > 0 &&
-          "border-l-2 border-muted-foreground/25 text-muted-foreground",
-        !ligne.estFeuille && "font-semibold",
-      )}
-      style={styleIndentSection(ligne.niveau)}
-    >
-      <span className="truncate">{ligne.nom}</span>
-      {ligne.estRacine && ligne.type === "solde" ? (
-        <Badge className="shrink-0 border-transparent bg-[#c9960a]/15 text-[10px] font-semibold uppercase tracking-wide text-[#8a6508]">
-          Solde d&apos;ouverture
-        </Badge>
-      ) : null}
-      {ligne.nonProgramme && (
-        <Badge className="shrink-0 border-transparent bg-amber-200/90 text-[10px] font-semibold uppercase tracking-wide text-amber-950">
-          Non programmé
-        </Badge>
-      )}
-    </div>
-  );
-}
+const GRILLE_FE =
+  "minmax(240px, 2fr) repeat(3, minmax(140px, 1fr)) 80px";
 
 interface TabFicheExecutionProps {
   journee: JourneeTresorerie;
@@ -244,6 +204,7 @@ export function TabFicheExecution({
   onCreerFicheBleue,
   actif,
 }: TabFicheExecutionProps) {
+  const navigate = useNavigate();
   const theme = getPortalMenu("sp").theme;
   /** Journée clôturée (non réouverte) : consultation uniquement. */
   const cloturee = journee.etat === "cloture";
@@ -253,7 +214,11 @@ export function TabFicheExecution({
   const [sectionEnEdition, setSectionEnEdition] = useState<number | null>(null);
   const [enregistrement, setEnregistrement] = useState(false);
   const [dialogAjoutOuvert, setDialogAjoutOuvert] = useState(false);
+  const [dialogOracle, setDialogOracle] = useState(false);
+  const [apercuOuvert, setApercuOuvert] = useState(false);
   const [pleinEcran, setPleinEcran] = useState(false);
+  /** Liste de recettes déjà validée pour la journée → bouton = rapprochement. */
+  const [recettesValidees, setRecettesValidees] = useState(false);
 
   const onJourneeChangeRef = useRef(onJourneeChange);
   const onFicheChangeRef = useRef(onFicheChange);
@@ -263,6 +228,21 @@ export function TabFicheExecution({
   useEffect(() => {
     if (!actif) setPleinEcran(false);
   }, [actif]);
+
+  useEffect(() => {
+    if (!actif) return;
+    let annule = false;
+    void recettesJourValidees(journee.reference)
+      .then(({ recettes_jour }) => {
+        if (!annule) setRecettesValidees(recettes_jour != null);
+      })
+      .catch(() => {
+        if (!annule) setRecettesValidees(false);
+      });
+    return () => {
+      annule = true;
+    };
+  }, [actif, journee.reference]);
 
   useEffect(() => {
     if (!pleinEcran) return;
@@ -445,233 +425,282 @@ export function TabFicheExecution({
   }
 
   const lignes = aplatirSections(fiche.sections);
-  const lignesSolde = lignes.filter((l) => l.type === "solde");
-  const lignesMouvements = lignes.filter((l) => l.type !== "solde");
-  let ordreSolde = 0;
-  let ordreMouvement = 0;
+  const heureMaj = fiche.date_dernier_mise_jour
+    ? new Date(fiche.date_dernier_mise_jour).toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
 
-  function rendreBoutonAjouter() {
-    return (
-      <Button
-        type="button"
-        size="sm"
-        className="shrink-0 gap-1.5 text-white hover:opacity-90"
-        style={{ background: theme.ctaColor }}
-        disabled={cloturee}
-        title={cloturee ? "Journée clôturée : ajout impossible" : undefined}
-        onClick={() => setDialogAjoutOuvert(true)}
+  const btnSecondaire =
+    "flex h-[34px] items-center gap-1.5 rounded-md border border-[#e2e8f0] bg-white px-3 text-[13px] text-[#0f172a] hover:border-[#94a3b8]";
+
+  return (
+    <div className="flex flex-col overflow-hidden rounded-lg border border-[#e2e8f0] bg-white">
+      <div
+        className="flex flex-wrap items-center border-b border-[#e2e8f0]"
+        style={{ gap: 12, padding: "14px 18px" }}
       >
-        <Plus className="size-3.5" />
-        Ajouter
-      </Button>
-    );
-  }
+        <div className="flex min-w-0 flex-col" style={{ gap: 2 }}>
+          <span className="text-[15px] font-semibold text-[#0f172a]">
+            Fiche d&apos;exécution{" "}
+            <span
+              className="font-normal text-[#64748b]"
+              style={{
+                fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                fontSize: 12,
+              }}
+            >
+              {fiche.reference}
+            </span>
+          </span>
+          <span className="text-[12.5px] text-[#64748b]">
+            {heureMaj
+              ? `Dernière mise à jour à ${heureMaj} · montants en FCFA`
+              : "Montants en FCFA"}
+          </span>
+        </div>
 
-  const tableau = (
-    <div className="overflow-hidden rounded-xl border-2 border-green-600/55">
-      {lignesSolde.length > 0 ? (
-        <Table
-          className={CLASSE_TABLE_ALIGNEE}
-          containerClassName="overflow-visible"
-        >
-          <ColonneFicheExecution />
-          <TableBody className="[&_tr:last-child]:border-b">
-            {lignesSolde.map((ligne) => {
-              if (ligne.estRacine) ordreSolde += 1;
-              return (
-                <TableRow
-                  key={ligne.id}
-                  className={cn(
-                    "hover:bg-transparent",
-                    ligne.estRacine
-                      ? "bg-[#fdf6e3]"
-                      : "bg-sky-50/40",
-                  )}
-                >
-                  <TableCell className="tabular-nums text-muted-foreground">
-                    {ligne.estRacine ? ordreSolde : ""}
-                  </TableCell>
-                  <TableCell>
-                    <CelluleNomSection ligne={ligne} />
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "text-right tabular-nums",
-                      ligne.estRacine
-                        ? "text-[15px] font-bold tracking-tight text-[#8a6508]"
-                        : "font-semibold text-sky-950",
-                    )}
-                  >
-                    {formaterMontantFcfa(ligne.programme)}
-                  </TableCell>
-                  <TableCell className="bg-background" aria-hidden />
-                  <TableCell className="bg-background" aria-hidden />
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      ) : null}
+        <div className="flex flex-wrap gap-2">
+          {!recettesValidees ? (
+            <button
+              type="button"
+              className={btnSecondaire}
+              title="Sélectionner et valider les recettes Oracle du jour"
+              onClick={() => setDialogOracle(true)}
+            >
+              <Database size={14} />
+              Recettes Oracle
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className={btnSecondaire}
+            onClick={() => setApercuOuvert(true)}
+          >
+            <Eye size={14} />
+            Aperçu
+          </button>
+          <button
+            type="button"
+            className={btnSecondaire}
+            disabled={cloturee}
+            onClick={() => setDialogAjoutOuvert(true)}
+          >
+            <Plus size={14} />
+            Hors programmation
+          </button>
+        </div>
 
-      <Table
-        className={CLASSE_TABLE_ALIGNEE}
-        containerClassName={cn(
-          "overflow-visible",
-          lignesSolde.length > 0 && "border-t",
-        )}
-      >
-        <ColonneFicheExecution />
-        <TableHeader>
-          <TableRow className="bg-muted/40 hover:bg-muted/40">
-            <TableHead className="w-12">N°</TableHead>
-            <TableHead>BANCAIRE</TableHead>
-            <TableHead className="w-44 text-right">
-              PROGRAMME (FCFA)
-            </TableHead>
-            <TableHead className="w-56 text-right">RÉALISÉ (FCFA)</TableHead>
-            <TableHead className="w-44 text-right">ÉCART (FCFA)</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {lignesMouvements.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={5}
-                className="py-10 text-center text-muted-foreground"
-              >
-                <span className="inline-flex flex-col items-center gap-1.5">
-                  <Inbox className="size-5" aria-hidden />
-                  <span className="text-[13px]">
-                    Aucune recette ni dépense.
-                  </span>
-                </span>
-              </TableCell>
-            </TableRow>
+        <div className="ml-auto flex flex-wrap gap-2">
+          {recettesValidees ? (
+            <button
+              type="button"
+              className={btnSecondaire}
+              title="Rapprocher les recettes validées avec la Fiche d'exécution"
+              onClick={() =>
+                void navigate(
+                  `/sp/fiche-matinale/rapprochement-recettes/${encodeURIComponent(journee.reference)}`,
+                )
+              }
+            >
+              <Link2 size={14} />
+              Rapprochement des recettes
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="flex h-[34px] items-center gap-1.5 rounded-md border px-3 text-[13px] font-semibold"
+            style={{
+              borderColor: theme.topColor,
+              background: theme.bgColor,
+              color: theme.textColor,
+            }}
+            onClick={() =>
+              void navigate(
+                `/sp/fiche-matinale/rapprochement-depenses/${encodeURIComponent(journee.reference)}`,
+              )
+            }
+          >
+            <Link2 size={14} />
+            Rapprochement des dépenses
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: 760 }}>
+          <div
+            className="grid items-center border-b border-[#e2e8f0] bg-[#f8fafc] text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]"
+            style={{
+              gridTemplateColumns: GRILLE_FE,
+              gap: 12,
+              padding: "9px 18px",
+            }}
+          >
+            <span>Rubrique</span>
+            <span className="text-right">Programmé</span>
+            <span className="text-right">Réalisé</span>
+            <span className="text-right">Écart</span>
+            <span className="text-right">Taux</span>
+          </div>
+
+          {lignes.length === 0 ? (
+            <div className="flex flex-col items-center gap-1.5 py-10 text-[#64748b]">
+              <Inbox className="size-5" aria-hidden />
+              <span className="text-[13px]">Aucune recette ni dépense.</span>
+            </div>
           ) : (
-            lignesMouvements.map((ligne) => {
-              if (ligne.estRacine) ordreMouvement += 1;
-              const editable = ligne.estFeuille && !enregistrement && !cloturee;
-              const afficherEcart = !estZero(ligne.realise);
+            lignes.map((ligne) => {
+              const editable =
+                ligne.estFeuille &&
+                ligne.type !== "solde" &&
+                !enregistrement &&
+                !cloturee;
+              const afficherEcart =
+                ligne.type !== "solde" && !estZero(ligne.realise);
+              if (ligne.estRacine) {
+                return (
+                  <div
+                    key={ligne.id}
+                    className="grid items-center border-y border-[#e2e8f0] text-[12.5px] font-semibold uppercase tracking-[0.06em]"
+                    style={{
+                      gridTemplateColumns: GRILLE_FE,
+                      gap: 12,
+                      minHeight: 38,
+                      padding: "0 18px",
+                      background: theme.bgColor,
+                      color: theme.textColor,
+                    }}
+                  >
+                    <span>{ligne.nom}</span>
+                    <span className="text-right tabular-nums tracking-normal">
+                      {formaterMontantFcfa(ligne.programme)}
+                    </span>
+                    <span className="text-right tabular-nums tracking-normal">
+                      {ligne.type === "solde"
+                        ? formaterMontantFcfa(ligne.programme)
+                        : formaterMontantFcfa(ligne.realise)}
+                    </span>
+                    <span />
+                    <span />
+                  </div>
+                );
+              }
               return (
-                <TableRow
+                <div
                   key={ligne.id}
-                  className={cn(
-                    fondLigne(ligne.type, ligne.nonProgramme),
-                    ligne.nonProgramme &&
-                      ligne.type === "depense" &&
-                      "border-l-4 border-l-orange-500",
-                    ligne.nonProgramme &&
-                      ligne.type === "recette" &&
-                      "border-l-4 border-l-amber-500",
-                    editable && "cursor-pointer",
-                  )}
-                  title={
-                    editable
-                      ? "Double-cliquer pour modifier le réalisé"
-                      : ligne.estFeuille
-                        ? undefined
-                        : "Montant calculé à partir des sous-sections"
-                  }
+                  className="grid items-center border-b border-[#f1f5f9] text-[14px]"
+                  style={{
+                    gridTemplateColumns: GRILLE_FE,
+                    gap: 12,
+                    minHeight: 42,
+                    padding: "0 18px 0 30px",
+                    background: ligne.nonProgramme ? "#fffbeb" : "#fff",
+                  }}
                   onDoubleClick={() => {
                     if (editable) setSectionEnEdition(ligne.id);
                   }}
                 >
-                  <TableCell className="tabular-nums text-muted-foreground">
-                    {ligne.estRacine ? ordreMouvement : ""}
-                  </TableCell>
-                  <TableCell>
-                    <CelluleNomSection ligne={ligne} />
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <span className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span
+                      className="min-w-0 break-words whitespace-normal leading-snug"
+                      style={styleIndentSection(Math.max(0, ligne.niveau - 1))}
+                    >
+                      {ligne.nom}
+                    </span>
+                    {ligne.nonProgramme ? (
+                      <span className="text-[11px] font-semibold text-[#b45309]">
+                        Hors programme
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="text-right tabular-nums text-[#475569]">
                     {formaterMontantFcfa(ligne.programme)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <CelluleRealise
-                      valeur={ligne.realise}
-                      edition={sectionEnEdition === ligne.id}
-                      disabled={!editable}
-                      onDemarrerEdition={() => setSectionEnEdition(ligne.id)}
-                      onAnnuler={() => setSectionEnEdition(null)}
-                      onCommit={(montant) => {
-                        void enregistrerRealise(
-                          ligne.id,
-                          montant,
-                          ligne.realise,
-                        );
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "text-right tabular-nums",
-                      afficherEcart && estNegatif(ligne.ecart)
-                        ? "font-medium text-red-600"
-                        : "text-muted-foreground",
+                  </span>
+                  <span className="text-right">
+                    {ligne.type === "solde" ? (
+                      <span className="tabular-nums font-medium">
+                        {formaterMontantFcfa(ligne.programme)}
+                      </span>
+                    ) : (
+                      <CelluleRealise
+                        valeur={ligne.realise}
+                        edition={sectionEnEdition === ligne.id}
+                        disabled={!editable}
+                        onDemarrerEdition={() => setSectionEnEdition(ligne.id)}
+                        onAnnuler={() => setSectionEnEdition(null)}
+                        onCommit={(montant) => {
+                          void enregistrerRealise(
+                            ligne.id,
+                            montant,
+                            ligne.realise,
+                          );
+                        }}
+                      />
                     )}
+                  </span>
+                  <span
+                    className="text-right tabular-nums"
+                    style={{
+                      color: afficherEcart
+                        ? couleurEcart(ligne.ecart)
+                        : "#64748b",
+                    }}
                   >
-                    {afficherEcart ? formaterMontantFcfa(ligne.ecart) : "—"}
-                  </TableCell>
-                </TableRow>
+                    {afficherEcart ? formaterMontantFcfa(ligne.ecart) : ""}
+                  </span>
+                  <span className="text-right tabular-nums text-[#64748b]">
+                    {ligne.type === "solde"
+                      ? ""
+                      : formaterTauxRealise(ligne.programme, ligne.realise)}
+                  </span>
+                </div>
               );
             })
           )}
-        </TableBody>
-      </Table>
-    </div>
-  );
-
-  return (
-    <TooltipProvider>
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="min-w-0 flex-1 text-[12px] text-muted-foreground">
-            {cloturee
-              ? "Journée clôturée : la Fiche d'exécution est en lecture seule."
-              : "Double-cliquez une ligne de recette ou de dépense pour saisir le réalisé. L'écart et les totaux des sections se recalculent automatiquement."}
-          </p>
-          <div className="flex shrink-0 items-center gap-1.5">
-            <BoutonPleinEcran
-              actif={pleinEcran}
-              onToggle={() => setPleinEcran((v) => !v)}
-              libelleEnter="Afficher la Fiche d'exécution en plein écran"
-            />
-            {rendreBoutonAjouter()}
-          </div>
         </div>
-
-        {!pleinEcran ? tableau : (
-          <div className="flex min-h-[120px] items-center justify-center rounded-xl border border-dashed text-[13px] text-muted-foreground">
-            Tableau affiché en plein écran
-          </div>
-        )}
-
-        <DialogAjoutNonProgramme
-          fiche={fiche}
-          ouvert={dialogAjoutOuvert}
-          onClose={() => setDialogAjoutOuvert(false)}
-          onAjoutee={(maj) => {
-            setDialogAjoutOuvert(false);
-            setFiche(maj);
-            onFicheChangeRef.current?.(maj);
-            void detailJourneeTresorerie(journee.reference).then(
-              ({ journee: journeeMaj }) => {
-                onJourneeChangeRef.current(journeeMaj);
-              },
-            );
-          }}
-        />
       </div>
 
+      <DialogAjoutNonProgramme
+        fiche={fiche}
+        ouvert={dialogAjoutOuvert}
+        onClose={() => setDialogAjoutOuvert(false)}
+        onAjoutee={(maj) => {
+          setDialogAjoutOuvert(false);
+          setFiche(maj);
+          onFicheChangeRef.current?.(maj);
+          void detailJourneeTresorerie(journee.reference).then(
+            ({ journee: journeeMaj }) => {
+              onJourneeChangeRef.current(journeeMaj);
+            },
+          );
+        }}
+      />
+      <DialogRecettesOracle
+        ouvert={dialogOracle}
+        onClose={() => setDialogOracle(false)}
+        referenceJournee={journee.reference}
+        lectureSeule={cloturee}
+        onValideeChange={(liste: RecettesJourValidees | null) => {
+          setRecettesValidees(liste != null);
+        }}
+      />
+      <PreviewFicheExecutionDialog
+        ficheId={apercuOuvert ? fiche.id : null}
+        onClose={() => setApercuOuvert(false)}
+      />
       <OverlayPleinEcran
         ouvert={pleinEcran}
         titre="Fiche d'exécution"
         sousTitre={`${journee.reference}${fiche.reference ? ` · ${fiche.reference}` : ""}`}
         onClose={() => setPleinEcran(false)}
-        actions={rendreBoutonAjouter()}
         ariaLabel="Fiche d'exécution en plein écran"
+        masquerEnTete
+        sansMarge
       >
-        <TableauFicheExecutionExcel fiche={fiche} />
+        <TableauFicheExecutionLecture fiche={fiche} avecEnTete sansCadre />
       </OverlayPleinEcran>
-    </TooltipProvider>
+    </div>
   );
 }

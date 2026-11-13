@@ -240,7 +240,17 @@ class SessionConnexionRepository extends ServiceEntityRepository
             : array_map(static fn (Portail $p): string => $p->value, $portails);
 
         $qb = $this->createQueryBuilder('s')
-            ->select('s.matricule', 's.nom', 's.prenom', 's.email', 's.dateConnexion', 's.dateDeconnexion')
+            ->select(
+                's.matricule',
+                's.nom',
+                's.prenom',
+                's.email',
+                's.dateConnexion',
+                's.dateDeconnexion',
+                'IDENTITY(s.utilisateur) AS utilisateur_id',
+                'u.photoChemin AS photo_chemin',
+            )
+            ->leftJoin('s.utilisateur', 'u')
             ->andWhere('s.dateConnexion >= :debut')
             ->andWhere('s.dateConnexion < :fin')
             ->setParameter('debut', $debut90)
@@ -263,12 +273,16 @@ class SessionConnexionRepository extends ServiceEntityRepository
             if (!isset($parUtilisateur[$cle])) {
                 $prenom = (string) ($ligne['prenom'] ?? '');
                 $nom = (string) ($ligne['nom'] ?? '');
+                $utilisateurId = $ligne['utilisateur_id'] ?? null;
+                $photoChemin = $ligne['photo_chemin'] ?? null;
                 $parUtilisateur[$cle] = [
+                    'id' => $utilisateurId !== null ? (int) $utilisateurId : null,
                     'matricule' => $matricule,
                     'nom' => $nom,
                     'prenom' => $prenom,
                     'nom_complet' => trim($prenom . ' ' . $nom),
                     'email' => $email,
+                    'a_photo' => is_string($photoChemin) && $photoChemin !== '',
                     'connexions_7j' => 0,
                     'connexions_30j' => 0,
                     'connexions_90j' => 0,

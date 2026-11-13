@@ -8,14 +8,14 @@ import { getPortalMenu } from "@/shared/config/menu";
 import { portalThemeVars } from "@/shared/lib/color";
 import { cn } from "@/shared/lib/utils";
 import type { Portail } from "@/shared/hooks/auth-context";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { AvatarUtilisateur } from "@/shared/components/utilisateurs/AvatarUtilisateur";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/shared/components/ui/dialog";
 import {
-  BadgeVous, initiales, partieDate,
+  BadgeVous, partieDate,
 } from "@/shared/components/audit-connexion/affichage";
 import type { AuditAction } from "@/shared/types/audit-action.interface";
 
@@ -184,11 +184,21 @@ export function DetailAuditAction({ action, portail = "admin", estMoi, onClose }
               <div className="grid gap-2 sm:grid-cols-2">
                 <Info icone={UserRound} libelle="Utilisateur" couleur={theme.iconColor} className="sm:col-span-2">
                   <div className="flex items-center gap-2.5">
-                    <Avatar className="size-8 shrink-0">
-                      <AvatarFallback className={cn("text-[10px]", estMoi && "bg-primary text-primary-foreground")}>
-                        {initiales(action.utilisateur.nom_complet)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <AvatarUtilisateur
+                      id={action.utilisateur.id}
+                      nom={action.utilisateur.nom}
+                      prenom={action.utilisateur.prenom}
+                      aPhoto={!!action.utilisateur.a_photo}
+                      taille={32}
+                      fondInitiales={
+                        estMoi ? "hsl(var(--primary))" : undefined
+                      }
+                      couleurInitiales={
+                        estMoi
+                          ? "hsl(var(--primary-foreground))"
+                          : undefined
+                      }
+                    />
                     <div className="min-w-0 leading-tight">
                       <p className="flex items-center gap-1.5 font-medium">
                         <span className="truncate">{action.utilisateur.nom_complet || "—"}</span>

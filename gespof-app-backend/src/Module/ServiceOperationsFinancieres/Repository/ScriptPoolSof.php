@@ -150,6 +150,42 @@ class ScriptPoolSof
     }
 
     /**
+     * Recettes pétrolières — opérations IG VIDR / F1 (numéraire + bancaire).
+     *
+     * @param list<string> $comptes
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function extraireRecettesPetrolieresVidr(
+        string $dateDebut,
+        string $dateFin,
+        array $comptes,
+    ): array {
+        $comptes = array_values(array_unique(array_filter(
+            array_map(static fn (mixed $c): string => trim((string) $c), $comptes),
+            static fn (string $c): bool => $c !== '',
+        )));
+        sort($comptes, \SORT_STRING);
+        if ($comptes === []) {
+            return [];
+        }
+
+        $sql = $this->chargerSql('model-automatise-recettes-petroliere-vidr.sql');
+        $params = [
+            'date_debut' => $dateDebut,
+            'date_fin' => $dateFin,
+        ];
+        $placeholders = [];
+        foreach ($comptes as $i => $compte) {
+            $placeholders[] = ':compte_'.$i;
+            $params['compte_'.$i] = $compte;
+        }
+        $sql = str_replace('{{comptes_list}}', implode(', ', $placeholders), $sql);
+
+        return $this->databaseReader->executeQuery($sql, $params);
+    }
+
+    /**
      * Avances au budget — compte 4701-5* (État).
      *
      * @return list<array<string, mixed>>
@@ -186,6 +222,20 @@ class ScriptPoolSof
     {
         return $this->extraireDepensesPeriode(
             'depenses-reglement-exercice.sql',
+            $dateDebut,
+            $dateFin,
+        );
+    }
+
+    /**
+     * Règlements sur ordonnances mode BOP (F2 · XRGV) — 1er janvier → date.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function extraireDepensesReglementsOrdonnancesXrgv(string $dateDebut, string $dateFin): array
+    {
+        return $this->extraireDepensesPeriode(
+            'depenses-reglements-ordonnances-xrgv.sql',
             $dateDebut,
             $dateFin,
         );

@@ -1,11 +1,47 @@
 import {
-  FileText, History, LayoutDashboard, ScrollText, User,
-  UserCog, Users, TrendingUp, TrendingDown, BarChart3, Database, Calendar,
-  Receipt, Banknote, PieChart, Target, FileSpreadsheet, ClipboardList, Percent,
+  FileText, History, LayoutDashboard, ScrollText, User, UserCog, Users,
+  FolderInput, Database, Building2, BookOpen, Landmark, Fuel, Ship,
+  Receipt, Percent, Coins, Wallet, Banknote, PenLine, Scale, TrendingUp,
+  ClipboardList, Gauge, Settings, Circle, Shield,
 } from "lucide-react";
-import type { MenuPortal } from "@/shared/types/menu.interface";
+import type { LucideIcon } from "lucide-react";
+import type { MenuNavItem, MenuPortal } from "@/shared/types/menu.interface";
 
+/** Entrée feuille sans icône dédiée dans la maquette. */
+const leaf = (
+  id: string,
+  label: string,
+  path: string,
+  extra: Partial<MenuNavItem> = {},
+): MenuNavItem => ({
+  id,
+  label,
+  path,
+  icon: Circle,
+  ...extra,
+});
 
+const group = (
+  id: string,
+  label: string,
+  path: string,
+  icon: LucideIcon,
+  children: MenuNavItem[],
+  extra: Partial<MenuNavItem> = {},
+): MenuNavItem => ({
+  id,
+  label,
+  path,
+  icon,
+  children,
+  ...extra,
+});
+
+/**
+ * Menu SOF — libellés et arborescence alignés sur
+ * `GESPOF SOF v2.dc.html` / `sof-data.js`
+ * (Cycle mensuel · Configuration · Administration).
+ */
 export const MENU_SOF: MenuPortal = {
   id: "sof",
   title: "SOF",
@@ -13,6 +49,9 @@ export const MENU_SOF: MenuPortal = {
   description: "Saisie des données, règlements, compensation, SROT.",
   icon: FileText,
   logo: "/SOF-logo.png",
+  sidebarBrandTitle: "GESPOF · SOF",
+  sidebarBrandSubtitle: "Service des Opérations Financières",
+  sidebarFooterCaption: "DOMF · DGCPT",
   path: "/sof",
   badge: null,
   ctaLabel: "Accéder au SOF",
@@ -20,363 +59,200 @@ export const MENU_SOF: MenuPortal = {
   theme: {
     topColor: "#2a7f62",
     bgColor: "#f0f7f4",
-    iconBg: "#e8f5ef",
-    iconColor: "#2a7f62",
+    iconBg: "#e3f1ea",
+    iconColor: "#1e6650",
     ctaColor: "#2a7f62",
     hoverColor: "#1e6650",
+    sidebarBg: "#1e6650",
+    borderColor: "#bfdccf",
+    textColor: "#1e6650",
   },
-  largeurMenu: 280,
+  largeurMenu: 288,
   sections: [
     {
-      id: "sof-accueil",
-      label: "TABLEAU DE BORD",
+      id: "sof-cycle-mensuel",
+      label: "Cycle mensuel",
       items: [
         {
-          id: "sof-dashboard",
-          label: "Tableau de bord",
+          id: "sof-accueil",
+          label: "Période en cours",
           path: "/sof",
           icon: LayoutDashboard,
         },
+        group("sof-imports", "Imports", "/sof/imports", FolderInput, [
+          {
+            id: "sof-imports-extractions",
+            label: "Extractions DC / IG",
+            path: "/sof/imports/extractions",
+            icon: Database,
+          },
+          group("sof-imports-services", "Données des autres services", "/sof/imports/services", Building2, [
+            leaf("sof-srv-correspondants", "Correspondants (DSI)", "/sof/imports/services/correspondants"),
+            leaf("sof-srv-dette", "Exécution de la dette (TDP)", "/sof/imports/services/dette"),
+            leaf("sof-srv-titres", "Émissions BTA / OTA (SMC)", "/sof/imports/services/titres"),
+            leaf("sof-srv-facilites", "Facilités et agios (SCR)", "/sof/imports/services/facilites"),
+            leaf("sof-srv-covid", "Fonds COVID-19", "/sof/imports/services/covid"),
+            leaf("sof-srv-liquidatifs", "États liquidatifs (solde, MONP, pension)", "/sof/imports/services/liquidatifs"),
+            leaf("sof-srv-fiches-comptes", "Fiches de comptes (CAS Pensions, CNAMGS)", "/sof/imports/services/fiches-comptes"),
+          ]),
+          group("sof-imports-compta", "Comptabilité", "/sof/imports/comptabilite", BookOpen, [
+            leaf("sof-cpt-balance", "Balance générale mensuelle", "/sof/imports/comptabilite/balance"),
+          ]),
+          {
+            id: "sof-imports-lots",
+            label: "Historique des lots",
+            path: "/sof/imports/historique-lots",
+            icon: History,
+          },
+        ]),
+        group("sof-recettes", "Recettes", "/sof/recettes", Landmark, [
+          group("sof-rec-petrole", "Pétrolières", "/sof/recettes/petrolieres", Fuel, [
+            leaf("sof-pet-beac", "Récapitulatif BEAC", "/sof/recettes/petrolieres/beac"),
+            leaf("sof-pet-transferts", "Qualification des transferts (1812-201)", "/sof/recettes/petrolieres/transferts"),
+            leaf("sof-pet-consolidation", "Consolidation par type", "/sof/recettes/petrolieres/consolidation"),
+            leaf("sof-pet-societes", "Détail par société", "/sof/recettes/petrolieres/societes"),
+            leaf("sof-pet-rapprochement", "Rapprochement DRPHP", "/sof/recettes/petrolieres/rapprochement"),
+          ]),
+          group("sof-rec-douanes", "Douanières", "/sof/recettes/douanieres", Ship, [
+            leaf("sof-dou-mois", "Rapprochement du mois", "/sof/recettes/douanieres/mois"),
+            leaf("sof-dou-annuelle", "Vue annuelle", "/sof/recettes/douanieres/annuelle"),
+          ]),
+          group("sof-rec-fiscales", "Fiscales (DGI)", "/sof/recettes/fiscales", Receipt, [
+            leaf("sof-fis-mode", "Par mode de recouvrement", "/sof/recettes/fiscales/mode"),
+            leaf("sof-fis-appariement", "Transferts ↔ prises en charge", "/sof/recettes/fiscales/appariement"),
+            leaf("sof-fis-nature", "Ventilation par nature", "/sof/recettes/fiscales/nature"),
+          ]),
+          group("sof-rec-tva", "TVA", "/sof/recettes/tva", Percent, [
+            leaf("sof-tva-rapprochement", "Rapprochement DC ↔ IG", "/sof/recettes/tva/rapprochement"),
+            leaf("sof-tva-remboursements", "Remboursements (arriérés / courants)", "/sof/recettes/tva/remboursements"),
+            leaf("sof-tva-rap", "RAP TVA", "/sof/recettes/tva/rap"),
+            leaf("sof-tva-tofe", "Synthèse TOFE", "/sof/recettes/tva/tofe"),
+          ]),
+          {
+            id: "sof-rec-correspondants",
+            label: "Correspondants",
+            path: "/sof/recettes/correspondants",
+            icon: Users,
+          },
+          {
+            id: "sof-rec-aae",
+            label: "Appuis, avances et emprunts",
+            path: "/sof/recettes/appuis-avances-emprunts",
+            icon: Coins,
+          },
+        ]),
+        group("sof-depenses", "Dépenses", "/sof/depenses", Wallet, [
+          leaf("sof-dep-ordonnances", "Règlements sur ordonnances", "/sof/srot-depenses/reglements"),
+          leaf("sof-dep-cdel", "Crédits délégués", "/sof/srot-depenses/credits"),
+          leaf("sof-dep-avances", "Avances au budget", "/sof/srot-depenses/avances"),
+          leaf("sof-dep-correspondants", "Correspondants", "/sof/depenses/correspondants"),
+          group("sof-dep-manuelles", "Dépenses manuelles", "/sof/depenses/manuelles", Banknote, [
+            leaf("sof-man-dette", "Dette publique", "/sof/depenses/manuelles/dette"),
+            leaf("sof-man-titres", "BTA / OTA", "/sof/depenses/manuelles/titres"),
+            leaf("sof-man-facilites", "Facilités et agios", "/sof/depenses/manuelles/facilites"),
+            leaf("sof-man-covid", "Fonds COVID-19", "/sof/depenses/manuelles/covid"),
+            leaf("sof-man-personnel", "Solde, MONP et pensions", "/sof/depenses/manuelles/personnel"),
+            leaf("sof-man-retenues", "Retenues pension et CNAMGS", "/sof/depenses/manuelles/retenues"),
+            leaf("sof-man-imputations", "Imputations", "/sof/depenses/manuelles/imputations"),
+          ]),
+        ]),
+        {
+          id: "sof-ajustements",
+          label: "Ajustements manuels",
+          path: "/sof/ajustements-manuels",
+          icon: PenLine,
+        },
+        group("sof-srot", "SROT", "/sof/srot", Scale, [
+          leaf("sof-srot-recettes", "Recettes consolidées", "/sof/srot/recettes"),
+          leaf("sof-srot-depenses", "Dépenses consolidées", "/sof/srot/depenses"),
+          leaf("sof-srot-situation", "Situation résumée", "/sof/srot/situation"),
+          leaf("sof-srot-equilibre", "Équilibre", "/sof/srot/equilibre"),
+          leaf("sof-srot-soldes", "Soldes de gestion", "/sof/srot/soldes"),
+          leaf("sof-srot-depots", "Fiche de dépôts (CUT)", "/sof/srot/depots"),
+          group("sof-srot-analyses", "Analyses", "/sof/srot/analyses", TrendingUp, [
+            leaf("sof-ana-rec-budgetaires", "Recettes budgétaires", "/sof/srot/analyses/recettes-budgetaires"),
+            leaf("sof-ana-rec-mensualisees", "Recettes mensualisées", "/sof/srot/analyses/recettes-mensualisees"),
+            leaf("sof-ana-rec-n1", "Comparaison N-1", "/sof/srot/analyses/comparaison-n1"),
+            leaf("sof-ana-rec-hre", "Hors recettes exceptionnelles", "/sof/srot/analyses/hors-exceptionnelles"),
+            leaf("sof-ana-rec-affectees", "Recettes affectées", "/sof/srot/analyses/recettes-affectees"),
+            leaf("sof-ana-dep-financement", "Dépenses et financement", "/sof/srot/analyses/depenses-financement"),
+            leaf("sof-ana-tirages", "Tirages", "/sof/srot/analyses/tirages"),
+            leaf("sof-ana-autres-recettes", "Autres recettes", "/sof/srot/analyses/autres-recettes"),
+          ]),
+          {
+            id: "sof-srot-cloture",
+            label: "Validation et clôture",
+            path: "/sof/srot/validation-cloture",
+            icon: Shield,
+            roles: ["CHEF_SOF"],
+          },
+        ]),
+        group("sof-execution", "Exécution budgétaire", "/sof/execution", ClipboardList, [
+          leaf("sof-exe-rap", "Situation des RAP", "/sof/execution/rap"),
+          group("sof-exe-depenses", "Exécution des dépenses", "/sof/execution/depenses", Wallet, [
+            leaf("sof-exe-titres", "Par titres", "/sof/execution/depenses/titres"),
+            leaf("sof-exe-titres-natures", "Par titres et grandes natures", "/sof/execution/depenses/titres-natures"),
+            leaf("sof-exe-missions", "Par missions et programmes", "/sof/execution/depenses/missions"),
+            leaf("sof-exe-hors-ordos", "Règlements hors RAP et ordonnances", "/sof/execution/depenses/hors-ordonnances"),
+          ]),
+          leaf("sof-exe-resume", "Résumé de l'exécution", "/sof/execution/resume"),
+          leaf("sof-exe-analyse-rap", "Analyse des RAP", "/sof/execution/analyse-rap"),
+        ]),
+        group("sof-rapports", "Rapports", "/sof/rapports", FileText, [
+          {
+            id: "sof-rpt-tdb",
+            label: "Tableau de bord des opérations du Trésor",
+            path: "/sof/rapports/tableau-de-bord",
+            icon: Gauge,
+          },
+          leaf("sof-rpt-fiche", "Fiche SROT (MBCP)", "/sof/rapports/fiche-srot"),
+          leaf("sof-rpt-dgbfip", "Exécution au format DGBFiP", "/sof/rapports/dgbfip"),
+          {
+            id: "sof-rpt-publications",
+            label: "Publications",
+            path: "/sof/rapports/publications",
+            icon: History,
+          },
+        ]),
       ],
     },
     {
-      id: "sof-confection-srot",
-      label: "CONFECTION SROT",
+      id: "sof-configuration",
+      label: "Configuration",
       items: [
-        {
-          id: "sof-srot-recettes",
-          label: "SROT - Recettes",
-          path: "/sof/srot-recettes",
-          icon: TrendingUp,
-          children: [
-            {
-              id: "sof-srot-recettes-correspondants",
-              label: "Recettes des correspondants",
-              path: "/sof/srot-recettes/correspondants",
-              icon: TrendingUp,
-            },
-            {
-              id: "sof-srot-recettes-petrolieres",
-              label: "Rapprochement — Pétrolières",
-              path: "/sof/srot-recettes/petrolieres",
-              icon: TrendingUp,
-            },
-            {
-              id: "sof-srot-recettes-douanieres",
-              label: "Rapprochement — Douanières",
-              path: "/sof/srot-recettes/douanieres",
-              icon: TrendingUp,
-            },
-            {
-              id: "sof-srot-recettes-fiscales",
-              label: "Rapprochement — Fiscales",
-              path: "/sof/srot-recettes/fiscales",
-              icon: TrendingUp,
-            },
-            {
-              id: "sof-srot-recettes-ex-ant",
-              label: "Recettes Ex Ant (exercice antérieur)",
-              path: "/sof/srot-recettes/ex-ant",
-              icon: TrendingUp,
-            },
-            {
-              id: "sof-srot-recettes-previsions",
-              label: "Prévisions de recettes (LFI / LFR)",
-              path: "/sof/srot-recettes/previsions",
-              icon: Calendar,
-            },
-            {
-              id: "sof-srot-recettes-flechage",
-              label: "Fléchage / Table des natures",
-              path: "/sof/srot-recettes/flechage",
-              icon: Target,
-            },
+        group(
+          "sof-parametrage",
+          "Paramétrage de l'exercice",
+          "/sof/parametrage",
+          Settings,
+          [
+            leaf("sof-par-exercice", "Exercice", "/sof/parametrage/exercice"),
+            leaf("sof-par-lf", "Loi de finances (LFI / LFR)", "/sof/parametrage/loi-finances"),
+            leaf("sof-par-plans", "Plans de trésorerie (DGI, DGH, DGDDI)", "/sof/parametrage/plans-tresorerie"),
+            leaf("sof-par-dette", "Service de la dette (DGD)", "/sof/parametrage/dette"),
+            leaf("sof-par-titres", "Programme d'émission des titres", "/sof/parametrage/titres"),
+            leaf("sof-par-n1", "Exécution N-1", "/sof/parametrage/execution-n1"),
+            leaf("sof-par-rap-ant", "RAP des exercices antérieurs", "/sof/parametrage/rap-anterieurs"),
           ],
-        },
-        {
-          id: "sof-srot-tva",
-          label: "SROT - TVA",
-          path: "/sof/srot-tva",
-          icon: Percent,
-          children: [
-            {
-              id: "sof-srot-tva-rap",
-              label: "RAP TVA (restes à payer, 4781-31)",
-              path: "/sof/srot-tva/rap",
-              icon: FileText,
-            },
-            {
-              id: "sof-srot-tva-remboursements-dc",
-              label: "Remboursements TVA (DC)",
-              path: "/sof/srot-tva/remboursements-dc",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-srot-tva-remboursements-ig",
-              label: "Remboursements TVA (IG)",
-              path: "/sof/srot-tva/remboursements-ig",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-srot-tva-analyse",
-              label: "Analyse TVA (rapprochement Arriérés / Courants)",
-              path: "/sof/srot-tva/analyse",
-              icon: PieChart,
-            },
+          { roles: ["CHEF_SOF"] },
+        ),
+        group(
+          "sof-referentiels",
+          "Référentiels",
+          "/sof/referentiels",
+          BookOpen,
+          [
+            leaf("sof-ref-nomenclature", "Nomenclature SROT", "/sof/referentiels/nomenclature/rubriques-budgetaires"),
+            leaf("sof-ref-tofe", "Codes TOFE", "/sof/referentiels/codes-tofe"),
+            leaf("sof-ref-flechage", "Règles de fléchage", "/sof/referentiels/regles-flechage"),
+            leaf("sof-ref-fiscal", "Tables des recettes fiscales", "/sof/referentiels/tables-fiscales"),
+            leaf("sof-ref-societes", "Sociétés pétrolières", "/sof/referentiels/societes-petrolieres"),
+            leaf("sof-ref-comptes", "Comptes douanes et pétrole", "/sof/referentiels/comptes"),
+            leaf("sof-ref-postes", "Postes comptables", "/sof/referentiels/postes-comptables"),
+            leaf("sof-ref-exclusions", "Exclusions RAP", "/sof/referentiels/exclusions-rap"),
           ],
-        },
-        {
-          id: "sof-srot-depenses",
-          label: "SROT - Dépenses",
-          path: "/sof/srot-depenses",
-          icon: TrendingDown,
-          children: [
-            {
-              id: "sof-srot-depenses-correspondants",
-              label: "Dépenses des correspondants",
-              path: "/sof/srot-depenses/correspondants",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-srot-depenses-avances",
-              label: "Avances au budget",
-              path: "/sof/srot-depenses/avances",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-srot-depenses-etats-liquidation",
-              label: "États de liquidation",
-              path: "/sof/srot-depenses/etats-liquidation",
-              icon: ClipboardList,
-            },
-            {
-              id: "sof-srot-depenses-reglements",
-              label: "Règlements (ordonnances)",
-              path: "/sof/srot-depenses/reglements",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-srot-depenses-credits",
-              label: "Crédits délégués",
-              path: "/sof/srot-depenses/credits",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-srot-depenses-tirages",
-              label: "Tirages (dette, BTA / OTA)",
-              path: "/sof/srot-depenses/tirages",
-              icon: Banknote,
-            },
-            {
-              id: "sof-srot-depenses-manuelles",
-              label: "Dépenses manuelles (COVID-19, BTA/OTA, dette, facilités, agios)",
-              path: "/sof/srot-depenses/manuelles",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-srot-depenses-ajustements",
-              label: "Ajustements manuels",
-              path: "/sof/srot-depenses/ajustements",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-srot-depenses-previsions",
-              label: "Prévisions de dépenses & financement",
-              path: "/sof/srot-depenses/previsions",
-              icon: Calendar,
-            },
-          ],
-        },
-        {
-          id: "sof-analyse-reglements",
-          label: "Analyse des Règlements",
-          path: "/sof/analyse-reglements",
-          icon: BarChart3,
-          children: [
-            {
-              id: "sof-analyse-resume",
-              label: "Résumé (EQUILIBRE)",
-              path: "/sof/analyse-reglements/resume",
-              icon: PieChart,
-            },
-            {
-              id: "sof-analyse-recettes",
-              label: "Exécution en recettes",
-              path: "/sof/analyse-reglements/recettes",
-              icon: TrendingUp,
-            },
-            {
-              id: "sof-analyse-depenses-natures",
-              label: "Exécution en dépenses — titres & grandes natures",
-              path: "/sof/analyse-reglements/depenses-natures",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-analyse-depenses-missions",
-              label: "Exécution en dépenses — missions & programmes",
-              path: "/sof/analyse-reglements/depenses-missions",
-              icon: TrendingDown,
-            },
-            {
-              id: "sof-analyse-titres",
-              label: "Exécution par titres",
-              path: "/sof/analyse-reglements/titres",
-              icon: Receipt,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "sof-restitutions",
-      label: "RESTITUTIONS",
-      items: [
-        {
-          id: "sof-restitutions-previsions",
-          label: "Prévisions",
-          path: "/sof/restitutions/previsions",
-          icon: Calendar,
-          children: [
-            {
-              id: "sof-restitutions-previsions-consulter",
-              label: "Consulter les prévisions",
-              path: "/sof/restitutions/previsions/consulter",
-              icon: Calendar,
-            },
-            {
-              id: "sof-restitutions-previsions-exporter",
-              label: "Exporter",
-              path: "/sof/restitutions/previsions/exporter",
-              icon: FileSpreadsheet,
-            },
-          ],
-        },
-        {
-          id: "sof-restitutions-ajustements",
-          label: "RD Ajustements Manuels",
-          path: "/sof/restitutions/ajustements-manuels",
-          icon: ClipboardList,
-          children: [
-            {
-              id: "sof-restitutions-ajustements-consulter",
-              label: "Consulter les ajustements",
-              path: "/sof/restitutions/ajustements-manuels/consulter",
-              icon: ClipboardList,
-            },
-            {
-              id: "sof-restitutions-ajustements-exporter",
-              label: "Exporter",
-              path: "/sof/restitutions/ajustements-manuels/exporter",
-              icon: FileSpreadsheet,
-            },
-          ],
-        },
-        {
-          id: "sof-restitutions-model-automatise",
-          label: "RD Model Automatisé",
-          path: "/sof/restitutions/model-automatise",
-          icon: Database,
-          children: [
-            {
-              id: "sof-restitutions-model-automatise-consulter",
-              label: "Consulter les montants mensuels",
-              path: "/sof/restitutions/model-automatise/consulter",
-              icon: BarChart3,
-            },
-            {
-              id: "sof-restitutions-model-automatise-exporter",
-              label: "Exporter",
-              path: "/sof/restitutions/model-automatise/exporter",
-              icon: FileSpreadsheet,
-            },
-          ],
-        },
-        {
-          id: "sof-restitutions-synthese-analyse",
-          label: "RD Synthèse Analyse",
-          path: "/sof/restitutions/synthese-analyse",
-          icon: PieChart,
-          children: [
-            {
-              id: "sof-restitutions-synthese-publier",
-              label: "Publier la SROT",
-              path: "/sof/restitutions/synthese-analyse/publier",
-              icon: FileSpreadsheet,
-            },
-            {
-              id: "sof-restitutions-synthese-historique",
-              label: "Historique des publications",
-              path: "/sof/restitutions/synthese-analyse/historique",
-              icon: History,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "sof-referentiels",
-      label: "RÉFÉRENTIELS",
-      items: [
-        {
-          id: "sof-referentiels-nomenclature",
-          label: "Nomenclature",
-          path: "/sof/referentiels/nomenclature",
-          icon: Database,
-          children: [
-            {
-              id: "sof-referentiels-natures",
-              label: "Natures de recettes (57 codes)",
-              path: "/sof/referentiels/nomenclature/natures-recettes",
-              icon: Database,
-            },
-            {
-              id: "sof-referentiels-rubriques",
-              label: "Rubriques budgétaires (recettes & dépenses)",
-              path: "/sof/referentiels/nomenclature/rubriques-budgetaires",
-              icon: Database,
-            },
-          ],
-        },
-        {
-          id: "sof-referentiels-comptes",
-          label: "Comptes",
-          path: "/sof/referentiels/comptes",
-          icon: Banknote,
-          children: [
-            {
-              id: "sof-referentiels-comptes-balance",
-              label: "Comptes balance",
-              path: "/sof/referentiels/comptes/balance",
-              icon: Database,
-            },
-            {
-              id: "sof-referentiels-comptes-bancaires",
-              label: "Comptes bancaires (BAC, BGFI, Citi…)",
-              path: "/sof/referentiels/comptes/bancaires",
-              icon: Banknote,
-            },
-          ],
-        },
-        {
-          id: "sof-referentiels-cadre-budgetaire",
-          label: "Cadre budgétaire",
-          path: "/sof/referentiels/cadre-budgetaire",
-          icon: Calendar,
-          children: [
-            {
-              id: "sof-referentiels-exercices",
-              label: "Exercices",
-              path: "/sof/referentiels/cadre-budgetaire/exercices",
-              icon: Calendar,
-            },
-            {
-              id: "sof-referentiels-lfi",
-              label: "Loi de finances (LFI / LFR)",
-              path: "/sof/referentiels/cadre-budgetaire/lfi",
-              icon: Calendar,
-            },
-          ],
-        },
+          { roles: ["CHEF_SOF"] },
+        ),
       ],
     },
     {
@@ -392,7 +268,7 @@ export const MENU_SOF: MenuPortal = {
           children: [
             {
               id: "sof-utilisateurs-gestion",
-              label: "Gestion",
+              label: "Gestion utilisateur",
               path: "/sof/utilisateurs",
               icon: UserCog,
               roles: ["CHEF_SOF"],

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FileText, Loader2, Plus } from "lucide-react";
+import { FileText, Files, Loader2, Pencil, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { getPortalMenu } from "@/shared/config/menu";
 import { Button } from "@/shared/components/ui/button";
@@ -9,6 +9,10 @@ import {
 } from "@/portails/Sp/api/fiches-bleues";
 import { messageDonneesOuDefaut } from "@/shared/lib/message-utilisateur";
 import { lierFicheBleueAJournee } from "@/portails/Sp/api/journees-tresorerie";
+import {
+  STATUT_FICHE_BLEUE,
+  formaterDateHeureFr,
+} from "@/portails/Sp/components/fiche-bleue/fiche-bleue-affichage";
 import { TableauLectureFicheBleue } from "@/portails/Sp/components/fiche-bleue/TableauLectureFicheBleue";
 import { TableauFicheBleueExcel } from "@/portails/Sp/components/fiche-bleue/TableauFicheBleueExcel";
 import { CreerFicheBleueVue } from "@/portails/Sp/components/fiche-matinale/CreerFicheBleueVue";
@@ -51,13 +55,15 @@ interface ResumeProgrammationFicheBleue {
   totalRecettes: string | null;
   totalDepenses: string | null;
   dateLibelle: string;
+  /** Heure de dernière modification, sinon création (HH:MM). */
+  heureMaj: string | null;
   chargement: boolean;
 }
 
 interface TabFicheBleueProps {
   journee: JourneeTresorerie;
   onJourneeChange: (journee: JourneeTresorerie) => void;
-  onFicheSelectionneeChange: (fiche: FicheBleueResume | null) => void;
+  onFicheSelectionneeChange?: (fiche: FicheBleueResume | null) => void;
   onNombreFichesDisponiblesChange?: (nombre: number) => void;
   onProgrammationChange?: (resume: ResumeProgrammationFicheBleue | null) => void;
   ouvrirSelection?: boolean;
@@ -103,11 +109,14 @@ export function TabFicheBleue({
   const [fiches, setFiches] = useState<FicheBleueResume[]>([]);
   const [liaisonEnCours, setLiaisonEnCours] = useState(false);
   const [modeCreation, setModeCreation] = useState(false);
+  const [modeEditionLocal, setModeEditionLocal] = useState(false);
   const [detailSelectionnee, setDetailSelectionnee] = useState<FicheBleueDetail | null>(null);
   const [chargementDetail, setChargementDetail] = useState(false);
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [modeSelectionDialog, setModeSelectionDialog] = useState(false);
   const [pleinEcranLocal, setPleinEcranLocal] = useState(false);
+  const [actionsEditionLocal, setActionsEditionLocal] =
+    useState<HTMLDivElement | null>(null);
   const autoLieRef = useRef(false);
 
   const pleinEcranControleExterne = onPleinEcranChange != null;
@@ -150,10 +159,14 @@ export function TabFicheBleue({
   const ficheSelectionnee = fiches.find((f) => f.id === ficheLieeId) ?? null;
   /** Journée clôturée (non réouverte) : ni liaison, ni création, ni modification. */
   const cloturee = journee.etat === "cloture";
+  const enEdition = ouvrirEdition || modeEditionLocal;
+  const conteneurActions = conteneurActionsEdition ?? actionsEditionLocal;
   /** Programmé saisissable tant que la journée n'est pas clôturée. */
   const programmeModifiable = !cloturee
     && detailSelectionnee !== null
-    && detailSelectionnee.statut !== "cloture";
+    && detailSelectionnee.statut !== "cloture"
+    && !enEdition
+    && !modeCreation;
 
   async function modifierProgramme(sectionId: number, montant: string): Promise<boolean> {
     if (!detailSelectionnee) return false;
@@ -218,7 +231,7 @@ export function TabFicheBleue({
   }
 
   useEffect(() => {
-    onFicheSelectionneeChange(ficheSelectionnee);
+    onFicheSelectionneeChange?.(ficheSelectionnee);
   }, [ficheSelectionnee, onFicheSelectionneeChange]);
 
   useEffect(() => {
@@ -252,24 +265,38 @@ export function TabFicheBleue({
     setPreviewId(null);
     setModeSelectionDialog(false);
     setModeCreation(false);
+    setModeEditionLocal(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ouvrirEdition]);
 
   useEffect(() => {
-    if (modeCreation || ouvrirEdition || !ficheSelectionnee) {
+    const source = detailSelectionnee ?? ficheSelectionnee;
+    if (modeCreation || enEdition || !source) {
       onProgrammationChange?.(null);
       return;
+    }
+    const isoMaj = source.date_modification ?? source.date_creation;
+    let heureMaj: string | null = null;
+    if (isoMaj) {
+      const d = new Date(isoMaj);
+      heureMaj = Number.isNaN(d.getTime())
+        ? null
+        : d.toLocaleTimeString("fr-FR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
     }
     onProgrammationChange?.({
       soldeProgramme,
       totalRecettes,
       totalDepenses,
       dateLibelle,
+      heureMaj,
       chargement: chargementDetail && !detailSelectionnee,
     });
   }, [
     modeCreation,
-    ouvrirEdition,
+    enEdition,
     ficheSelectionnee,
     soldeProgramme,
     totalRecettes,
@@ -284,6 +311,7 @@ export function TabFicheBleue({
     if (!actif) return;
     autoLieRef.current = false;
     setModeCreation(false);
+    setModeEditionLocal(false);
     onFermerCreation?.();
     onFermerEdition?.();
     void chargerFiches();
@@ -291,14 +319,14 @@ export function TabFicheBleue({
   }, [actif, dateIso, journee.reference]);
 
   useEffect(() => {
-    if (!actif || cloturee || chargement || liaisonEnCours || autoLieRef.current || modeCreation || ouvrirEdition) return;
+    if (!actif || cloturee || chargement || liaisonEnCours || autoLieRef.current || modeCreation || enEdition) return;
     if (ficheLieeId !== null) return;
     if (fichesDisponibles.length === 0) return;
 
     autoLieRef.current = true;
     void lier(fichesDisponibles[0].id, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [actif, cloturee, chargement, fichesDisponibles, ficheLieeId, liaisonEnCours, modeCreation, ouvrirEdition]);
+  }, [actif, cloturee, chargement, fichesDisponibles, ficheLieeId, liaisonEnCours, modeCreation, enEdition]);
 
   useEffect(() => {
     if (!actif || ficheLieeId === null) {
@@ -345,35 +373,45 @@ export function TabFicheBleue({
     />
   );
 
-  if (!cloturee && (modeCreation || (ouvrirEdition && detailSelectionnee))) {
+  if (!cloturee && (modeCreation || (enEdition && detailSelectionnee))) {
     return (
       <>
-        <CreerFicheBleueVue
-          dateJour={dateJour}
-          ficheExistante={modeCreation ? null : detailSelectionnee}
-          masquerEnTete={!modeCreation}
-          conteneurActions={!modeCreation ? conteneurActionsEdition : null}
-          onAnnuler={() => {
-            setModeCreation(false);
-            onFermerCreation?.();
-            onFermerEdition?.();
-          }}
-          onCreee={async (fiche) => {
-            const edition = !modeCreation;
-            await chargerFiches();
-            setModeCreation(false);
-            onFermerCreation?.();
-            onFermerEdition?.();
-            if (edition) {
-              setDetailSelectionnee(fiche);
-              return;
-            }
-            const ok = await lier(fiche.id, true);
-            if (ok) {
-              toast.success(`Fiche Bleue ${fiche.reference} créée et sélectionnée.`);
-            }
-          }}
-        />
+        <div className="flex flex-col gap-3 p-[18px]">
+          {enEdition && !modeCreation ? (
+            <div
+              ref={setActionsEditionLocal}
+              className="flex flex-wrap items-center justify-end gap-2"
+            />
+          ) : null}
+          <CreerFicheBleueVue
+            dateJour={dateJour}
+            ficheExistante={modeCreation ? null : detailSelectionnee}
+            masquerEnTete={!modeCreation}
+            conteneurActions={!modeCreation ? conteneurActions : null}
+            onAnnuler={() => {
+              setModeCreation(false);
+              setModeEditionLocal(false);
+              onFermerCreation?.();
+              onFermerEdition?.();
+            }}
+            onCreee={async (fiche) => {
+              const edition = !modeCreation;
+              await chargerFiches();
+              setModeCreation(false);
+              setModeEditionLocal(false);
+              onFermerCreation?.();
+              onFermerEdition?.();
+              if (edition) {
+                setDetailSelectionnee(fiche);
+                return;
+              }
+              const ok = await lier(fiche.id, true);
+              if (ok) {
+                toast.success(`Fiche Bleue ${fiche.reference} créée et sélectionnée.`);
+              }
+            }}
+          />
+        </div>
         {dialogPreview}
       </>
     );
@@ -422,16 +460,114 @@ export function TabFicheBleue({
     );
   }
 
+  const ficheAffichee = detailSelectionnee ?? ficheSelectionnee;
+  const statutInfo = ficheAffichee
+    ? STATUT_FICHE_BLEUE[ficheAffichee.statut]
+    : null;
+  const isoHeureAffichee =
+    ficheAffichee?.date_modification ?? ficheAffichee?.date_creation ?? null;
+  const heureModif = isoHeureAffichee
+    ? (() => {
+        const d = new Date(isoHeureAffichee);
+        return Number.isNaN(d.getTime())
+          ? null
+          : d.toLocaleTimeString("fr-FR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+      })()
+    : null;
+  const sousTitre = ficheAffichee
+    ? cloturee || ficheAffichee.statut === "valide" || ficheAffichee.statut === "cloture"
+      ? [
+          heureModif
+            ? `${statutInfo?.label ?? "Mise à jour"} à ${heureModif}`
+            : formaterDateHeureFr(ficheAffichee.date_modification ?? ficheAffichee.date_creation),
+          ficheAffichee.createur ? `par ${ficheAffichee.createur}` : null,
+          programmeModifiable ? "double-clic pour modifier un programmé" : "lecture seule",
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : programmeModifiable
+        ? "Double-cliquez un montant programmé pour le modifier"
+        : "Lecture seule"
+    : "Chargement…";
+
+  const btnSecondaire =
+    "flex h-[34px] items-center gap-1.5 rounded-md border border-[#e2e8f0] bg-white px-3 text-[13px] text-[#0f172a] hover:border-[#94a3b8]";
+
   return (
     <TooltipProvider>
-      <div className="flex flex-col gap-3">
-        {programmeModifiable || !pleinEcranControleExterne ? (
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="min-w-0 flex-1 text-[12px] text-muted-foreground">
-              {programmeModifiable
-                ? "Double-cliquez un montant programmé pour le modifier. Les totaux et la Fiche d'exécution se mettent à jour automatiquement."
-                : null}
-            </p>
+      <div className="flex flex-col">
+        <div
+          className="flex flex-wrap items-center justify-between border-b border-[#e2e8f0]"
+          style={{ gap: 12, padding: "14px 18px" }}
+        >
+          <div className="flex min-w-0 flex-col" style={{ gap: 2 }}>
+            <span className="text-[15px] font-semibold text-[#0f172a]">
+              Fiche Bleue{" "}
+              {ficheAffichee ? (
+                <span
+                  className="font-normal text-[#64748b]"
+                  style={{
+                    fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                    fontSize: 12,
+                  }}
+                >
+                  {ficheAffichee.reference}
+                </span>
+              ) : null}
+            </span>
+            <span className="text-[12.5px] text-[#64748b]">{sousTitre}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {!cloturee && fichesDisponibles.length > 1 ? (
+              <button
+                type="button"
+                className={btnSecondaire}
+                onClick={() => {
+                  setModeCreation(false);
+                  setModeEditionLocal(false);
+                  setModeSelectionDialog(true);
+                  setPreviewId(
+                    ficheSelectionnee?.id ?? fichesDisponibles[0]?.id ?? null,
+                  );
+                }}
+              >
+                <Files size={14} />
+                Sélectionner ({fichesDisponibles.length})
+              </button>
+            ) : null}
+            {!cloturee && ficheAffichee ? (
+              <button
+                type="button"
+                className={btnSecondaire}
+                onClick={() => {
+                  setPleinEcran(false);
+                  setModeSelectionDialog(false);
+                  setModeCreation(false);
+                  setModeEditionLocal(true);
+                }}
+              >
+                <Pencil size={14} />
+                Modifier
+              </button>
+            ) : null}
+            {!cloturee ? (
+              <button
+                type="button"
+                className={btnSecondaire}
+                onClick={() => {
+                  setPleinEcran(false);
+                  setModeSelectionDialog(false);
+                  setModeEditionLocal(false);
+                  setModeCreation(true);
+                }}
+              >
+                <Plus size={14} />
+                Nouvelle fiche
+              </button>
+            ) : null}
             {!pleinEcranControleExterne ? (
               <BoutonPleinEcran
                 actif={pleinEcran}
@@ -439,8 +575,39 @@ export function TabFicheBleue({
                 libelleEnter="Afficher la Fiche Bleue en plein écran"
               />
             ) : null}
+            {statutInfo ? (
+              <span
+                className="shrink-0 whitespace-nowrap"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  padding: "2px 9px",
+                  borderRadius: 4,
+                  background:
+                    ficheAffichee?.statut === "valide"
+                      ? "#ecfdf5"
+                      : ficheAffichee?.statut === "cloture"
+                        ? "#f1f5f9"
+                        : ficheAffichee?.statut === "en_cours"
+                          ? "#fffbeb"
+                          : "#f1f5f9",
+                  color:
+                    ficheAffichee?.statut === "valide"
+                      ? "#047857"
+                      : ficheAffichee?.statut === "cloture"
+                        ? "#475569"
+                        : ficheAffichee?.statut === "en_cours"
+                          ? "#b45309"
+                          : "#475569",
+                }}
+              >
+                {heureModif
+                  ? `${statutInfo.label} ${heureModif}`
+                  : statutInfo.label}
+              </span>
+            ) : null}
           </div>
-        ) : null}
+        </div>
 
         {!pleinEcran ? (
           <TableauLectureFicheBleue
@@ -449,7 +616,7 @@ export function TabFicheBleue({
             onModifierProgramme={programmeModifiable ? modifierProgramme : undefined}
           />
         ) : (
-          <div className="flex min-h-[120px] items-center justify-center rounded-xl border border-dashed text-[13px] text-muted-foreground">
+          <div className="flex min-h-[120px] items-center justify-center border-dashed text-[13px] text-[#64748b]">
             Tableau affiché en plein écran
           </div>
         )}

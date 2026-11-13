@@ -1,26 +1,31 @@
 import type { StatutFicheBleue } from "@/portails/Sp/types/fiche-bleue.interface";
 import type { TypeSectionBibliotheque } from "@/portails/Sp/types/bibliotheque.interface";
+import type { SpTagKind } from "@/portails/Sp/components/layout/SpTag";
 import { formatMontant } from "@/shared/lib/format";
 
 export const STATUT_FICHE_BLEUE: Record<
   StatutFicheBleue,
-  { label: string; badge: string }
+  { label: string; badge: string; kind: SpTagKind }
 > = {
   brouillon: {
     label: "Brouillon",
     badge: "border-transparent bg-muted text-muted-foreground",
+    kind: "neu",
   },
   valide: {
     label: "Validée",
     badge: "border-transparent bg-emerald-100 text-emerald-800",
+    kind: "ok",
   },
   en_cours: {
     label: "En cours",
     badge: "border-transparent bg-primary/10 text-primary",
+    kind: "warn",
   },
   cloture: {
     label: "Clôturée",
     badge: "border-transparent bg-warning/10 text-warning",
+    kind: "neu",
   },
 };
 
@@ -55,19 +60,55 @@ export function formaterMontantFcfa(valeur: string | number): string {
   return formatMontant(valeur);
 }
 
-/** Décalage horizontal d'un niveau de sous-section (tableaux et bibliothèque). */
-export const DECALAGE_SOUS_SECTION_PX = 56;
-export const PADDING_SOUS_SECTION_PX = 16;
+/** Parse un montant API / saisi (espaces, virgule décimale) → nombre ou null. */
+export function parseMontantNombre(
+  valeur: string | number | null | undefined,
+): number | null {
+  if (valeur === null || valeur === undefined || valeur === "") return null;
+  if (typeof valeur === "number") return Number.isFinite(valeur) ? valeur : null;
+  const n = Number(
+    String(valeur)
+      .replace(/[\s\u00A0\u202F']/g, "")
+      .replace(",", "."),
+  );
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Taux d'exécution : (Réalisé ÷ Programmé) × 100.
+ * Arrondi scientifique à l'entier (sans décimale) ; « — » si programmé nul.
+ */
+export function formaterTauxRealise(
+  programme: string | number,
+  realise: string | number,
+): string {
+  const p = parseMontantNombre(programme);
+  const r = parseMontantNombre(realise);
+  if (p === null || p === 0) return "—";
+  if (r === null) return "—";
+  // Calcul en centimes pour éviter les erreurs de flottants, puis arrondi entier.
+  const programmeCentimes = Math.round(p * 100);
+  if (programmeCentimes === 0) return "—";
+  const realiseCentimes = Math.round(r * 100);
+  const taux = (realiseCentimes / programmeCentimes) * 100;
+  const entier = Math.round(taux);
+  return `${entier} %`;
+}
+
+/** Décalage horizontal d'un niveau de sous-section (~1 tabulation). */
+export const DECALAGE_SOUS_SECTION_PX = 24;
+export const PADDING_SOUS_SECTION_PX = 8;
 export const CLASSE_ARBRE_SOUS_SECTION =
-  "space-y-1.5 border-l-2 border-muted-foreground/20 pl-10";
+  "space-y-1.5 border-l-2 border-muted-foreground/20 pl-6";
 
 export function styleIndentSection(niveau: number): {
   marginLeft: number;
   paddingLeft: number;
 } {
+  const n = Math.max(0, niveau);
   return {
-    marginLeft: niveau * DECALAGE_SOUS_SECTION_PX,
-    paddingLeft: niveau > 0 ? PADDING_SOUS_SECTION_PX : 0,
+    marginLeft: n * DECALAGE_SOUS_SECTION_PX,
+    paddingLeft: n > 0 ? PADDING_SOUS_SECTION_PX : 0,
   };
 }
 

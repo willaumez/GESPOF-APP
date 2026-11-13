@@ -1,26 +1,15 @@
 import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
-import { getPortalMenu } from "@/shared/config/menu";
 import type { Portail } from "@/shared/hooks/auth-context";
 
-/** « Lun. 05 oct. » */
-function dateCourte(d: Date): string {
-  const jour = d.toLocaleDateString("fr-FR", { weekday: "short" });
-  const mois = d.toLocaleDateString("fr-FR", { month: "short" });
-  const capitalise = jour.charAt(0).toUpperCase() + jour.slice(1);
-  return `${capitalise} ${String(d.getDate()).padStart(2, "0")} ${mois}`;
-}
-
 /**
- * Date et heure actuelles, compactes, dans la barre du haut (toutes les pages,
- * menu replié ou non). Remplace l'ancien encadré en tête de page.
+ * Horloge top bar — maquette Prototype v2
+ * (icône · heure mono, séparateurs latéraux).
  */
-export function HorlogeTopBar({ portal }: { portal: Portail }) {
-  const theme = getPortalMenu(portal).theme;
+export function HorlogeTopBar({ portal: _portal }: { portal: Portail }) {
   const [maintenant, setMaintenant] = useState(() => new Date());
 
   useEffect(() => {
-    // Recalage sur le début de chaque minute : l'heure change pile au bon moment.
     let intervalle: number | undefined;
     const delai = window.setTimeout(() => {
       setMaintenant(new Date());
@@ -43,14 +32,15 @@ export function HorlogeTopBar({ portal }: { portal: Portail }) {
         month: "long",
         year: "numeric",
       })}
-      className="hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-1 text-[12.5px] text-foreground/70 @3xl/topbar:flex"
+      className="hidden h-7 shrink-0 items-center gap-1.5 whitespace-nowrap border-x border-[#e2e8f0] px-3 text-[13px] text-[#475569] @2xl/topbar:flex"
     >
-      <Clock className="size-3.5" style={{ color: theme.iconColor }} />
-      <span className="hidden font-medium @5xl/topbar:inline">{dateCourte(maintenant)}</span>
-      <span className="hidden opacity-40 @5xl/topbar:inline">·</span>
-      <span className="font-mono font-bold tabular-nums" style={{ color: theme.iconColor }}>
+      <Clock size={15} strokeWidth={1.7} className="shrink-0" />
+      <b
+        className="font-mono font-semibold tabular-nums text-[#0f172a]"
+        style={{ fontFamily: '"IBM Plex Mono", ui-monospace, monospace' }}
+      >
         {heure}
-      </span>
+      </b>
     </time>
   );
 }

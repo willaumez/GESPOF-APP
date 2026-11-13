@@ -1,27 +1,17 @@
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
-import {
-  Archive,
+  AlertTriangle,
   ArrowDownRight,
+  ArrowRight,
   ArrowUpRight,
-  CheckCircle2,
-  CircleAlert,
-  Clock,
-  Database,
-  FileText,
   Info,
-  Inbox,
+  Landmark,
   Loader2,
   LockOpen,
   RefreshCw,
-  RotateCw,
+  Scale,
   Sunrise,
+  type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +19,6 @@ import { useAuth } from "@/shared/hooks/use-auth";
 import { getPortalMenu } from "@/shared/config/menu";
 import { formatMontant } from "@/shared/lib/format";
 import { messageDonneesOuDefaut } from "@/shared/lib/message-utilisateur";
-import { cn } from "@/shared/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,18 +29,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { DrawerPositionTresorerie } from "@/portails/Sp/components/dashboard/DrawerPositionTresorerie";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
+import { SpPageHeader } from "@/portails/Sp/components/layout/SpPageHeader";
 import { resumeTableauBord } from "@/portails/Sp/api/dashboard";
 import {
   cloturerJourneeTresorerie,
@@ -69,29 +49,28 @@ import type {
   TableauBordSp,
 } from "@/portails/Sp/types/dashboard.interface";
 
-type StatutBadge = "success" | "warning" | "danger" | "info";
+const theme = getPortalMenu("sp").theme;
 
-const HAUTEUR_LIGNE_PX = 40;
+const TAG = {
+  ok: { bg: "#ecfdf5", fg: "#047857" },
+  warn: { bg: "#fffbeb", fg: "#b45309" },
+  bad: { bg: "#fef2f2", fg: "#b91c1c" },
+  info: { bg: "#eff6ff", fg: "#1d4ed8" },
+  neu: { bg: "#f1f5f9", fg: "#475569" },
+} as const;
 
-const BADGE_CLASS: Record<StatutBadge, string> = {
-  success: "border-transparent bg-emerald-100 text-emerald-800",
-  warning: "border-transparent bg-amber-100 text-amber-800",
-  danger: "border-transparent bg-rose-100 text-rose-800",
-  info: "border-transparent bg-sky-100 text-sky-800",
+const TAG_RECETTE: Record<StatutRecetteDashboard, keyof typeof TAG> = {
+  valide: "ok",
+  partiel: "warn",
+  manuel: "warn",
+  en_attente: "bad",
 };
 
-const BADGE_RECETTE: Record<StatutRecetteDashboard, StatutBadge> = {
-  valide: "success",
-  partiel: "warning",
-  manuel: "warning",
-  en_attente: "danger",
-};
-
-const BADGE_DEPENSE: Record<StatutDepenseDashboard, StatutBadge> = {
-  payee: "success",
-  partielle: "warning",
-  urgence: "warning",
-  en_attente: "danger",
+const TAG_DEPENSE: Record<StatutDepenseDashboard, keyof typeof TAG> = {
+  payee: "ok",
+  partielle: "warn",
+  urgence: "warn",
+  en_attente: "bad",
 };
 
 const LIBELLE_SOURCE: Record<SourceTableauDashboard, string> = {
@@ -99,9 +78,7 @@ const LIBELLE_SOURCE: Record<SourceTableauDashboard, string> = {
   fiche_bleue: "Fiche Bleue",
 };
 
-function formaterMontantFcfa(
-  valeur: string | number | null | undefined,
-): string {
+function formaterMontantFcfa(valeur: string | number | null | undefined): string {
   if (valeur == null) return "—";
   return formatMontant(String(valeur));
 }
@@ -118,302 +95,178 @@ function formaterCompact(valeur: string): string {
   return formaterMontantFcfa(valeur);
 }
 
-function formaterHeureIso(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "—";
-  const hh = String(date.getHours()).padStart(2, "0");
-  const mm = String(date.getMinutes()).padStart(2, "0");
-  return `${hh}h${mm}`;
+function formaterDateFrLongue(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso.includes("T") ? iso : `${iso}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
-function formaterDateFr(iso: string | null | undefined): string {
-  if (!iso) return "—";
-  const [y, m, d] = iso.split("-");
-  if (!y || !m || !d) {
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return iso;
-    return date.toLocaleDateString("fr-FR");
-  }
-  return `${d}/${m}/${y}`;
-}
-
-function prefixeSigne(
-  variante: "recette" | "depense" | undefined,
-  valeur: string,
-): string {
-  if (variante === "recette") return `+ ${valeur}`;
-  if (variante === "depense") return `- ${valeur}`;
-  return valeur;
-}
-
-function useLignesRemplissage(nbLignesReelles: number) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [complement, setComplement] = useState(0);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const mesurer = () => {
-      const thead = el.querySelector("thead");
-      const hautThead = thead instanceof HTMLElement ? thead.offsetHeight : 0;
-      const capacite = Math.max(
-        0,
-        Math.floor((el.clientHeight - hautThead) / HAUTEUR_LIGNE_PX),
-      );
-      const occupees = Math.max(nbLignesReelles, 1);
-      setComplement(Math.max(0, capacite - occupees));
-    };
-
-    mesurer();
-    const observateur = new ResizeObserver(mesurer);
-    observateur.observe(el);
-    return () => observateur.disconnect();
-  }, [nbLignesReelles]);
-
-  return { ref, complement };
-}
-
-function LignesVides({
-  nombre,
-  colonnes,
+function Tag({
+  k,
+  children,
 }: {
-  nombre: number;
-  colonnes: number;
+  k: keyof typeof TAG;
+  children: string;
 }) {
-  if (nombre <= 0) return null;
+  const t = TAG[k];
   return (
-    <>
-      {Array.from({ length: nombre }).map((_, i) => (
-        <TableRow key={`vide-${i}`} className="hover:bg-transparent">
-          <TableCell colSpan={colonnes} className="h-10 border-border/50 p-0" />
-        </TableRow>
-      ))}
-    </>
+    <span
+      className="inline-block font-medium whitespace-nowrap"
+      style={{
+        fontSize: 12,
+        padding: "2px 9px",
+        borderRadius: 4,
+        background: t.bg,
+        color: t.fg,
+      }}
+    >
+      {children}
+    </span>
   );
 }
 
-function TableauRecettes({
-  chargement,
-  source,
-  lignes,
-}: {
-  chargement: boolean;
-  source: string | null;
-  lignes: LigneRecetteDashboard[];
-}) {
-  const nbReelles = chargement ? 6 : lignes.length;
-  const { ref, complement } = useLignesRemplissage(nbReelles);
-
-  return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-card shadow-sm">
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b px-4 py-2.5">
-        <span className="flex items-center gap-2 text-[13.5px] font-semibold text-foreground">
-          <ArrowUpRight className="size-4 text-emerald-600" />
-          Recettes
-        </span>
-        <span className="flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
-          <CheckCircle2 className="size-3.5 text-emerald-600" />
-          {source ?? "—"}
-        </span>
-      </div>
-      <div ref={ref} className="min-h-0 flex-1 overflow-auto">
-        <Table containerClassName="overflow-visible">
-          <TableHeader className="sticky top-0 z-10 bg-card">
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Libellé</TableHead>
-              <TableHead className="text-right">Réalisé</TableHead>
-              <TableHead className="text-right">Statut</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {chargement ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell>
-                    <Skeleton className="h-4 w-40" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="ml-auto h-4 w-24" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="ml-auto h-5 w-16" />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : lignes.length === 0 ? (
-              <TableRow className="hover:bg-transparent">
-                <TableCell
-                  colSpan={3}
-                  className="h-10 text-center text-[13px] text-muted-foreground"
-                >
-                  Aucune recette pour cette journée.
-                </TableCell>
-              </TableRow>
-            ) : (
-              lignes.map((ligne, index) => (
-                <TableRow key={`${ligne.libelle}-${index}`}>
-                  <TableCell className="font-medium">{ligne.libelle}</TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {formaterMontantFcfa(ligne.montant)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Badge className={BADGE_CLASS[BADGE_RECETTE[ligne.statut]]}>
-                      {ligne.statut_libelle}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-            <LignesVides nombre={chargement ? 0 : complement} colonnes={3} />
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-  );
-}
-
-function TableauDepenses({
-  chargement,
-  source,
-  lignes,
-}: {
-  chargement: boolean;
-  source: string | null;
-  lignes: LigneDepenseDashboard[];
-}) {
-  const nbReelles = chargement ? 6 : lignes.length;
-  const { ref, complement } = useLignesRemplissage(nbReelles);
-
-  return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-card shadow-sm">
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b px-4 py-2.5">
-        <span className="flex items-center gap-2 text-[13.5px] font-semibold text-foreground">
-          <ArrowDownRight className="size-4 text-rose-600" />
-          Dépenses
-        </span>
-        <span className="flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
-          <RotateCw className="size-3.5" />
-          {source ?? "—"}
-        </span>
-      </div>
-      <div ref={ref} className="min-h-0 flex-1 overflow-auto">
-        <Table containerClassName="overflow-visible">
-          <TableHeader className="sticky top-0 z-10 bg-card">
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Libellé</TableHead>
-              <TableHead className="text-right">Réalisé</TableHead>
-              <TableHead className="text-right">Statut</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {chargement ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell>
-                    <Skeleton className="h-4 w-44" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="ml-auto h-4 w-24" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="ml-auto h-5 w-16" />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : lignes.length === 0 ? (
-              <TableRow className="hover:bg-transparent">
-                <TableCell
-                  colSpan={3}
-                  className="h-10 text-center text-[13px] text-muted-foreground"
-                >
-                  Aucune dépense pour cette journée.
-                </TableCell>
-              </TableRow>
-            ) : (
-              lignes.map((ligne, index) => (
-                <TableRow
-                  key={`${ligne.libelle}-${index}`}
-                  className={cn(ligne.hors_programme && "bg-amber-50/70")}
-                >
-                  <TableCell className="max-w-[220px]">
-                    <span
-                      className={cn(
-                        "font-medium",
-                        ligne.hors_programme && "font-semibold",
-                      )}
-                    >
-                      {ligne.libelle}
-                    </span>
-                    {ligne.hors_programme && (
-                      <span className="ml-1.5 text-[10.5px] font-medium text-rose-600">
-                        (hors prog.)
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right font-medium tabular-nums">
-                    {formaterMontantFcfa(ligne.realise)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Badge className={BADGE_CLASS[BADGE_DEPENSE[ligne.statut]]}>
-                      {ligne.statut_libelle}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-            <LignesVides nombre={chargement ? 0 : complement} colonnes={3} />
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-  );
-}
-
-function EtatVideTableau({
+function TableauLignes({
   titre,
-  message,
-  action,
+  source,
+  icon,
+  iconColor,
+  chargement,
+  lignes,
+  total,
+  totalLabel,
+  empty,
 }: {
   titre: string;
-  message: string;
-  action?: ReactNode;
+  source: string;
+  icon: ReactNode;
+  iconColor: string;
+  chargement: boolean;
+  lignes: {
+    key: string;
+    libelle: string;
+    montant: string;
+    statut: string;
+    tag: keyof typeof TAG;
+    horsProg?: boolean;
+  }[];
+  total: string;
+  totalLabel: string;
+  empty: string;
 }) {
-  const theme = getPortalMenu("sp").theme;
-
   return (
-    <div
-      className="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center gap-3 rounded-2xl border bg-card px-5 py-8 text-center shadow-sm"
-      style={{ borderColor: `${theme.topColor}22` }}
-    >
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-[#e2e8f0] bg-white">
       <div
-        className="flex size-11 items-center justify-center rounded-2xl"
-        style={{ background: theme.iconBg, color: theme.iconColor }}
-        aria-hidden
+        className="flex shrink-0 items-center justify-between gap-3 border-b border-[#e2e8f0]"
+        style={{ padding: "14px 18px" }}
       >
-        <Inbox className="size-5" />
+        <span className="flex items-center gap-2.5 text-[15px] font-semibold text-[#0f172a]">
+          <span style={{ color: iconColor }} className="flex">
+            {icon}
+          </span>
+          {titre}
+        </span>
+        <span className="text-[12.5px] text-[#64748b]">{source}</span>
       </div>
-      <div className="max-w-md space-y-1.5">
-        <p className="text-[14px] font-semibold text-foreground">{titre}</p>
-        <p className="text-[13px] leading-relaxed text-muted-foreground">{message}</p>
+      <div
+        className="grid shrink-0 border-b border-[#e2e8f0] bg-[#f8fafc] text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]"
+        style={{
+          gridTemplateColumns: "minmax(0,1fr) 150px 100px",
+          gap: 12,
+          padding: "9px 18px",
+        }}
+      >
+        <span>Libellé</span>
+        <span className="text-right">Réalisé</span>
+        <span className="text-right">Statut</span>
       </div>
-      {action}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {chargement ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="grid items-center border-b border-[#f1f5f9]"
+              style={{
+                gridTemplateColumns: "minmax(0,1fr) 150px 100px",
+                gap: 12,
+                minHeight: 44,
+                padding: "0 18px",
+              }}
+            >
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="ml-auto h-4 w-24" />
+              <Skeleton className="ml-auto h-5 w-16" />
+            </div>
+          ))
+        ) : lignes.length === 0 ? (
+          <div className="px-[18px] py-8 text-center text-sm text-[#64748b]">
+            {empty}
+          </div>
+        ) : (
+          lignes.map((l) => (
+            <div
+              key={l.key}
+              className="grid items-center border-b border-[#f1f5f9] text-sm hover:bg-[#f8fafc]"
+              style={{
+                gridTemplateColumns: "minmax(0,1fr) 150px 100px",
+                gap: 12,
+                minHeight: 44,
+                padding: "0 18px",
+                background: l.horsProg ? "#fffbeb" : undefined,
+              }}
+            >
+              <span className="flex min-w-0 flex-col leading-snug">
+                <span className="font-medium text-[#0f172a]">{l.libelle}</span>
+                {l.horsProg ? (
+                  <span
+                    className="font-semibold"
+                    style={{ fontSize: 11.5, color: "#b45309" }}
+                  >
+                    Hors programme
+                  </span>
+                ) : null}
+              </span>
+              <span className="text-right tabular-nums">
+                {formaterMontantFcfa(l.montant)}
+              </span>
+              <span className="justify-self-end">
+                <Tag k={l.tag}>{l.statut}</Tag>
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+      <div
+        className="mt-auto grid shrink-0 items-center border-t border-[#e2e8f0] bg-[#f8fafc] text-sm font-semibold"
+        style={{
+          gridTemplateColumns: "minmax(0,1fr) 150px 100px",
+          gap: 12,
+          minHeight: 46,
+          padding: "0 18px",
+        }}
+      >
+        <span>{totalLabel}</span>
+        <span className="text-right tabular-nums">
+          {chargement ? "…" : formaterMontantFcfa(total)}
+        </span>
+        <span />
+      </div>
     </div>
   );
 }
 
-/**
- * Tableau de bord SP — données de la journée de trésorerie.
- */
 export default function Dashboard() {
-  const theme = getPortalMenu("sp").theme;
   const navigate = useNavigate();
   const { hasAnyRole } = useAuth();
-  // Le chef de service peut réouvrir toute journée ; un agent, seulement la dernière.
   const estChefService = hasAnyRole(["CHEF_SP"]);
-  // Journée choisie dans la TopBar (null = journée du jour, résolue par le backend).
-  const { reference: referenceSelectionnee, appliquerJournee } = useJourneeSelectionnee();
+  const { reference: referenceSelectionnee, appliquerJournee } =
+    useJourneeSelectionnee();
+
   const [data, setData] = useState<TableauBordSp | null>(null);
   const [chargement, setChargement] = useState(true);
   const [rafraichissement, setRafraichissement] = useState(false);
@@ -427,25 +280,28 @@ export default function Dashboard() {
     () => new Date(),
   );
 
-  const charger = useCallback(async (silencieux = false) => {
-    if (!silencieux) setChargement(true);
-    else setRafraichissement(true);
-    try {
-      const resume = await resumeTableauBord(null, referenceSelectionnee);
-      setData(resume);
-      setDernierRafraichissement(new Date());
-    } catch (e) {
-      toast.error(
-        messageDonneesOuDefaut(
-          e instanceof Error ? e.message : null,
-          "Impossible de charger le tableau de bord.",
-        ),
-      );
-    } finally {
-      setChargement(false);
-      setRafraichissement(false);
-    }
-  }, [referenceSelectionnee]);
+  const charger = useCallback(
+    async (silencieux = false) => {
+      if (!silencieux) setChargement(true);
+      else setRafraichissement(true);
+      try {
+        const resume = await resumeTableauBord(null, referenceSelectionnee);
+        setData(resume);
+        setDernierRafraichissement(new Date());
+      } catch (e) {
+        toast.error(
+          messageDonneesOuDefaut(
+            e instanceof Error ? e.message : null,
+            "Impossible de charger le tableau de bord.",
+          ),
+        );
+      } finally {
+        setChargement(false);
+        setRafraichissement(false);
+      }
+    },
+    [referenceSelectionnee],
+  );
 
   useEffect(() => {
     void charger();
@@ -465,61 +321,147 @@ export default function Dashboard() {
   const variationN = variation != null ? Number(variation) : null;
   const sourceRecettes = ind?.source_recettes
     ? LIBELLE_SOURCE[ind.source_recettes]
-    : null;
+    : "—";
   const sourceDepenses = ind?.source_depenses
     ? LIBELLE_SOURCE[ind.source_depenses]
-    : null;
+    : "—";
 
-  const accentsCartes: CSSProperties[] = [
-    { borderLeft: `4px solid ${theme.topColor}` },
-    { borderTop: `4px solid ${theme.topColor}` },
-    { borderTop: `4px solid ${theme.topColor}` },
-    { borderRight: `4px solid ${theme.topColor}` },
-  ];
+  const eyebrow = journee
+    ? `${journee.reference} · Journée du ${formaterDateFrLongue(journee.date)}`
+    : `Service de Prévision · ${formaterDateSeuleMatinale(new Date())}`;
 
-  const indicateursAffiches = [
+  const kpis: {
+    l: string;
+    v: string;
+    s: string;
+    hi: boolean;
+    vc: string;
+    Icon: LucideIcon;
+    ic: string;
+  }[] = [
     {
-      label: "Solde d'ouverture",
-      valeur: ind?.solde_ouverture ?? "0",
-      sousTitre:
+      l: "Solde d'ouverture",
+      v: journeeOuverte ? formaterMontantFcfa(ind?.solde_ouverture) : "0",
+      s:
         variationN != null && Number.isFinite(variationN)
-          ? `${variationN > 0 ? "+" : ""}${variationN.toLocaleString("fr-FR")}% vs veille`
+          ? `${variationN > 0 ? "+" : ""}${variationN.toLocaleString("fr-FR")} % par rapport à la veille`
           : journeeOuverte
             ? "Journée en cours"
             : "Aucune journée ouverte",
-      tendance: (variationN != null && variationN < 0 ? "down" : "up") as
-        | "up"
-        | "down",
+      hi: false,
+      vc: theme.textColor,
+      Icon: Landmark,
+      ic: theme.textColor,
     },
     {
-      label: "Recettes (jour)",
-      valeur: ind?.total_recettes ?? "0",
-      sousTitre: sourceRecettes
+      l: "Recettes du jour",
+      v: journeeOuverte
+        ? `+ ${formaterMontantFcfa(ind?.total_recettes)}`
+        : "+ 0",
+      s: journeeOuverte
         ? `${sourceRecettes} · ${ind?.nombre_postes_recettes ?? 0} poste${(ind?.nombre_postes_recettes ?? 0) > 1 ? "s" : ""}`
         : "Aucune source",
-      variante: "recette" as const,
-      tendance: "info" as const,
+      hi: false,
+      vc: "#047857",
+      Icon: ArrowUpRight,
+      ic: "#047857",
     },
     {
-      label: "Dépenses (jour)",
-      valeur: ind?.total_depenses ?? "0",
-      sousTitre:
+      l: "Dépenses du jour",
+      v: journeeOuverte
+        ? `− ${formaterMontantFcfa(ind?.total_depenses)}`
+        : "− 0",
+      s:
         Number(ind?.depenses_en_attente ?? 0) > 0
           ? `${formaterCompact(ind!.depenses_en_attente)} en attente`
-          : "RAS",
-      variante: "depense" as const,
-      tendance:
-        Number(ind?.depenses_en_attente ?? 0) > 0
-          ? ("alerte" as const)
-          : ("info" as const),
+          : journeeOuverte
+            ? "RAS"
+            : "RAS",
+      hi: false,
+      vc: "#b91c1c",
+      Icon: ArrowDownRight,
+      ic: "#b91c1c",
     },
     {
-      label: "Solde de clôture estimé",
-      valeur: ind?.solde_cloture ?? "0",
-      sousTitre: ind?.solde_cloture_estime
-        ? "Estimé (ouverture + recettes − dépenses)"
-        : `Mise à jour ${formaterHeureIso(journee?.date_derniere_mise_a_jour)}`,
-      tendance: "info" as const,
+      l: "Solde de clôture estimé",
+      v: journeeOuverte ? formaterMontantFcfa(ind?.solde_cloture) : "0",
+      s: "Ouverture + recettes − dépenses",
+      hi: true,
+      vc: "#0f172a",
+      Icon: Scale,
+      ic: theme.textColor,
+    },
+  ];
+
+  const recettesLignes = (data?.recettes ?? []).map(
+    (l: LigneRecetteDashboard, i) => ({
+      key: `r-${i}`,
+      libelle: l.libelle,
+      montant: l.montant,
+      statut: l.statut_libelle,
+      tag: TAG_RECETTE[l.statut],
+    }),
+  );
+
+  const depensesLignes = (data?.depenses ?? []).map(
+    (l: LigneDepenseDashboard, i) => ({
+      key: `d-${i}`,
+      libelle: l.libelle,
+      montant: l.realise,
+      statut: l.statut_libelle,
+      tag: TAG_DEPENSE[l.statut],
+      horsProg: l.hors_programme,
+    }),
+  );
+
+  const resume = data?.resume;
+  const resumeItems = [
+    {
+      l: "Fiche Bleue (matinale)",
+      v: resume?.fiche_bleue.reference ?? "—",
+      s: resume
+        ? `${resume.fiche_bleue.nombre_depenses} dépense${resume.fiche_bleue.nombre_depenses > 1 ? "s" : ""} programmée${resume.fiche_bleue.nombre_depenses > 1 ? "s" : ""} · ${formaterCompact(resume.fiche_bleue.montant_programme)}`
+        : "—",
+      c: "#0f172a",
+    },
+    {
+      l: "Fiche des dépôts",
+      v: resume
+        ? `${resume.fiches_depot.nombre} fiche${resume.fiches_depot.nombre > 1 ? "s" : ""} reçue${resume.fiches_depot.nombre > 1 ? "s" : ""}`
+        : "—",
+      s: resume
+        ? `${formaterCompact(resume.fiches_depot.montant_total)}`
+        : "—",
+      c: "#0f172a",
+    },
+    {
+      l: "Écarts à traiter",
+      v:
+        (resume?.ecarts.nombre_hors_programme ?? 0) > 0
+          ? `${resume!.ecarts.nombre_hors_programme} dépense hors programme`
+          : "Aucun écart",
+      s:
+        (resume?.ecarts.nombre_hors_programme ?? 0) > 0
+          ? formaterCompact(resume!.ecarts.montant_ecart)
+          : "RAS",
+      c:
+        (resume?.ecarts.nombre_hors_programme ?? 0) > 0
+          ? "#b91c1c"
+          : "#0f172a",
+    },
+    {
+      l: "Archivage",
+      v: resume?.archivage.cloturee
+        ? `Archivée le ${
+            resume.archivage.date
+              ? formaterDateSeuleMatinale(new Date(resume.archivage.date))
+              : "—"
+          }`
+        : "Journée non clôturée",
+      s: resume?.archivage.cloturee
+        ? "Fiche consolidée mise à jour"
+        : "Disponible après la clôture",
+      c: "#0f172a",
     },
   ];
 
@@ -545,7 +487,9 @@ export default function Dashboard() {
     if (!journee) return;
     setReouvertureEnCours(true);
     try {
-      const { journee: reouverte } = await reouvrirJourneeTresorerie(journee.reference);
+      const { journee: reouverte } = await reouvrirJourneeTresorerie(
+        journee.reference,
+      );
       appliquerJournee(reouverte);
       toast.success(`Journée ${journee.reference} réouverte.`);
       setDialogReouverture(false);
@@ -566,7 +510,9 @@ export default function Dashboard() {
     if (!journee) return;
     setClotureEnCours(true);
     try {
-      const { journee: cloturee } = await cloturerJourneeTresorerie(journee.reference);
+      const { journee: cloturee } = await cloturerJourneeTresorerie(
+        journee.reference,
+      );
       appliquerJournee(cloturee);
       toast.success(`Journée ${journee.reference} clôturée.`);
       setDialogCloture(false);
@@ -584,361 +530,389 @@ export default function Dashboard() {
     }
   }
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => void charger(true)}
-          disabled={rafraichissement || chargement}
-          className="group h-9 gap-2.5 rounded-xl border bg-card py-0 pr-3.5 pl-1.5 shadow-sm hover:bg-card hover:shadow-md"
-          style={{ borderColor: `${theme.topColor}33` }}
-          title="Actualiser les données de la journée"
-          aria-label={`Actualiser — dernière mise à jour à ${heureRafraichissement}`}
-        >
-          <span
-            className="flex size-6 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:rotate-45"
-            style={{ background: theme.iconBg, color: theme.iconColor }}
-          >
-            <RefreshCw className={cn("size-3.5", rafraichissement && "animate-spin")} />
-          </span>
-          <span className="flex flex-col items-start leading-none">
-            <span className="text-[12.5px] font-semibold text-foreground">
-              {rafraichissement ? "Actualisation…" : "Actualiser"}
-            </span>
-            <span className="mt-[3px] text-[10.5px] font-normal text-muted-foreground">
-              Mis à jour à <span className="tabular-nums">{heureRafraichissement}</span>
-            </span>
-          </span>
-        </Button>
-        {/* Journée clôturée : « Réouvrir » remplace le déclencheur « Clôturer » du tiroir. */}
-        {journeeCloturee ? (
-          <Button
-            type="button"
-            variant="outline"
-            className="h-9 gap-2 rounded-xl px-3.5 text-[12.5px] font-semibold shadow-sm hover:shadow-md"
-            style={{ borderColor: theme.topColor, color: theme.hoverColor }}
-            disabled={chargement || reouvertureEnCours}
-            onClick={() => setDialogReouverture(true)}
-            title="Annuler la clôture de cette journée"
-          >
-            {reouvertureEnCours ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <LockOpen className="size-3.5" />
-            )}
-            Réouvrir la journée
-          </Button>
-        ) : (
-          <DrawerPositionTresorerie
-            ouvert={drawerPosition}
-            onOuvertChange={setDrawerPosition}
-            data={data}
-            clotureEnCours={clotureEnCours}
-            disabled={chargement || !journeeOuverte}
-            onCloturer={() => {
-              setDrawerPosition(false);
-              setDialogCloture(true);
-            }}
-          />
-        )}
-      </div>
-
-      <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {indicateursAffiches.map((item, index) => (
-          <div
-            key={item.label}
-            className="rounded-2xl border bg-card px-5 py-4 shadow-sm"
-            style={{
-              borderColor: `${theme.topColor}22`,
-              ...accentsCartes[index],
-            }}
-          >
-            <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              {item.label}
-            </p>
-            {chargement ? (
-              <Skeleton className="mt-2 h-8 w-40" />
-            ) : (
-              <p
-                className={cn(
-                  "mt-1.5 font-heading text-[1.35rem] font-bold tabular-nums leading-tight sm:text-[1.55rem]",
-                  item.variante === "recette" && "text-emerald-700",
-                  item.variante === "depense" && "text-rose-700",
-                  !item.variante && "text-foreground",
-                )}
-              >
-                {prefixeSigne(item.variante, formaterMontantFcfa(item.valeur))}{" "}
-                FCFA
-              </p>
-            )}
-            <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-muted-foreground">
-              {item.tendance === "up" && (
-                <ArrowUpRight className="size-3.5 text-emerald-600" />
-              )}
-              {item.tendance === "down" && (
-                <ArrowDownRight className="size-3.5 text-rose-600" />
-              )}
-              {item.tendance === "alerte" && (
-                <CircleAlert className="size-3.5 text-amber-600" />
-              )}
-              {item.tendance === "info" && item.label.includes("Recettes") && (
-                <Database
-                  className="size-3.5"
-                  style={{ color: theme.iconColor }}
-                />
-              )}
-              {item.tendance === "info" && item.label.includes("clôture") && (
-                <Clock className="size-3.5" />
-              )}
-              {chargement ? <Skeleton className="h-3 w-28" /> : item.sousTitre}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {chargement || journeeOuverte ? (
-        <>
-          {chargement ? (
-            <div
-              className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border bg-card px-4 py-8"
-              style={{ borderColor: `${theme.topColor}22` }}
-            >
-              <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
-                <Loader2 className="size-5 animate-spin" />
-                Chargement du tableau de bord…
-              </div>
-            </div>
-          ) : (data?.recettes.length ?? 0) === 0 && (data?.depenses.length ?? 0) === 0 ? (
-            <EtatVideTableau
-              titre="Aucune recette ni dépense pour cette journée"
-              message="Les tableaux s'affichent dès qu'une Fiche Bleue, une fiche de dépôt ou une fiche d'exécution alimente la journée."
-              action={
-                journee ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-1"
-                    onClick={() =>
-                      void navigate(
-                        `/sp/fiche-matinale/journee/${encodeURIComponent(journee.reference)}`,
-                      )
-                    }
-                  >
-                    Ouvrir la fiche matinale
-                  </Button>
-                ) : null
-              }
-            />
-          ) : (
-            <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-2">
-              {(data?.recettes.length ?? 0) > 0 ? (
-                <TableauRecettes
-                  chargement={false}
-                  source={sourceRecettes}
-                  lignes={data?.recettes ?? []}
-                />
-              ) : (
-                <EtatVideTableau
-                  titre="Aucune recette"
-                  message="Aucune recette n'est encore enregistrée pour cette journée."
-                />
-              )}
-              {(data?.depenses.length ?? 0) > 0 ? (
-                <TableauDepenses
-                  chargement={false}
-                  source={sourceDepenses}
-                  lignes={data?.depenses ?? []}
-                />
-              ) : (
-                <EtatVideTableau
-                  titre="Aucune dépense"
-                  message="Aucune dépense n'est encore enregistrée pour cette journée."
-                />
-              )}
-            </div>
-          )}
-
-          {journee ? (
-            <div
-              className="shrink-0 rounded-2xl border bg-card px-5 py-3 shadow-[0_-6px_16px_rgba(15,23,42,0.06)]"
-              style={{ borderColor: `${theme.topColor}22` }}
-            >
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="flex items-center gap-2 text-[14.5px] font-semibold text-foreground">
-                <Info className="size-4" style={{ color: theme.iconColor }} />
-                Résumé de la journée
-                {journee ? (
-                  <span className="font-mono text-[12px] font-normal text-muted-foreground">
-                    {journee.reference}
-                  </span>
-                ) : null}
-              </h2>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <Badge className={BADGE_CLASS.info}>
-                  {chargement ? (
-                    <Loader2 className="size-3 animate-spin" />
-                  ) : (
-                    <Clock className="size-3" />
-                  )}
-                  {journee
-                    ? `${formaterHeureIso(journee.date_derniere_mise_a_jour)} · ${journee.etat_libelle}`
-                    : "Pas de journée"}
-                </Badge>
-                {data?.resume.fiche_bleue.reference ? (
-                  <Badge className={BADGE_CLASS.warning}>
-                    <FileText className="size-3" />
-                    {data.resume.fiche_bleue.reference}
-                  </Badge>
-                ) : null}
-              </div>
-            </div>
-
-            {journeeCloturee ? (
-            <>
-            <div className="my-3 h-px bg-border" />
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  Fiche bleue (matinale)
-                </span>
-                <span className="text-[13.5px] font-semibold text-foreground">
-                  {chargement
-                    ? "…"
-                    : `${data?.resume.fiche_bleue.nombre_depenses ?? 0} dépense${(data?.resume.fiche_bleue.nombre_depenses ?? 0) > 1 ? "s" : ""} programmée${(data?.resume.fiche_bleue.nombre_depenses ?? 0) > 1 ? "s" : ""} · ${formaterCompact(data?.resume.fiche_bleue.montant_programme ?? "0")}`}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  Fiche des dépôts
-                </span>
-                <span className="text-[13.5px] font-semibold text-foreground">
-                  {chargement
-                    ? "…"
-                    : `${data?.resume.fiches_depot.nombre ?? 0} fiche${(data?.resume.fiches_depot.nombre ?? 0) > 1 ? "s" : ""} · ${formaterCompact(data?.resume.fiches_depot.montant_total ?? "0")}`}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  Écarts à traiter
-                </span>
-                <span
-                  className={cn(
-                    "text-[13.5px] font-semibold",
-                    (data?.resume.ecarts.nombre_hors_programme ?? 0) > 0
-                      ? "text-rose-700"
-                      : "text-foreground",
-                  )}
-                >
-                  {chargement
-                    ? "…"
-                    : (data?.resume.ecarts.nombre_hors_programme ?? 0) > 0
-                      ? `${data!.resume.ecarts.nombre_hors_programme} dépense${data!.resume.ecarts.nombre_hors_programme > 1 ? "s" : ""} hors programme`
-                      : "Aucun écart hors programme"}
-                </span>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  Archivage
-                </span>
-                <span className="flex items-center gap-1.5 text-[13.5px] font-semibold text-foreground">
-                  <Archive
-                    className="size-3.5"
-                    style={{ color: theme.iconColor }}
-                  />
-                  {chargement
-                    ? "…"
-                    : data?.resume.archivage.cloturee
-                      ? `${formaterDateFr(data.resume.archivage.date)} archivé`
-                      : "Journée non clôturée"}
-                </span>
-              </div>
-            </div>
-            </>
-            ) : (
-              // Journée pas encore clôturée : le résumé n'est pas encore définitif.
-              <div
-                className="mt-3 flex items-center gap-3 rounded-xl border px-3.5 py-2.5"
-                style={{ borderColor: `${theme.topColor}33`, background: `${theme.topColor}0d` }}
-                role="status"
-              >
-                <span className="relative flex size-2.5 shrink-0" aria-hidden>
-                  <span
-                    className="absolute inline-flex size-full animate-ping rounded-full opacity-60"
-                    style={{ background: theme.ctaColor }}
-                  />
-                  <span
-                    className="relative inline-flex size-2.5 rounded-full"
-                    style={{ background: theme.ctaColor }}
-                  />
-                </span>
-                <p className="text-[13px] leading-snug text-foreground">
-                  <span className="font-semibold">Journée de trésorerie toujours en cours.</span>{" "}
-                  <span className="text-muted-foreground">
-                    Le résumé (fiche bleue, dépôts, écarts, archivage) sera disponible après la clôture.
-                  </span>
-                </p>
-              </div>
-            )}
-          </div>
-            ) : null}
-        </>
-      ) : (
+  const resumeBloc =
+    (chargement || journeeOuverte) && (journee || chargement) ? (
+      <div
+        className="flex shrink-0 flex-col rounded-lg border border-[#e2e8f0] bg-white"
+        style={{
+          boxShadow: "0 -6px 16px rgba(15, 23, 42, 0.06)",
+        }}
+      >
         <div
-          className="flex min-h-0 flex-1 items-center justify-center rounded-2xl border bg-card px-4 py-8"
-          style={{ borderColor: `${theme.topColor}22` }}
+          className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e8f0]"
+          style={{ padding: "14px 18px" }}
         >
-          <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-5 text-center">
-            <div
-              className="flex size-12 items-center justify-center rounded-2xl"
-              style={{ background: theme.iconBg, color: theme.iconColor }}
-            >
-              <Sunrise className="size-6" />
-            </div>
-            <div className="space-y-2">
-              <p
-                className="text-[11px] font-semibold tracking-[0.12em] uppercase"
-                style={{ color: theme.iconColor }}
+          <span className="flex items-center gap-2.5 text-[15px] font-semibold text-[#0f172a]">
+            <span className="flex" style={{ color: theme.topColor }}>
+              <Info size={18} />
+            </span>
+            Résumé de la journée
+            {journee ? (
+              <span
+                className="font-normal text-[#64748b]"
+                style={{
+                  fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                  fontSize: 12,
+                }}
               >
-                Journée de trésorerie
-              </p>
-              <p className="text-[13.5px] leading-relaxed text-foreground/75">
-                Aucune journée de trésorerie n&apos;est ouverte
-                aujourd&apos;hui. Démarrez-la pour suivre les recettes, les
-                dépenses et le résumé de la journée.
-              </p>
-            </div>
-            <Button
+                {journee.reference}
+              </span>
+            ) : null}
+          </span>
+          <div className="flex flex-wrap gap-2">
+            <button
               type="button"
-              size="lg"
-              className="h-11 w-full max-w-md gap-2 px-4 text-[12px] font-semibold tracking-wide uppercase shadow-md transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-lg sm:h-12 sm:w-auto sm:px-8 sm:text-[13px]"
-              style={{ background: theme.ctaColor, color: "#fff" }}
-              disabled={ouvertureEnCours}
-              onClick={() => void demarrerJournee()}
+              onClick={() =>
+                void navigate(
+                  journee
+                    ? `/sp/fiche-matinale/journee/${encodeURIComponent(journee.reference)}`
+                    : "/sp/fiche-matinale",
+                )
+              }
+              className="flex h-8 items-center gap-1.5 rounded-md border border-[#e2e8f0] bg-white px-3 text-[13px] text-[#0f172a] hover:border-[#94a3b8]"
             >
-              {ouvertureEnCours && <Loader2 className="size-4 animate-spin" />}
-              Démarrer la journée trésorerie du{" "}
-              {formaterDateSeuleMatinale(new Date())}
-            </Button>
+              Ouvrir la fiche matinale
+              <ArrowRight size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                void navigate(
+                  journee
+                    ? `/sp/fiche-matinale/rapprochement-depenses/${encodeURIComponent(journee.reference)}`
+                    : "/sp/fiche-matinale",
+                )
+              }
+              className="flex h-8 items-center gap-1.5 rounded-md border border-[#e2e8f0] bg-white px-3 text-[13px] text-[#0f172a] hover:border-[#94a3b8]"
+            >
+              Rapprochement des dépenses
+              <ArrowRight size={14} />
+            </button>
           </div>
         </div>
-      )}
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          }}
+        >
+          {resumeItems.map((r) => (
+            <div
+              key={r.l}
+              className="flex flex-col border-r border-[#f1f5f9] last:border-r-0"
+              style={{ gap: 4, padding: "16px 18px" }}
+            >
+              <span className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#64748b]">
+                {r.l}
+              </span>
+              <span
+                className="text-[14.5px] font-semibold"
+                style={{ color: r.c }}
+              >
+                {chargement ? "…" : r.v}
+              </span>
+              <span className="text-[13px] text-[#64748b]">{r.s}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : null;
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto">
+      <SpPageHeader
+        eyebrow={eyebrow}
+        title="Tableau de bord"
+        description="Position de trésorerie de la journée, alimentée par la Fiche Bleue, la Fiche d'exécution et les fiches de dépôt."
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={() => void charger(true)}
+              disabled={rafraichissement || chargement}
+              className="flex h-[38px] items-center gap-2 rounded-md border border-[#cbd5e1] bg-white px-3.5 text-sm font-medium text-[#0f172a] hover:border-[#94a3b8] hover:bg-[#f8fafc] disabled:opacity-60"
+            >
+              <RefreshCw
+                size={16}
+                className={rafraichissement ? "animate-spin" : undefined}
+              />
+              Actualiser
+              <span className="text-xs text-[#64748b]">
+                {heureRafraichissement}
+              </span>
+            </button>
+            {journeeCloturee ? (
+              <button
+                type="button"
+                onClick={() => setDialogReouverture(true)}
+                disabled={chargement || reouvertureEnCours}
+                className="flex h-[38px] items-center gap-2 rounded-md border bg-white px-4 text-sm font-semibold disabled:opacity-60"
+                style={{
+                  borderColor: theme.topColor,
+                  color: theme.textColor,
+                }}
+              >
+                {reouvertureEnCours ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <LockOpen size={16} />
+                )}
+                Réouvrir la journée
+              </button>
+            ) : journeeOuverte ? (
+              <DrawerPositionTresorerie
+                ouvert={drawerPosition}
+                onOuvertChange={setDrawerPosition}
+                data={data}
+                clotureEnCours={clotureEnCours}
+                disabled={chargement || !journeeOuverte}
+                onCloturer={() => {
+                  setDrawerPosition(false);
+                  setDialogCloture(true);
+                }}
+              />
+            ) : null}
+          </>
+        }
+      />
+
+      {/* KPIs */}
+      <div
+        className="shrink-0 overflow-hidden rounded-lg border border-[#e2e8f0] bg-white"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+        }}
+      >
+        {kpis.map((k) => {
+          const Icone = k.Icon;
+          return (
+            <div
+              key={k.l}
+              className="flex flex-col border-r border-[#e2e8f0] last:border-r-0"
+              style={{
+                gap: 4,
+                padding: "14px 18px",
+                background: k.hi ? theme.bgColor : "#fff",
+                boxShadow: k.hi
+                  ? `inset 0 3px 0 ${theme.topColor}`
+                  : undefined,
+              }}
+            >
+              <div className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#64748b]">
+                {k.l}
+              </div>
+              <div className="flex flex-wrap items-baseline gap-1.5">
+                <span
+                  className="text-[22px] font-semibold tracking-[-0.01em] tabular-nums leading-tight"
+                  style={{ color: chargement ? "#0f172a" : k.vc }}
+                >
+                  {chargement ? "—" : k.v}
+                </span>
+                <span className="text-xs font-semibold text-[#64748b]">
+                  FCFA
+                </span>
+              </div>
+              <div className="mt-auto flex items-center justify-between gap-3">
+                <div className="min-w-0 text-[13px] text-[#475569]">{k.s}</div>
+                <div
+                  className="grid size-8 shrink-0 place-items-center rounded-md"
+                  style={{
+                    background: k.hi ? "#fff" : theme.iconBg,
+                    color: k.ic,
+                  }}
+                  aria-hidden
+                >
+                  <Icone size={16} />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* État : pas de journée */}
+      {!chargement && !journeeOuverte ? (
+        <div
+          className="flex flex-col items-start rounded-lg border border-[#e2e8f0] bg-white"
+          style={{
+            gap: 18,
+            padding: 40,
+            borderLeft: `4px solid ${theme.topColor}`,
+          }}
+        >
+          <div
+            className="grid size-11 place-items-center rounded-lg"
+            style={{ background: theme.iconBg, color: theme.textColor }}
+          >
+            <Sunrise size={22} />
+          </div>
+          <div className="flex max-w-[620px] flex-col" style={{ gap: 6 }}>
+            <div
+              className="font-semibold text-[#0f172a]"
+              style={{
+                fontFamily: '"IBM Plex Serif", serif',
+                fontSize: 20,
+              }}
+            >
+              Aucune journée de trésorerie ouverte
+            </div>
+            <div
+              className="text-[14.5px] text-[#475569]"
+              style={{ lineHeight: 1.6 }}
+            >
+              Démarrez la journée pour suivre les recettes, les dépenses et le
+              résumé de la journée. L&apos;ouverture regroupe la Fiche Bleue, la
+              Fiche d&apos;exécution et les fiches de dépôt du Service
+              Règlement.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => void demarrerJournee()}
+            disabled={ouvertureEnCours}
+            className="flex items-center gap-2.5 rounded-md border-0 px-5 text-[14.5px] font-semibold text-white disabled:opacity-60"
+            style={{ height: 44, background: theme.ctaColor }}
+          >
+            {ouvertureEnCours ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : null}
+            Démarrer la journée trésorerie du{" "}
+            {formaterDateSeuleMatinale(new Date())}
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      ) : null}
+
+      {/* Journée ouverte — tableaux (zone scrollable) */}
+      {chargement || journeeOuverte ? (
+        <div
+          className="grid min-h-0 flex-1"
+          style={{
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(min(100%, 460px), 1fr))",
+            gap: 20,
+            alignItems: "stretch",
+          }}
+        >
+          <TableauLignes
+            titre="Recettes"
+            source={`Source : ${sourceRecettes}`}
+            icon={<ArrowUpRight size={18} />}
+            iconColor="#047857"
+            chargement={chargement}
+            lignes={recettesLignes}
+            total={data?.totaux.recettes ?? ind?.total_recettes ?? "0"}
+            totalLabel="Total recettes"
+            empty="Aucune recette pour cette journée."
+          />
+          <TableauLignes
+            titre="Dépenses"
+            source={`Source : ${sourceDepenses}`}
+            icon={<ArrowDownRight size={18} />}
+            iconColor="#b91c1c"
+            chargement={chargement}
+            lignes={depensesLignes}
+            total={
+              data?.totaux.depenses_realise ?? ind?.total_depenses ?? "0"
+            }
+            totalLabel="Total dépenses"
+            empty="Aucune dépense pour cette journée."
+          />
+        </div>
+      ) : null}
+      </div>
+
+      {/* Résumé fixé en bas du tableau de bord */}
+      {resumeBloc}
+
+      {/* Dialog clôture maquette */}
+      <AlertDialog open={dialogCloture} onOpenChange={setDialogCloture}>
+        <AlertDialogContent className="sm:max-w-[520px]">
+          <AlertDialogHeader>
+            <AlertDialogTitle
+              style={{
+                fontFamily: '"IBM Plex Serif", serif',
+                fontSize: 21,
+                fontWeight: 600,
+              }}
+            >
+              Clôturer la journée ?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm leading-relaxed text-[#475569]">
+              La journée {journee?.reference} sera archivée. Les montants
+              réalisés de la Fiche d&apos;exécution alimenteront la fiche
+              consolidée (semaine / mois / année). La Fiche Bleue et la Fiche
+              d&apos;exécution liées seront également clôturées.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {journee && ind ? (
+            <div className="flex flex-col overflow-hidden rounded-lg border border-[#e2e8f0] text-sm">
+              <div className="flex justify-between border-b border-[#f1f5f9] px-3.5 py-2.5">
+                <span className="text-[#475569]">Solde d&apos;ouverture</span>
+                <span className="tabular-nums">
+                  {formaterMontantFcfa(ind.solde_ouverture)}
+                </span>
+              </div>
+              <div className="flex justify-between border-b border-[#f1f5f9] px-3.5 py-2.5">
+                <span className="text-[#475569]">Recettes</span>
+                <span className="tabular-nums">
+                  + {formaterMontantFcfa(ind.total_recettes)}
+                </span>
+              </div>
+              <div className="flex justify-between border-b border-[#f1f5f9] px-3.5 py-2.5">
+                <span className="text-[#475569]">Dépenses</span>
+                <span className="tabular-nums">
+                  − {formaterMontantFcfa(ind.total_depenses)}
+                </span>
+              </div>
+              <div
+                className="flex justify-between px-3.5 py-3 font-semibold"
+                style={{ background: theme.bgColor }}
+              >
+                <span>Solde de clôture</span>
+                <span className="tabular-nums">
+                  {formaterMontantFcfa(ind.solde_cloture)} FCFA
+                </span>
+              </div>
+            </div>
+          ) : null}
+          <div className="flex items-center gap-2 text-[13px] text-[#b45309]">
+            <AlertTriangle size={16} />
+            Cette action n&apos;est pas réversible sans l&apos;intervention du
+            chef de service.
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={clotureEnCours}>
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={clotureEnCours}
+              onClick={(e) => {
+                e.preventDefault();
+                void confirmerCloture();
+              }}
+            >
+              {clotureEnCours ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : null}
+              Clôturer la journée
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={dialogReouverture} onOpenChange={setDialogReouverture}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Réouvrir la journée ?</AlertDialogTitle>
             <AlertDialogDescription>
-              La clôture de la journée {journee?.reference} sera annulée : ses
-              montants seront retirés de la fiche consolidée (semaine / mois /
-              année) jusqu&apos;à la prochaine clôture, et la Fiche Bleue et la
-              Fiche d&apos;exécution liées repasseront « En cours ».{" "}
+              La clôture de la journée {journee?.reference} sera annulée.
               {estChefService
-                ? "En tant que chef de service, vous pouvez réouvrir toute journée clôturée, y compris une journée antérieure."
-                : "Seule la dernière journée de trésorerie peut être réouverte ; pour une journée antérieure, adressez-vous au chef de service."}
+                ? " En tant que chef de service, vous pouvez réouvrir toute journée clôturée."
+                : " Seule la dernière journée peut être réouverte."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -953,39 +927,10 @@ export default function Dashboard() {
                 void confirmerReouverture();
               }}
             >
-              {reouvertureEnCours && <Loader2 className="size-4 animate-spin" />}
+              {reouvertureEnCours ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : null}
               Réouvrir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={dialogCloture} onOpenChange={setDialogCloture}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Clôturer la journée ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              La journée {journee?.reference} sera archivée. Les montants
-              réalisés de la Fiche d&apos;exécution alimenteront la fiche
-              consolidée (semaine / mois / année). La Fiche Bleue et la Fiche
-              d&apos;exécution liées seront également clôturées. Cette action
-              n&apos;est pas réversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={clotureEnCours}>
-              Annuler
-            </AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              disabled={clotureEnCours}
-              onClick={(e) => {
-                e.preventDefault();
-                void confirmerCloture();
-              }}
-            >
-              {clotureEnCours && <Loader2 className="size-4 animate-spin" />}
-              Clôturer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

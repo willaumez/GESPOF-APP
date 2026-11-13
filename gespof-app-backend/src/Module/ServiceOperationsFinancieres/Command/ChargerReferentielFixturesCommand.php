@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 #[AsCommand(
     name: 'sof:referentiel:charger',
-    description: 'Charge les fixtures du référentiel budgétaire SOF (rubriques + exercice 2025).',
+    description: 'Charge les fixtures du référentiel budgétaire SOF (rubriques + exercice).',
 )]
 final class ChargerReferentielFixturesCommand extends Command
 {
@@ -45,7 +45,10 @@ final class ChargerReferentielFixturesCommand extends Command
         $this->exerciceFixtures->charger($this->entityManager);
         $this->entityManager->flush();
 
-        $io->success('Référentiel SOF chargé (rubriques, comptes douaniers, exercice 2025).');
+        $io->success(sprintf(
+            'Référentiel SOF chargé (rubriques, comptes douaniers, exercice %d).',
+            ExerciceFixtures::ANNEE_REFERENCE,
+        ));
 
         return Command::SUCCESS;
     }

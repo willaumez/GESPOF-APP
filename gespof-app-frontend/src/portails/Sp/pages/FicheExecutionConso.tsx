@@ -1,45 +1,37 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Calendar,
-  CalendarDays,
-  CalendarRange,
+  Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Download,
+  Info,
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
-import { ButtonGroup } from "@/shared/components/ui/button-group";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-} from "@/shared/components/ui/select";
-import { TooltipProvider } from "@/shared/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/shared/components/ui/popover";
+import { getPortalMenu } from "@/shared/config/menu";
 import { chargerFicheExecutionConso } from "@/portails/Sp/api/fiche-execution-conso";
 import { TableauFicheExecutionConso } from "@/portails/Sp/components/fiche-execution/TableauFicheExecutionConso";
+import { SpBoutonPrimaire } from "@/portails/Sp/components/layout/SpBoutonsPage";
+import { SpPageHeader } from "@/portails/Sp/components/layout/SpPageHeader";
 import { useJourneeSelectionnee } from "@/portails/Sp/hooks/journee-selectionnee";
-import {
-  BoutonPleinEcran,
-  OverlayPleinEcran,
-} from "@/portails/Sp/components/plein-ecran/PleinEcran";
 import type {
   MatriceFicheExecutionConso,
   PeriodeConso,
   VueConso,
 } from "@/portails/Sp/types/fiche-execution-conso.interface";
 
-const VUES: {
-  id: VueConso;
-  label: string;
-  icon: typeof CalendarRange;
-}[] = [
-  { id: "semaine", label: "Semaine", icon: CalendarRange },
-  { id: "mois", label: "Mois", icon: Calendar },
-  { id: "annee", label: "Année", icon: CalendarDays },
+const theme = getPortalMenu("sp").theme;
+
+const ONGLETS: { id: VueConso; label: string }[] = [
+  { id: "semaine", label: "Semaine" },
+  { id: "mois", label: "Mois" },
+  { id: "annee", label: "Année" },
 ];
 
 const TEXTES_VUE: Record<VueConso, string> = {
@@ -48,12 +40,6 @@ const TEXTES_VUE: Record<VueConso, string> = {
   mois: "Le mois rassemble les semaines du premier au dernier jour ouvré. La colonne TOTAL cumule le mois.",
   annee:
     "Totaux par mois de janvier à décembre. La colonne TOTAL cumule l'année.",
-};
-
-const LIBELLE_VUE: Record<VueConso, string> = {
-  semaine: "Semaine",
-  mois: "Mois",
-  annee: "Année",
 };
 
 function dateDepuisCle(vue: VueConso, cle: string): string {
@@ -82,9 +68,12 @@ function groupePeriodes(
   return groupes;
 }
 
+/**
+ * Fiche d'exécution consolidée — Prototype v2
+ * (onglets Semaine / Mois / Année · note · tableau rubriques).
+ */
 export default function FicheExecutionConso() {
   const [vue, setVue] = useState<VueConso>("semaine");
-  // La période affichée part de la journée choisie dans la TopBar.
   const { dateIso: dateJournee } = useJourneeSelectionnee();
   const [datePivot, setDatePivot] = useState(dateJournee);
   const [journeeSuivie, setJourneeSuivie] = useState(dateJournee);
@@ -93,8 +82,10 @@ export default function FicheExecutionConso() {
     setDatePivot(dateJournee);
   }
   const [chargement, setChargement] = useState(true);
-  const [matrice, setMatrice] = useState<MatriceFicheExecutionConso | null>(null);
-  const [pleinEcran, setPleinEcran] = useState(false);
+  const [matrice, setMatrice] = useState<MatriceFicheExecutionConso | null>(
+    null,
+  );
+  const [menuPeriodeOuvert, setMenuPeriodeOuvert] = useState(false);
 
   useEffect(() => {
     let actif = true;
@@ -141,164 +132,166 @@ export default function FicheExecutionConso() {
 
   const libellePeriode =
     matrice?.libelle ?? matrice?.libelle_semaine ?? "Période";
-
-  const navigationPeriode = (options?: { avecSelect?: boolean }) => {
-    const avecSelect = options?.avecSelect ?? true;
-    return (
-      <div className="flex min-w-0 max-w-full items-center gap-1">
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="size-8 shrink-0"
-          disabled={!periodePrecedente || chargement}
-          onClick={() => {
-            if (periodePrecedente) {
-              setDatePivot(dateDepuisCle(vue, periodePrecedente.cle));
-            }
-          }}
-          aria-label="Période précédente"
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-        {avecSelect ? (
-          <Select
-            value={cleAffichee}
-            onValueChange={(valeur) => {
-              if (periodes.some((p) => p.cle === valeur)) {
-                setDatePivot(dateDepuisCle(vue, valeur));
-              }
-            }}
-            disabled={chargement || periodes.length === 0}
-          >
-            <SelectTrigger
-              size="sm"
-              aria-label="Choisir une période"
-              className="h-8 w-full min-w-0 max-w-[min(100%,18rem)] justify-center border-transparent bg-transparent px-2 text-[13px] font-semibold shadow-none hover:bg-muted/60 sm:min-w-[12rem] sm:text-[14px] dark:hover:bg-input/30"
-            >
-              <span className="truncate">{libellePeriode}</span>
-            </SelectTrigger>
-            <SelectContent align="center" className="max-h-80 min-w-[min(20rem,calc(100vw-2rem))]">
-              {groupes.map((groupe) => (
-                <SelectGroup key={groupe.groupe || "periodes"}>
-                  {groupe.groupe ? (
-                    <SelectLabel>{groupe.groupe}</SelectLabel>
-                  ) : null}
-                  {groupe.periodes.map((periode) => (
-                    <SelectItem key={periode.cle} value={periode.cle}>
-                      {periode.libelle}
-                      {periode.actuelle ? " · actuelle" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <span className="max-w-[10rem] truncate px-2 text-[12px] font-semibold sm:max-w-[14rem] sm:text-[13px]">
-            {libellePeriode}
-          </span>
-        )}
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="size-8 shrink-0"
-          disabled={!periodeSuivante || chargement}
-          onClick={() => {
-            if (periodeSuivante) {
-              setDatePivot(dateDepuisCle(vue, periodeSuivante.cle));
-            }
-          }}
-          aria-label="Période suivante"
-        >
-          <ChevronRight className="size-4" />
-        </Button>
-      </div>
-    );
-  };
-
-  const selecteurVue = (
-    <ButtonGroup className="w-full sm:w-auto">
-      {VUES.map((item) => {
-        const Icone = item.icon;
-        const actif = vue === item.id;
-        return (
-          <Button
-            key={item.id}
-            type="button"
-            variant={actif ? "default" : "outline"}
-            size="sm"
-            className="flex-1 gap-1.5 sm:flex-none"
-            aria-pressed={actif}
-            onClick={() => {
-              if (item.id !== vue) setVue(item.id);
-            }}
-          >
-            <Icone className="size-3.5" />
-            <span className="truncate">{item.label}</span>
-          </Button>
-        );
-      })}
-    </ButtonGroup>
-  );
+  const eyebrow = chargement && !matrice ? "…" : libellePeriode;
 
   return (
-    <TooltipProvider>
-      <div className="flex min-w-0 flex-col gap-3 sm:gap-4">
-        <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <p className="max-w-xl text-[12.5px] leading-relaxed text-muted-foreground sm:text-[13px]">
-            {TEXTES_VUE[vue]}
-          </p>
-          <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
-            {selecteurVue}
-            <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-              {navigationPeriode()}
-              <BoutonPleinEcran
-                actif={pleinEcran}
-                onToggle={() => setPleinEcran((v) => !v)}
-                libelleEnter="Afficher la fiche consolidée en plein écran"
-              />
+    <div className="flex flex-col gap-6">
+      <SpPageHeader
+        eyebrow={eyebrow}
+        title="Fiche d'exécution consolidée"
+        description="Consolidation des montants réalisés par rubrique, alimentée à chaque clôture de journée."
+        actions={
+          <>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={!periodePrecedente || chargement}
+                onClick={() => {
+                  if (periodePrecedente) {
+                    setDatePivot(dateDepuisCle(vue, periodePrecedente.cle));
+                  }
+                }}
+                aria-label="Période précédente"
+                className="grid size-[38px] place-items-center rounded-md border border-[#cbd5e1] bg-white text-[#0f172a] hover:border-[#94a3b8] hover:bg-[#f8fafc] disabled:opacity-50"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <Popover
+                open={menuPeriodeOuvert}
+                onOpenChange={setMenuPeriodeOuvert}
+              >
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    disabled={chargement || periodes.length === 0}
+                    aria-label="Choisir une période"
+                    aria-expanded={menuPeriodeOuvert}
+                    className="inline-flex h-[38px] min-w-[10rem] max-w-[18rem] items-center justify-between gap-2 rounded-md border border-[#cbd5e1] bg-white px-3 text-[13px] font-semibold text-[#0f172a] hover:border-[#94a3b8] hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span className="truncate">{libellePeriode}</span>
+                    <ChevronDown size={14} className="shrink-0 text-[#64748b]" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="center"
+                  className="z-[80] max-h-80 w-[min(20rem,calc(100vw-2rem))] overflow-y-auto p-1"
+                >
+                  {groupes.map((groupe) => (
+                    <div key={groupe.groupe || "periodes"}>
+                      {groupe.groupe ? (
+                        <div className="px-2.5 py-1.5 text-[11px] font-semibold tracking-wide text-[#64748b] uppercase">
+                          {groupe.groupe}
+                        </div>
+                      ) : null}
+                      {groupe.periodes.map((periode) => {
+                        const actif = periode.cle === cleAffichee;
+                        return (
+                          <button
+                            key={periode.cle}
+                            type="button"
+                            onClick={() => {
+                              setDatePivot(dateDepuisCle(vue, periode.cle));
+                              setMenuPeriodeOuvert(false);
+                            }}
+                            className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[13px] hover:bg-[#f8fafc]"
+                            style={{
+                              fontWeight: actif ? 600 : 400,
+                              color: actif ? theme.textColor : "#0f172a",
+                              background: actif ? theme.bgColor : undefined,
+                            }}
+                          >
+                            <span className="min-w-0 flex-1 truncate">
+                              {periode.libelle}
+                              {periode.actuelle ? " · actuelle" : ""}
+                            </span>
+                            {actif ? (
+                              <Check size={14} className="shrink-0" />
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </PopoverContent>
+              </Popover>
+              <button
+                type="button"
+                disabled={!periodeSuivante || chargement}
+                onClick={() => {
+                  if (periodeSuivante) {
+                    setDatePivot(dateDepuisCle(vue, periodeSuivante.cle));
+                  }
+                }}
+                aria-label="Période suivante"
+                className="grid size-[38px] place-items-center rounded-md border border-[#cbd5e1] bg-white text-[#0f172a] hover:border-[#94a3b8] hover:bg-[#f8fafc] disabled:opacity-50"
+              >
+                <ChevronRight size={16} />
+              </button>
             </div>
-          </div>
+            <SpBoutonPrimaire
+              onClick={() => toast.info("Export Excel à venir.")}
+            >
+              <Download size={16} />
+              Exporter Excel
+            </SpBoutonPrimaire>
+          </>
+        }
+      />
+
+      <div className="overflow-hidden rounded-lg border border-[#e2e8f0] bg-white">
+        <div className="flex gap-1 overflow-x-auto border-b border-[#e2e8f0] px-3 [scrollbar-width:none]">
+          {ONGLETS.map((tb) => {
+            const on = vue === tb.id;
+            return (
+              <button
+                key={tb.id}
+                type="button"
+                onClick={() => {
+                  if (tb.id !== vue) setVue(tb.id);
+                }}
+                className="flex h-[46px] items-center gap-2 px-3 text-sm whitespace-nowrap"
+                style={{
+                  fontWeight: on ? 600 : 500,
+                  color: on ? theme.textColor : "#64748b",
+                  boxShadow: on
+                    ? `inset 0 -2px 0 ${theme.topColor}`
+                    : undefined,
+                }}
+              >
+                {tb.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div
+          className="flex items-start gap-2.5 border-b border-[#e2e8f0] text-[13.5px] leading-[1.55] text-[#334155]"
+          style={{
+            padding: "12px 18px",
+            background: theme.bgColor,
+          }}
+        >
+          <span
+            className="mt-0.5 flex shrink-0"
+            style={{ color: theme.textColor }}
+          >
+            <Info size={16} />
+          </span>
+          <span>{TEXTES_VUE[vue]}</span>
         </div>
 
         {chargement && !matrice ? (
-          <div className="flex min-h-[200px] items-center justify-center text-muted-foreground sm:min-h-[240px]">
-            <Loader2 className="size-8 animate-spin" aria-label="Chargement" />
-          </div>
-        ) : pleinEcran ? (
-          <div className="flex min-h-[100px] items-center justify-center rounded-xl border border-dashed px-3 text-center text-[13px] text-muted-foreground sm:min-h-[120px]">
-            Tableau affiché en plein écran
+          <div className="flex min-h-[240px] items-center justify-center gap-2 text-[#64748b]">
+            <Loader2 className="size-5 animate-spin" />
+            Chargement…
           </div>
         ) : (
           <TableauFicheExecutionConso
             matrice={matrice}
             chargement={chargement}
-            maxHeightClassName="max-h-[calc(100dvh-14rem)] sm:max-h-[calc(100vh-16rem)]"
           />
         )}
       </div>
-
-      <OverlayPleinEcran
-        ouvert={pleinEcran}
-        titre="Fiche d'exécution consolidée"
-        sousTitre={`${LIBELLE_VUE[vue]} · ${libellePeriode}`}
-        onClose={() => setPleinEcran(false)}
-        ariaLabel="Fiche d'exécution consolidée en plein écran"
-        actions={
-          <div className="flex max-w-full flex-wrap items-center gap-2">
-            {selecteurVue}
-            {navigationPeriode({ avecSelect: false })}
-          </div>
-        }
-      >
-        <TableauFicheExecutionConso
-          matrice={matrice}
-          chargement={chargement}
-          maxHeightClassName="max-h-full"
-        />
-      </OverlayPleinEcran>
-    </TooltipProvider>
+    </div>
   );
 }

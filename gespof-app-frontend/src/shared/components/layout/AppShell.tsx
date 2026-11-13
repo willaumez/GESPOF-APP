@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import {
   AppSidebar,
@@ -104,20 +98,14 @@ export function AppShell({
     }
   }, [collapsed, hideToggle]);
 
-  const policeSr: CSSProperties | undefined =
-    portal === "sr"
-      ? ({
-          fontFamily: "'Inter', Arial, sans-serif",
-          "--font-sans": "'Inter', Arial, sans-serif",
-          "--font-heading": "'Montserrat', Arial, sans-serif",
-        } as CSSProperties)
-      : undefined;
-
   return (
     <TopBarPageSlotProvider slot={pageActionsSlot}>
       <div
-        className="flex h-screen bg-background"
-        style={{ ...portalThemeVars(theme.topColor), ...policeSr }}
+        className="flex h-screen bg-[#f8fafc] font-sans"
+        style={{
+          ...portalThemeVars(theme.topColor),
+          fontFamily: '"IBM Plex Sans", system-ui, sans-serif',
+        }}
       >
         <ResizablePanelGroup
           orientation="horizontal"

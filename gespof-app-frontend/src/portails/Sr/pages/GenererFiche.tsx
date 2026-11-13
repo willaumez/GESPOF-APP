@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -7,7 +7,6 @@ import {
   CalendarDays,
   Check,
   Eye,
-  FileText,
   Loader2,
   TriangleAlert,
   Wrench,
@@ -63,6 +62,7 @@ import {
 } from "@/portails/Sr/api/fiches-recues";
 import type { FicheRecueSp } from "@/portails/Sr/types/notification.interface";
 import { PreviewFicheBleueDialog } from "@/portails/Sp/components/fiche-matinale/PreviewFicheBleueDialog";
+import { SrPageHeader } from "@/portails/Sr/components/layout/SrPageHeader";
 
 const theme = getPortalMenu("sr").theme;
 
@@ -314,18 +314,6 @@ export default function GenererFiche() {
         ? "Terminé"
         : "En attente";
 
-  const styleHero: CSSProperties = {
-    background: `
-      radial-gradient(120% 80% at 100% 0%, ${theme.topColor}18 0%, transparent 55%),
-      linear-gradient(135deg, ${theme.bgColor} 0%, #ffffff 48%, ${theme.bgColor} 100%)
-    `,
-    borderColor: `${theme.topColor}33`,
-  };
-
-  const stylePanneau: CSSProperties = {
-    borderColor: `${theme.topColor}28`,
-  };
-
   const lignesNonValidee = ficheNonValidee
     ? [...ficheNonValidee.lignes].sort((a, b) => {
         const aEcart = a.montant_systac !== a.montant_groupe;
@@ -334,105 +322,179 @@ export default function GenererFiche() {
       })
     : [];
 
-  const panneauControles = (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="flex flex-1 flex-col gap-5 p-5 sm:p-6">
-        <div>
-          <Label
-            htmlFor="date-generation"
-            className="mb-1.5 text-[11.5px] font-medium text-muted-foreground"
-          >
-            Date de traitement
-          </Label>
-          <InputGroup
-            className="h-11 border-2 bg-white"
-            style={{ borderColor: `${theme.topColor}33` }}
-          >
-            <InputGroupAddon>
-              <CalendarDays
-                className="size-4"
-                style={{ color: theme.iconColor }}
-              />
-            </InputGroupAddon>
-            <InputGroupInput
-              id="date-generation"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  void genererFiche();
+  const panneauEtapes = (
+    <div className="flex flex-col rounded-lg border border-[#e2e8f0] bg-white p-[18px]">
+      {STEPS.map((step, idx) => {
+        const isDone = isComplete || (isGenerating && idx < currentStep);
+        const isActive =
+          (!isGenerating && !isComplete && idx === 0) ||
+          (isGenerating && idx === currentStep) ||
+          (isComplete && idx === STEPS.length - 1);
+        const isError = Boolean(ficheNonValidee) && idx === currentStep;
+        const isLast = idx === STEPS.length - 1;
+        const connecteur = !isLast ? connecteurEtat(idx + 1) : null;
+
+        return (
+          <div key={step.nom} className="flex gap-3.5">
+            <div className="flex shrink-0 flex-col items-center">
+              <span
+                className={cn(
+                  "grid size-[30px] shrink-0 place-items-center rounded-full border-[1.5px] text-[13px] font-semibold transition-colors",
+                  isError &&
+                    "border-destructive bg-destructive text-white",
+                  !isError &&
+                    (isDone || isActive) &&
+                    "border-transparent text-white",
+                  !isError &&
+                    !isDone &&
+                    !isActive &&
+                    "border-[#cbd5e1] bg-white text-[#64748b]",
+                )}
+                style={
+                  !isError && (isDone || isActive)
+                    ? { background: theme.ctaColor, borderColor: theme.ctaColor }
+                    : undefined
                 }
-              }}
-              disabled={isGenerating}
-              className="min-w-0 font-semibold tabular-nums"
-            />
-          </InputGroup>
-          {dateFormatee ? (
-            <p className="mt-2 text-[13px] text-muted-foreground">
-              Journée du{" "}
-              <span className="font-semibold capitalize text-[#0f172a]">
-                {dateFormatee}
+              >
+                {isError ? (
+                  <TriangleAlert className="size-3.5" strokeWidth={2.5} />
+                ) : isDone ? (
+                  <Check className="size-3.5" strokeWidth={2.8} />
+                ) : isActive && isGenerating ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  idx + 1
+                )}
               </span>
-            </p>
-          ) : null}
+              {!isLast ? (
+                <span
+                  aria-hidden
+                  className="my-1 w-0.5 min-h-[30px] flex-1"
+                  style={{
+                    background:
+                      connecteur === "done" || connecteur === "active"
+                        ? theme.ctaColor
+                        : "#e2e8f0",
+                  }}
+                />
+              ) : null}
+            </div>
+            <div
+              className={cn(
+                "flex min-w-0 flex-col gap-0.5 pt-1",
+                isLast ? "pb-1" : "pb-[22px]",
+              )}
+            >
+              <span
+                className={cn(
+                  "text-[14.5px] leading-snug",
+                  isError && "font-semibold text-destructive",
+                  !isError && isActive && "font-semibold text-[#0f172a]",
+                  !isError && !isActive && "font-medium text-[#475569]",
+                )}
+              >
+                {step.nom}
+              </span>
+              <span className="text-[12.5px] leading-snug text-[#64748b]">
+                {step.desc}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const panneauControles = (
+    <div className="flex min-w-0 flex-1 flex-col rounded-lg border border-[#e2e8f0] bg-white">
+      <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-1">
+          <span
+            className="text-[19px] font-semibold text-[#0f172a]"
+            style={{ fontFamily: '"IBM Plex Serif", "IBM Plex Sans", serif' }}
+          >
+            Date de présentation
+          </span>
+          <span className="text-sm text-[#475569]">
+            La fiche sera rattachée à la journée de trésorerie ouverte par le SP
+            pour cette date.
+          </span>
         </div>
 
-        <div
-          className="rounded-xl border-2 px-3.5 py-3"
-          style={{
-            borderColor: `${theme.topColor}22`,
-            background: theme.bgColor,
-          }}
-        >
-          <p
-            className="mb-1.5 text-[11px] font-semibold tracking-[0.1em] uppercase"
-            style={{ color: theme.iconColor }}
-          >
-            Dépenses reçues du SP
-          </p>
-          {chargementFicheRecue ? (
-            <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
-              <Loader2 className="size-3.5 animate-spin" />
-              Recherche de la fiche du jour…
-            </p>
-          ) : ficheRecue ? (
-            <div className="flex items-center justify-between gap-2">
-              <p className="flex min-w-0 items-center gap-1.5 text-[13px] text-[#0f172a]">
-                <FileText
-                  className="size-3.5 shrink-0"
-                  style={{ color: theme.iconColor }}
-                />
-                <span className="min-w-0 truncate font-mono text-[12.5px] font-semibold">
-                  {ficheRecue.reference}
-                </span>
-                <span className="shrink-0 tabular-nums text-muted-foreground">
-                  · {formatMontant(ficheRecue.montant_total_programme)} FCFA
-                </span>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <Label
+              htmlFor="date-generation"
+              className="text-[13px] font-semibold text-[#334155]"
+            >
+              Date de présentation
+            </Label>
+            <InputGroup className="h-[42px] max-w-md border border-[#cbd5e1] bg-white">
+              <InputGroupAddon>
+                <CalendarDays className="size-4 text-[#64748b]" />
+              </InputGroupAddon>
+              <InputGroupInput
+                id="date-generation"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void genererFiche();
+                  }
+                }}
+                disabled={isGenerating}
+                className="min-w-0 tabular-nums text-[#0f172a]"
+              />
+            </InputGroup>
+            {dateFormatee ? (
+              <p className="text-[13px] capitalize text-[#64748b]">
+                {dateFormatee}
               </p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-8 shrink-0 gap-1.5 border-2 bg-white"
-                style={{ borderColor: `${theme.topColor}40` }}
-                onClick={() => setApercuFicheBleueId(ficheRecue.id)}
-              >
-                <Eye className="size-3.5" />
-                Aperçu
-              </Button>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-[13px] font-semibold text-[#334155]">
+              Dépenses reçues du SP
+            </Label>
+            <div className="flex h-[42px] max-w-md items-center justify-between gap-2 rounded-md border border-[#e2e8f0] bg-[#f8fafc] px-3">
+              {chargementFicheRecue ? (
+                <span className="flex items-center gap-1.5 text-[13px] text-[#64748b]">
+                  <Loader2 className="size-3.5 animate-spin" />
+                  Recherche…
+                </span>
+              ) : ficheRecue ? (
+                <>
+                  <span
+                    className="min-w-0 truncate font-mono text-[13px] text-[#0f172a]"
+                    style={{
+                      fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                    }}
+                  >
+                    {ficheRecue.reference}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 shrink-0 gap-1 px-2 text-[12.5px]"
+                    onClick={() => setApercuFicheBleueId(ficheRecue.id)}
+                  >
+                    <Eye className="size-3.5" />
+                    Aperçu
+                  </Button>
+                </>
+              ) : (
+                <span className="text-[13px] text-[#64748b]">Aucune</span>
+              )}
             </div>
-          ) : (
-            <p className="text-[13px] text-muted-foreground">
-              Aucune dépense reçue pour cette date. La génération reste
-              possible.
-            </p>
-          )}
+          </div>
         </div>
 
         {OUTIL_DEV_FICHE_BLEUE ? (
-          <div className="rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 px-3.5 py-3">
+          <div className="rounded-lg border border-dashed border-amber-400 bg-amber-50 px-3.5 py-3">
             <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium text-amber-800">
               <Wrench className="size-3" />
               Fiche Bleue envoyée avec la fiche de dépôt
@@ -481,29 +543,54 @@ export default function GenererFiche() {
                 </Button>
               ) : null}
             </div>
-            <p className="mt-1.5 text-[11.5px] text-amber-800/80">
-              {ficheDev
-                ? `La génération utilisera ${ficheDev.reference} (${formatMontant(ficheDev.montant_total_programme)} FCFA) au lieu des dépenses reçues.`
-                : "Par défaut, la génération utilise la fiche des dépenses reçues ci-dessus."}
-            </p>
+          </div>
+        ) : null}
+
+        {isGenerating || isComplete || ficheNonValidee ? (
+          <div
+            className={cn(
+              "rounded-md border px-3.5 py-3 text-[13.5px]",
+              ficheNonValidee && "border-rose-200 bg-rose-50 text-rose-800",
+              isComplete &&
+                !ficheNonValidee &&
+                "border-emerald-200 bg-emerald-50 text-emerald-800",
+              isGenerating &&
+                !ficheNonValidee &&
+                "border-[#e2e8f0] bg-[#f8fafc] text-[#334155]",
+            )}
+          >
+            {statutTexte}
+            {stepMessage ? ` — ${stepMessage}` : ""}
+            {isGenerating ? (
+              <div
+                className="mt-2 h-1.5 overflow-hidden rounded-full"
+                style={{ background: `${theme.topColor}18` }}
+              >
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${percentage}%`,
+                    background: theme.ctaColor,
+                  }}
+                />
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>
 
-      <div
-        className="mt-auto shrink-0 space-y-2 border-t px-5 py-4 sm:px-6"
-        style={{
-          borderColor: `${theme.topColor}18`,
-          background: `linear-gradient(180deg, ${theme.bgColor}88 0%, #ffffff 100%)`,
-        }}
-      >
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] bg-[#f8fafc] px-6 py-3.5">
+        <span className="text-[13px] text-[#64748b]">
+          {!peutGenerer
+            ? "Génération non autorisée pour votre profil."
+            : "Le traitement s'exécute pour la journée sélectionnée uniquement."}
+        </span>
         <BoutonAcces
           acces="GENERER_FICHE_DEPOT"
-          size="lg"
           disabled={isGenerating || !date}
           onClick={() => void genererFiche()}
           className={cn(
-            "relative h-auto min-h-12 w-full overflow-hidden py-2.5 text-[14px] font-semibold text-white shadow-md",
+            "relative h-[38px] min-w-[180px] overflow-hidden px-4 text-sm font-semibold text-white",
             "hover:opacity-95 disabled:opacity-50",
           )}
           style={{ background: theme.ctaColor }}
@@ -518,251 +605,58 @@ export default function GenererFiche() {
                   : "0%",
             }}
           />
-          <span className="relative z-10 flex w-full min-w-0 flex-col items-center justify-center gap-1.5 py-0.5">
+          <span className="relative z-10 flex items-center gap-2">
             {isGenerating ? (
               <>
-                <div className="relative flex size-12 shrink-0 items-center justify-center">
-                  <span
-                    className="absolute inset-0 animate-spin rounded-full border-[3px] border-white/25 border-t-white"
-                    style={{ animationDuration: "1s" }}
-                  />
-                  <span className="text-[12px] font-bold tabular-nums">
-                    {Math.round(percentage)}%
-                  </span>
-                </div>
-                <span className="text-center text-[11.5px] font-medium text-white/85">
-                  {stepMessage || "Traitement en cours…"}
-                </span>
+                <Loader2 className="size-4 animate-spin" />
+                {Math.round(percentage)}%
               </>
             ) : isComplete ? (
-              <span className="flex items-center gap-2">
+              <>
                 <Check className="size-4" strokeWidth={2.5} />
-                Génération terminée
-              </span>
+                Terminé
+              </>
             ) : (
               <>
-                <span className="flex items-center gap-2">
-                  <Zap className="size-4 shrink-0" strokeWidth={2.2} />
-                  {!peutGenerer
-                    ? "Génération non autorisée"
-                    : dateFormatee
-                      ? "Lancer la génération"
-                      : "Sélectionnez une date"}
-                </span>
-                {peutGenerer && dateFormatee ? (
-                  <span className="text-center text-[11.5px] font-normal text-white/80">
-                    Fiche de dépôt du {dateFormatee}
-                  </span>
-                ) : null}
+                <Zap className="size-4" strokeWidth={2.2} />
+                Lancer la génération
               </>
             )}
           </span>
         </BoutonAcces>
-        {!peutGenerer ? (
-          <p className="text-center text-[12px] text-destructive">
-            Vous n&apos;avez pas les droits pour générer une fiche de dépôt.
-          </p>
-        ) : (
-          <p className="text-center text-[12px] text-muted-foreground">
-            Le traitement s&apos;exécute pour la journée sélectionnée
-            uniquement.
-          </p>
-        )}
       </div>
     </div>
   );
 
-  const panneauEtapes = (
-    <div className="flex h-full flex-col gap-4 p-5 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-[15px] font-bold text-[#0f172a]">
-            Déroulement
-          </h2>
-          <p className="text-[12.5px] text-muted-foreground">
-            Sept étapes de génération
-          </p>
-        </div>
-        <span
-          className={cn(
-            "rounded-full px-2.5 py-1 text-[11.5px] font-semibold tabular-nums",
-            isGenerating && "bg-sky-100 text-sky-900",
-            ficheNonValidee && "bg-rose-100 text-rose-800",
-            isComplete && !ficheNonValidee && "bg-emerald-100 text-emerald-800",
-            !isGenerating &&
-              !ficheNonValidee &&
-              !isComplete &&
-              "bg-slate-100 text-slate-600",
-          )}
-        >
-          {statutTexte}
-        </span>
-      </div>
-
-      {isGenerating ? (
-        <div
-          className="h-1.5 overflow-hidden rounded-full"
-          style={{ background: `${theme.topColor}18` }}
-        >
-          <div
-            className="h-full rounded-full transition-all duration-300 ease-out"
-            style={{
-              width: `${percentage}%`,
-              background: theme.ctaColor,
-            }}
-          />
-        </div>
-      ) : null}
-
-      <div className="flex flex-col">
-        {STEPS.map((step, idx) => {
-          const isDone = isComplete || (isGenerating && idx < currentStep);
-          const isActive = isGenerating && idx === currentStep;
-          const isError = Boolean(ficheNonValidee) && idx === currentStep;
-          const isLast = idx === STEPS.length - 1;
-          const connecteur = !isLast ? connecteurEtat(idx + 1) : null;
-
-          return (
-            <div key={step.nom} className="flex gap-3.5">
-              <div className="flex shrink-0 flex-col items-center">
-                <div
-                  className={cn(
-                    "relative flex size-9 shrink-0 items-center justify-center rounded-full border-2 text-[12px] font-bold transition-colors duration-500",
-                    isError &&
-                      "border-destructive bg-destructive text-destructive-foreground",
-                    !isError &&
-                      isDone &&
-                      "border-emerald-600 bg-emerald-600 text-white",
-                    !isError &&
-                      !isDone &&
-                      isActive &&
-                      "bg-white shadow-[0_0_0_4px_rgba(7,96,168,0.15)]",
-                    !isError &&
-                      !isDone &&
-                      !isActive &&
-                      "border-border bg-white text-muted-foreground",
-                  )}
-                  style={
-                    !isError && isActive
-                      ? { borderColor: theme.ctaColor, color: theme.ctaColor }
-                      : undefined
-                  }
-                >
-                  {isActive ? (
-                    <span
-                      className="absolute -inset-0.5 animate-ping rounded-full opacity-30"
-                      style={{ background: theme.ctaColor }}
-                    />
-                  ) : null}
-                  {isError ? (
-                    <TriangleAlert
-                      className="relative size-4"
-                      strokeWidth={2.8}
-                    />
-                  ) : isDone ? (
-                    <Check className="relative size-4" strokeWidth={2.8} />
-                  ) : isActive ? (
-                    <Loader2 className="relative size-4 animate-spin" />
-                  ) : (
-                    <span className="relative">{idx + 1}</span>
-                  )}
-                </div>
-                {!isLast ? (
-                  <div
-                    aria-hidden
-                    className={cn(
-                      "my-1 w-0.5 min-h-5 flex-1 rounded-full transition-colors duration-500",
-                      connecteur === "done" && "bg-emerald-500/55",
-                      connecteur === "active" && "bg-sky-400/60",
-                      connecteur === "pending" && "bg-border",
-                    )}
-                  />
-                ) : null}
-              </div>
-
-              <div className={cn("min-w-0", isLast ? "pb-1" : "pb-4")}>
-                <p
-                  className={cn(
-                    "pt-1.5 text-[13px] font-semibold leading-snug transition-colors duration-500",
-                    isError && "text-destructive",
-                    !isError && isActive && "text-[#0f172a]",
-                    !isError && !isActive && isDone && "text-[#0f172a]",
-                    !isError &&
-                      !isActive &&
-                      !isDone &&
-                      "text-muted-foreground",
-                  )}
-                  style={
-                    !isError && isActive ? { color: theme.iconColor } : undefined
-                  }
-                >
-                  {step.nom}
-                </p>
-                <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
-                  {step.desc}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+  const stepLabel =
+    isGenerating || isComplete
+      ? STEPS[currentStep]?.nom ?? "Préparation"
+      : "Récupération des lots";
 
   return (
-    <div className="flex w-full flex-col gap-5 pb-2 sm:gap-6">
-      {/* Héros */}
-      <section
-        className="relative overflow-hidden rounded-2xl border-2 px-5 py-5 sm:px-7 sm:py-6"
-        style={styleHero}
-      >
-        <div
-          className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full opacity-40"
-          style={{ background: theme.iconBg }}
-          aria-hidden
-        />
-        <div className="relative flex flex-col gap-1">
-          <p
-            className="text-[11px] font-semibold tracking-[0.14em] uppercase"
-            style={{ color: theme.iconColor }}
-          >
-            Génération
-          </p>
-          <h2 className="font-heading text-[1.35rem] font-bold tracking-tight text-[#0f172a] sm:text-[1.55rem]">
-            Fiche de dépôt
-          </h2>
-          <p className="max-w-xl text-[13.5px] leading-relaxed text-muted-foreground">
-            Choisissez la date de traitement, vérifiez les dépenses reçues du
-            SP, puis lancez le processus.
-          </p>
-        </div>
-      </section>
+    <div className="flex w-full flex-col gap-6">
+      <SrPageHeader
+        eyebrow={`Pool SR · Génération · ${stepLabel}`}
+        title="Générer une fiche de dépôt"
+        description="Consolidez les règlements du jour (Systac, Sigma, Numéraire) et transmettez la fiche au Service de Prévision."
+      />
 
-      {/* Corps : contrôles + étapes */}
+      {/* Maquette : étapes à gauche, contenu à droite */}
       <section
         className={cn(
-          "overflow-hidden rounded-2xl border-2 bg-card",
-          isMobile
-            ? "flex flex-col divide-y"
-            : "grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-stretch",
+          "flex items-start gap-5",
+          isMobile ? "flex-col" : "flex-wrap",
         )}
-        style={stylePanneau}
       >
         <div
           className={cn(
-            "flex min-h-0 flex-col",
-            !isMobile && "border-r lg:min-h-full",
+            "w-full",
+            !isMobile && "max-w-[340px] flex-[0_1_340px]",
           )}
-          style={!isMobile ? { borderColor: `${theme.topColor}18` } : undefined}
-        >
-          {panneauControles}
-        </div>
-        <div
-          className="min-h-0"
-          style={{ background: `${theme.bgColor}66` }}
         >
           {panneauEtapes}
         </div>
+        <div className="min-w-0 flex-[1_1_480px]">{panneauControles}</div>
       </section>
 
       <Dialog

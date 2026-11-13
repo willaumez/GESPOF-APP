@@ -7,10 +7,13 @@ namespace App\Shared\Controller;
 use App\Shared\Entite\Utilisateur;
 use App\Shared\Enum\MotifDeconnexion;
 use App\Shared\EventListener\JwtAuthenticationSuccessListener;
+use App\Shared\Exception\DonneesInvalidesException;
 use App\Shared\Repository\UtilisateurRepository;
 use App\Shared\Service\AuditConnexionServiceInterface;
+use App\Shared\Service\PhotosDeProfil;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +28,7 @@ final class AuthController extends AbstractController
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly JWTTokenManagerInterface $jwtManager,
         private readonly AuditConnexionServiceInterface $auditConnexionService,
+        private readonly PhotosDeProfil $photosDeProfil,
     ) {
     }
 
@@ -114,6 +118,118 @@ final class AuthController extends AbstractController
     #[Route('/api/v1/auth/me', name: 'gsr_api_auth_me', methods: ['GET'])]
     public function me(#[CurrentUser] Utilisateur $user): JsonResponse
     {
+        return new JsonResponse($user->jsonSerialize());
+    }
+
+    /** Mise à jour des informations personnelles (prénom, nom, e-mail) — comme Courrier. */
+    #[Route('/api/v1/auth/me', name: 'gsr_api_auth_me_update', methods: ['PUT', 'PATCH'])]
+    public function updateMe(Request $request, #[CurrentUser] Utilisateur $user): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        if (!\is_array($data)) {
+            return new JsonResponse(['message' => 'JSON attendu.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $prenom = trim((string) ($data['prenom'] ?? $user->getPrenom()));
+        $nom = trim((string) ($data['nom'] ?? $user->getNom()));
+        $email = trim((string) ($data['email'] ?? $user->getEmail()));
+
+        if ($prenom === '' || $nom === '' || $email === '') {
+            return new JsonResponse(
+                ['message' => 'Le prénom, le nom et l\'e-mail sont requis.'],
+                Response::HTTP_BAD_REQUEST,
+            );
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse(['message' => 'Adresse e-mail invalide.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $existant = $this->utilisateurRepository->findOneBy(['email' => $email]);
+        if ($existant !== null && $existant->getId() !== $user->getId()) {
+            return new JsonResponse(['message' => 'Cet e-mail est déjà utilisé.'], Response::HTTP_CONFLICT);
+        }
+
+        $user->setPrenom($prenom);
+        $user->setNom($nom);
+        $user->setEmail($email);
+        $this->utilisateurRepository->flush();
+
+        // Nouveau jeton : l'identifiant JWT est l'e-mail.
+        return new JsonResponse(array_merge($user->jsonSerialize(), [
+            'token' => $this->jwtManager->create($user),
+        ]));
+    }
+
+    #[Route('/api/v1/auth/me/photo', name: 'gsr_api_auth_me_photo', methods: ['GET'])]
+    public function photo(#[CurrentUser] Utilisateur $user): Response
+    {
+        if (!$user->aUnePhoto()) {
+            return new JsonResponse(['message' => 'Aucune photo de profil.'], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $photo = $this->photosDeProfil->lire($user);
+        } catch (\Throwable) {
+            return new JsonResponse(['message' => 'Photo de profil illisible.'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new Response($photo['contenu'], Response::HTTP_OK, [
+            'Content-Type' => $photo['type'],
+            'Cache-Control' => 'no-store',
+        ]);
+    }
+
+    #[Route('/api/v1/auth/me/photo/bandeau', name: 'gsr_api_auth_me_photo_bandeau', methods: ['GET'])]
+    public function photoBandeau(#[CurrentUser] Utilisateur $user): Response
+    {
+        if (!$user->aUnePhoto()) {
+            return new JsonResponse(['message' => 'Aucune photo de profil.'], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $photo = $this->photosDeProfil->lireBandeau($user);
+        } catch (\Throwable) {
+            return new JsonResponse(['message' => 'Bandeau de profil illisible.'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new Response($photo['contenu'], Response::HTTP_OK, [
+            'Content-Type' => $photo['type'],
+            'Cache-Control' => 'no-store',
+        ]);
+    }
+
+    #[Route('/api/v1/auth/me/photo', name: 'gsr_api_auth_me_photo_deposer', methods: ['POST'])]
+    public function deposerPhoto(Request $request, #[CurrentUser] Utilisateur $user): JsonResponse
+    {
+        $fichier = $request->files->get('fichier');
+        if (!$fichier instanceof UploadedFile || !$fichier->isValid()) {
+            return new JsonResponse(['message' => PhotosDeProfil::MESSAGE_FICHIER], Response::HTTP_BAD_REQUEST);
+        }
+
+        $bandeau = $request->files->get('bandeau');
+        if ($bandeau instanceof UploadedFile && !$bandeau->isValid()) {
+            return new JsonResponse(['message' => PhotosDeProfil::MESSAGE_FICHIER], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $this->photosDeProfil->deposer(
+                $user,
+                $fichier,
+                $bandeau instanceof UploadedFile ? $bandeau : null,
+            );
+        } catch (DonneesInvalidesException $e) {
+            return new JsonResponse(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
+        return new JsonResponse($user->jsonSerialize());
+    }
+
+    #[Route('/api/v1/auth/me/photo/retrait', name: 'gsr_api_auth_me_photo_retrait', methods: ['POST'])]
+    public function retirerPhoto(#[CurrentUser] Utilisateur $user): JsonResponse
+    {
+        $this->photosDeProfil->retirer($user);
+
         return new JsonResponse($user->jsonSerialize());
     }
 

@@ -30,7 +30,7 @@ export function ConfirmerEnvoiDialog({
     <AlertDialog open={ouvert} onOpenChange={onOpenChange}>
       <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
         <AlertDialogHeader>
-          <AlertDialogMedia className="bg-[#0760A8]/10 text-[#0760A8]">
+          <AlertDialogMedia className="bg-[#064A85]/10 text-[#064A85]">
             <Send />
           </AlertDialogMedia>
           <AlertDialogTitle>Envoyer cette fiche de dépôt ?</AlertDialogTitle>

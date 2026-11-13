@@ -22,14 +22,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/sha
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/shared/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/shared/components/ui/empty";
+import { AvatarUtilisateur } from "@/shared/components/utilisateurs/AvatarUtilisateur";
 import { DetailAuditAction } from "@/shared/components/audit-action/DetailAuditAction";
 import {
-  BadgeVous, estCompteConnecte, initiales, partieDate,
+  BadgeVous, estCompteConnecte, partieDate,
 } from "@/shared/components/audit-connexion/affichage";
 
 const LIBELLES: Record<Portail, { service: { titre: string; sousTitre: string }; moi: { titre: string; sousTitre: string } }> = {
@@ -390,11 +390,21 @@ export default function AuditActions({ portail, portee }: AuditActionsProps) {
                         {portee === "service" && (
                           <TableCell>
                             <div className="flex items-center gap-2.5">
-                              <Avatar className="size-8 shrink-0">
-                                <AvatarFallback className={cn("text-[10px]", moi && "bg-primary text-primary-foreground")}>
-                                  {initiales(a.utilisateur.nom_complet)}
-                                </AvatarFallback>
-                              </Avatar>
+                              <AvatarUtilisateur
+                                id={a.utilisateur.id}
+                                nom={a.utilisateur.nom}
+                                prenom={a.utilisateur.prenom}
+                                aPhoto={!!a.utilisateur.a_photo}
+                                taille={32}
+                                fondInitiales={
+                                  moi ? "hsl(var(--primary))" : undefined
+                                }
+                                couleurInitiales={
+                                  moi
+                                    ? "hsl(var(--primary-foreground))"
+                                    : undefined
+                                }
+                              />
                               <div className="min-w-0 leading-tight">
                                 <p className="flex items-center gap-1.5 truncate text-sm font-medium">
                                   <span className="truncate">{a.utilisateur.nom_complet}</span>

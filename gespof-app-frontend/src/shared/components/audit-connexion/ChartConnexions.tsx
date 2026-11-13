@@ -18,10 +18,10 @@ import {
 } from "@/shared/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { BadgeVous, estCompteConnecte, formaterJourCourt, formaterJourLong, initiales } from "./affichage";
+import { AvatarUtilisateur } from "@/shared/components/utilisateurs/AvatarUtilisateur";
+import { BadgeVous, estCompteConnecte, formaterJourCourt, formaterJourLong } from "./affichage";
 import { ChartRepartitionsAudit } from "./ChartRepartitionsAudit";
 
 const chartConfig = {
@@ -207,14 +207,21 @@ export function ChartConnexions({
                   )}
                 >
                   <span className="relative shrink-0">
-                    <Avatar className="size-8">
-                      <AvatarFallback className={cn(
-                        "text-[10px] font-semibold",
-                        moi && "bg-primary text-primary-foreground",
-                      )}>
-                        {initiales(u.nom_complet)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <AvatarUtilisateur
+                      id={u.id}
+                      nom={u.nom}
+                      prenom={u.prenom}
+                      aPhoto={!!u.a_photo}
+                      taille={32}
+                      fondInitiales={
+                        moi ? "hsl(var(--primary))" : undefined
+                      }
+                      couleurInitiales={
+                        moi
+                          ? "hsl(var(--primary-foreground))"
+                          : undefined
+                      }
+                    />
                     {u.en_ligne && (
                       <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-background bg-emerald-500" />
                     )}

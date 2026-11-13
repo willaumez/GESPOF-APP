@@ -35,21 +35,21 @@ export const TYPE_CFG: Record<
 > = {
   numeraire: {
     label: "Numéraire",
-    bar: "bg-violet-500/10 text-violet-800 dark:text-violet-300",
-    subtotal: "bg-violet-500/15 text-violet-900 dark:text-violet-200",
-    stat: "text-violet-700 dark:text-violet-300",
+    bar: "bg-[#fef3c7] text-[#92400e]",
+    subtotal: "bg-[#fde68a]/60 text-[#92400e]",
+    stat: "text-[#92400e]",
   },
   sigma: {
-    label: "Sigma",
-    bar: "bg-rose-500/10 text-rose-800 dark:text-rose-300",
-    subtotal: "bg-rose-500/15 text-rose-900 dark:text-rose-200",
-    stat: "text-rose-700 dark:text-rose-300",
+    label: "SYGMA",
+    bar: "bg-[#ede9fe] text-[#5b21b6]",
+    subtotal: "bg-[#ddd6fe]/60 text-[#5b21b6]",
+    stat: "text-[#5b21b6]",
   },
   systac: {
-    label: "Systac",
-    bar: "bg-amber-500/10 text-amber-800 dark:text-amber-300",
-    subtotal: "bg-amber-500/15 text-amber-900 dark:text-amber-200",
-    stat: "text-amber-700 dark:text-amber-300",
+    label: "SYSTAC",
+    bar: "bg-[#dbeafe] text-[#1e40af]",
+    subtotal: "bg-[#bfdbfe]/60 text-[#1e40af]",
+    stat: "text-[#1e40af]",
   },
 };
 

@@ -17,7 +17,7 @@ class RecettePetroliere extends Recette
 {
     // Colonnes nullables en base (table partagée avec les autres types), jamais null côté PHP.
     #[ORM\ManyToOne(targetEntity: SocietePetroliere::class)]
-    #[ORM\JoinColumn(name: 'societe_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'societe_matricule', referencedColumnName: 'matricule', nullable: true)]
     private SocietePetroliere $societe;
 
     #[ORM\ManyToOne(targetEntity: CategoriePetroliere::class)]

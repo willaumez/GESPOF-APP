@@ -1,5 +1,10 @@
 -- Connexion: Oracle (lecture seule) — Service des Opérations Financières
 --
+-- ⚠ ORPHELIN — non référencé par ScriptPoolSof.
+-- Variante manuelle / ancienne des recettes douanières (compte par compte).
+-- Voie active : model-automatise-recettes-douanieres.sql
+-- Contenu à vérifier avant suppression.
+--
 -- Recettes douanières (modèle automatisé).
 -- Deux requêtes distinctes : (1) comptes hors RUSID  (2) RUSID 4663-218.
 --

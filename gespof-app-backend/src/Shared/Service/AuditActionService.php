@@ -421,6 +421,7 @@ class AuditActionService implements AuditActionServiceInterface
                 'prenom' => $a->getPrenom(),
                 'nom_complet' => trim($a->getPrenom() . ' ' . $a->getNom()) ?: ($a->getEmail() !== '' ? $a->getEmail() : 'Inconnu'),
                 'email' => $a->getEmail(),
+                'a_photo' => (bool) $a->getUtilisateur()?->aUnePhoto(),
             ],
             'role' => [
                 'valeur' => $a->getRole(),

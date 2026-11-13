@@ -7,6 +7,7 @@ namespace App\Shared\Service;
 use App\Shared\Entite\Utilisateur;
 use App\Shared\Enum\Acces;
 use App\Shared\Enum\ActionAutorisee;
+use App\Shared\Enum\Genre;
 use App\Shared\Enum\Portail;
 use App\Shared\Enum\RoleAcces;
 use App\Shared\Repository\UtilisateurRepository;
@@ -174,6 +175,7 @@ class UtilisateurService implements UtilisateurServiceInterface
         $utilisateur->setRolesAcces([$metier]);
         $utilisateur->setActif(true);
         $utilisateur->setConnection('first');
+        $utilisateur->setGenre($this->resoudreGenre($data['genre'] ?? null));
 
         // Acces autorises : par defaut ceux accordes par le metier. Un administrateur
         // peut restreindre cette liste des la creation — deux utilisateurs du meme
@@ -239,6 +241,10 @@ class UtilisateurService implements UtilisateurServiceInterface
                 throw new DonneesInvalidesException('Le prenom ne peut pas etre vide.');
             }
             $utilisateur->setPrenom($prenom);
+        }
+
+        if (array_key_exists('genre', $data)) {
+            $utilisateur->setGenre($this->resoudreGenre($data['genre']));
         }
 
         if (array_key_exists('metier', $data) || array_key_exists('role', $data)) {
@@ -414,6 +420,24 @@ class UtilisateurService implements UtilisateurServiceInterface
         $resolu = is_string($metier) ? RoleAcces::tryFrom($metier) : null;
         if ($resolu === null) {
             throw new DonneesInvalidesException('Le metier fourni est invalide.');
+        }
+
+        return $resolu;
+    }
+
+    private function resoudreGenre(mixed $genre): ?Genre
+    {
+        if ($genre === null || $genre === '') {
+            return null;
+        }
+
+        if (!is_string($genre)) {
+            throw new DonneesInvalidesException('Le genre fourni est invalide.');
+        }
+
+        $resolu = Genre::tryFrom(strtolower(trim($genre)));
+        if ($resolu === null) {
+            throw new DonneesInvalidesException('Le genre fourni est invalide (homme ou femme).');
         }
 
         return $resolu;

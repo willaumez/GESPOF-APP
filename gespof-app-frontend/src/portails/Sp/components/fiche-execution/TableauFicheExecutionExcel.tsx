@@ -146,7 +146,9 @@ function construireLignes(sections: SectionFicheExecution[]): LigneExcelDef[] {
             style={styleIndentSection(ligne.niveau)}
             title={ligne.nom}
           >
-            <span className="truncate">{ligne.nom}</span>
+            <span className="min-w-0 break-words whitespace-normal leading-snug">
+              {ligne.nom}
+            </span>
             {ligne.estRacine ? (
               <Badge className="shrink-0 border-transparent bg-[#c9960a]/15 text-[10px] font-semibold uppercase tracking-wide text-[#8a6508]">
                 Solde d&apos;ouverture
@@ -199,7 +201,9 @@ function construireLignes(sections: SectionFicheExecution[]): LigneExcelDef[] {
             style={styleIndentSection(ligne.niveau)}
             title={ligne.nom}
           >
-            <span className="truncate">{ligne.nom}</span>
+            <span className="min-w-0 break-words whitespace-normal leading-snug">
+              {ligne.nom}
+            </span>
             {ligne.nonProgramme ? (
               <Badge className="shrink-0 border-transparent bg-amber-200/90 text-[10px] font-semibold uppercase tracking-wide text-amber-950">
                 Non programmé

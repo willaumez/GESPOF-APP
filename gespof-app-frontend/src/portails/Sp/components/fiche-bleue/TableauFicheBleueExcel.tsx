@@ -77,16 +77,21 @@ function construireLignes(sections: SectionFicheBleue[]): LigneExcelDef[] {
   const lignes = aplatirSections(sections);
   const out: LigneExcelDef[] = [];
   let ordreRacine = 0;
-  const idPremiereRecette = lignes.find((l) => l.estRacine && l.type === "recette")?.id;
-  const idPremiereDepense = lignes.find((l) => l.estRacine && l.type === "depense")?.id;
+  const idPremiereRecette = lignes.find(
+    (l) => l.estRacine && l.type === "recette",
+  )?.id;
+  const idPremiereDepense = lignes.find(
+    (l) => l.estRacine && l.type === "depense",
+  )?.id;
 
   for (const ligne of lignes) {
     if (ligne.estRacine) ordreRacine += 1;
     const afficherGroupe =
-      ligne.estRacine
-      && (ligne.type === "recette" || ligne.type === "depense")
-      && ligne.id === (ligne.type === "recette" ? idPremiereRecette : idPremiereDepense)
-      && !estConteneurTypeSection(ligne.nom, ligne.type, true);
+      ligne.estRacine &&
+      (ligne.type === "recette" || ligne.type === "depense") &&
+      ligne.id ===
+        (ligne.type === "recette" ? idPremiereRecette : idPremiereDepense) &&
+      !estConteneurTypeSection(ligne.nom, ligne.type, true);
 
     if (afficherGroupe) {
       out.push({
@@ -118,13 +123,15 @@ function construireLignes(sections: SectionFicheBleue[]): LigneExcelDef[] {
           <div
             className={cn(
               "min-w-0 font-medium",
-              ligne.niveau > 0
-                && "border-l-2 border-muted-foreground/25 text-muted-foreground",
+              ligne.niveau > 0 &&
+                "border-l-2 border-muted-foreground/25 text-muted-foreground",
             )}
             style={styleIndentSection(ligne.niveau)}
             title={ligne.nom}
           >
-            <span className="block truncate">{ligne.nom}</span>
+            <span className="block break-words whitespace-normal leading-snug">
+              {ligne.nom}
+            </span>
           </div>
         ),
         programme: (

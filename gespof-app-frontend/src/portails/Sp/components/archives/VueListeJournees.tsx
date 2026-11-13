@@ -72,7 +72,7 @@ const ETATS_FILTRE: { valeur: EtatJournee; label: string }[] = [
   { valeur: "cloture", label: "Clôturée" },
 ];
 
-export function VueListeJournees() {
+export function VueListeJournees({ maquette = false }: { maquette?: boolean }) {
   const navigate = useNavigate();
   const { journee: journeeSelectionnee, selectionner } = useJourneeSelectionnee();
   const [journees, setJournees] = useState<JourneeTresorerie[]>([]);
@@ -221,14 +221,16 @@ export function VueListeJournees() {
 
   return (
     <TooltipProvider>
-      <Card className="gap-0 overflow-hidden py-0">
+      <Card className={`gap-0 overflow-hidden py-0${maquette ? " border-0 shadow-none" : ""}`}>
         <CardHeader className="flex flex-col items-stretch gap-3 border-b py-4">
+          {!maquette ? (
           <div>
             <CardTitle>Toutes les journées</CardTitle>
             <CardDescription>
               {chargement ? "Chargement…" : `${total} journée${total !== 1 ? "s" : ""}`}
             </CardDescription>
           </div>
+          ) : null}
           <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <InputGroup className="h-9 w-full bg-background sm:w-64">
               <InputGroupAddon>

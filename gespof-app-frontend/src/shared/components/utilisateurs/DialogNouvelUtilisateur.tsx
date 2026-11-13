@@ -57,6 +57,7 @@ export function DialogNouvelUtilisateur({
   const [email, setEmail] = useState("");
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
+  const [genre, setGenre] = useState<"homme" | "femme" | "">("");
   const [metier, setMetier] = useState<RoleUtilisateur | "">(metierParDefaut);
   // Accès accordés à ce compte : pré-remplis avec ceux du métier, l'administrateur
   // peut ensuite en décocher (voir la colonne `utilisateur.acces` côté backend).
@@ -107,6 +108,7 @@ export function DialogNouvelUtilisateur({
         body: JSON.stringify({
           matricule: matricule.trim(), email: email.trim(),
           nom: nom.trim(), prenom: prenom.trim(), metier,
+          genre: genre || null,
           // En auto, on envoie le MDP déjà affiché dans la carte pour qu'il soit celui réellement créé.
           mot_de_passe: modeMdp === "manuel" ? mdp : mdpAuto,
           ...(estAdministrateur ? { acces } : {}),
@@ -232,6 +234,24 @@ export function DialogNouvelUtilisateur({
                     <Input id="us-prenom" value={prenom} onChange={(e) => setPrenom(e.target.value)} disabled={loading} />
                     {erreurs.prenom && <p className="text-[12px] text-destructive">{erreurs.prenom}</p>}
                   </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="us-genre">Genre</Label>
+                  <Select
+                    value={genre || "__none__"}
+                    onValueChange={(v) => setGenre(v === "__none__" ? "" : (v as "homme" | "femme"))}
+                    disabled={loading}
+                  >
+                    <SelectTrigger id="us-genre" className="w-full">
+                      <SelectValue placeholder="Non renseigné" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Non renseigné</SelectItem>
+                      <SelectItem value="homme">Homme</SelectItem>
+                      <SelectItem value="femme">Femme</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1.5">

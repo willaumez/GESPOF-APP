@@ -1,0 +1,88 @@
+code;libelle;C_NIVEAU;C_TAB;C_LIG;N_ORDRE
+1;Dépenses sur exercices antérieurs;3;TBDEP;A;1
+1A;A. Dépenses de personnel ex. ant.;5;TBDEP;AA;1
+1A1;Solde permanente;6;TBDEP;AA100;1
+1A2;Main d'oeuvre non permanente;6;TBDEP;AA200;1
+1A3;Autres;;;;
+1B;B. Dette publique;5;TBDEP;AB100;1
+1C1;C. Biens et services;5;TBDEP;AC100;1
+1C2;C. Crédits Délégués;5;TBDEP;AC200;1
+1D;D. Transferts et subventions;5;TBDEP;AD;1
+1D1;Bourses et stages;6;TBDEP;AD100;1
+1D2;Subventions;6;TBDEP;AD200;1
+1D3;Cotisations internationales;6;TBDEP;AD300;1
+1D5;Rappel pensions;;;;
+1D4;Autres;6;TBDEP;AD400;1
+1X;E. Dépenses d'investissement;5;TBDEP;AE100;1
+;Dont A.N.G.T.;6;TBDEP;AE200;1
+;Dont caisse de relance;6;TBDEP;AE300;1
+1F;F. Agences comptables;5;TBDEP;AF100;1
+1G;G. Club de Libreville;5;TBDEP;AG100;1
+1H;H. Autres dépenses;;;;
+2;Dépenses sur exercice;3;TBDEP;E;1
+2A;A. Dépenses de personnel;5;TBDEP;EA;1
+2A1;Solde permanente;6;TBDEP;EA100;1
+2A2;Rappels;6;TBDEP;EA200;1
+2A3;Main d'oeuvre non permanente;6;TBDEP;EA300;1
+2B;B. Dette publique;5;TBDEP;EB;1
+2B1;Intérêts D.G.C.P.T.;6;TBDEP;EB050;1
+2B11;Intérêts dette intérieure;7;TBDEP;EB100;1
+2B12;Intérêts dette extérieure;7;TBDEP;EB200;1
+2B2;Budget;6;TBDEP;EB300;1
+2B3;Agios B.E.A.C./Facilités;6;TBDEP;EB400;1
+2B4;Intérêts B.T.A.;6;TBDEP;EB420;1
+2B5;Bons d'équipement;6;TBDEP;EB500;1
+2C;C. Biens et services;5;TBDEP;EC;1
+2C5;Services publics;;;;
+2C1;Dettes croisées;6;TBDEP;EC200;1
+2C2;Locations;6;TBDEP;EC300;1
+2C3;Transports et déplacements;6;TBDEP;EC400;1
+2C4;Autres biens et services;6;TBDEP;EC500;1
+2D;D. Transferts et subventions;5;TBDEP;ED;1
+2D1;Bourses et stages;6;TBDEP;ED0100;1
+2D2;Subventions;6;TBDEP;ED0200;1
+2D3;Cotisations internationales;6;TBDEP;ED0300;1
+2D4;Aide a la restructuration;6;TBDEP;ED0400;1
+2D5;Dépenses de sécurité;6;TBDEP;ED0500;1
+2D6;Dépenses Cabinet P.R.;6;TBDEP;ED0600;1
+2D7;Autres dépenses présidentielles;6;TBDEP;ED0700;1
+2D8;Fonds de souveraineté;6;TBDEP;ED0800;1
+2D9;Pensions;6;TBDEP;ED0900;1
+2Db;Primes de rendement;;;;
+2Da;Autres;6;TBDEP;ED1100;1
+2X;E. Dépenses d'investissement;5;TBDEP;EE100;1
+2F;F. Primes d'incitation;;;;
+2G;G. Crédits délégués;5;TBDEP;EG100;1
+2H;H. Agences comptables;5;TBDEP;EH100;1
+;Dont A.N.G.T.;6;TBDEP;EH200;1
+2I;I. Autres dépenses;5;TBDEP;EH100;1
+2I1;Budget;6;TBDEP;EH200;1
+2I2;Aide à la restructuration;;;;
+;Total des dépenses budgétaires;2;TBDEP;EV;1
+3;Dépenses sans ordonnancement;2;TBDEP;EX;1
+3A;Assurance maladie;6;TBDEP;EX0100;1
+3B;Fonds de développement du sport;6;TBDEP;EX0120;1
+3C;C.N.S.S.;6;TBDEP;EX0150;1
+3W;Club de Libreville;;;;
+3X;Fonds de Riposte COVID-19;;;;
+3Y;Fonds de Solidarité COVID-19;;;;
+3D;Autres correspondants;6;TBDEP;EX0200;1
+3F;Cautions;6;TBDEP;EX0300;1
+3G;Consignations;6;TBDEP;EX0400;1
+3H;Remboursements excédents;6;TBDEP;EX0500;1
+3I;Virements divers;6;TBDEP;EX0600;1
+3J;Bonus;6;TBDEP;EX0650;1
+3K;Fonds communs;6;TBDEP;EX0700;1
+3L;Fonds équipement;6;TBDEP;EX0800;1
+3M;Fonds divers;6;TBDEP;EX0900;1
+3N;F.E.R.;6;TBDEP;EX1000;1
+3O;Collectivités locales;6;TBDEP;EX1100;1
+3P;Autres opérations de trésorerie;6;TBDEP;EX1200;1
+3Q;Capital dette extérieure;6;TBDEP;EX1250;1
+3R;Capital dette intérieure;6;TBDEP;EX1255;1
+3T;Remboursements B.T.A.;6;TBDEP;EX1300;1
+3U;Remboursements facilités de tréso.;6;TBDEP;EX1400;1
+3V;Remboursements D.T.S.;6;TBDEP;EX1500;1
+;Total des règlements;1;TBDEP;XX;1
+;En millions de Francs CFA;;;;
+;Mois;;;;

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Bell, CalendarDays, CheckCheck, History, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getPortalMenu } from "@/shared/config/menu";
-import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
   Popover,
@@ -154,12 +153,9 @@ export function ClocheNotificationsSr() {
   return (
     <Popover open={ouvert} onOpenChange={(v) => void onOuvrir(v)}>
       <PopoverTrigger asChild>
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="icon"
-          className="relative"
-          style={{ color: theme.topColor }}
+          className="relative grid size-9 shrink-0 place-items-center rounded-md text-[#475569] transition-colors hover:bg-[#f1f5f9]"
           title="Notifications"
           aria-label={
             nonLues > 0
@@ -167,16 +163,13 @@ export function ClocheNotificationsSr() {
               : "Notifications"
           }
         >
-          <Bell className="size-5" strokeWidth={2} />
+          <Bell size={18} strokeWidth={1.7} />
           {nonLues > 0 ? (
-            <span
-              className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white"
-              style={{ background: theme.ctaColor }}
-            >
+            <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#b91c1c] px-1 text-[10px] font-bold text-white">
               {badge}
             </span>
           ) : null}
-        </Button>
+        </button>
       </PopoverTrigger>
       <PopoverContent
         align="end"

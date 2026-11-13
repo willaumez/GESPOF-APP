@@ -5,6 +5,7 @@ export interface AuditActionUtilisateur {
   prenom: string;
   nom_complet: string;
   email: string;
+  a_photo?: boolean;
 }
 
 export interface AuditAction {

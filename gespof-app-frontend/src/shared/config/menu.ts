@@ -34,9 +34,14 @@ export function getAccessiblePortails(roles: RoleUtilisateur[]): MenuPortal[] {
   return PORTAILS.filter((p) => p.roles.some((r) => effectifs.has(r)));
 }
 
+/** Aplatit récursivement une branche d'entrées (tous niveaux). */
+function flattenNavItems(items: MenuNavItem[]): MenuNavItem[] {
+  return items.flatMap((i) => [i, ...flattenNavItems(i.children ?? [])]);
+}
+
 /** Entrees du portail a plat (sections + sous-entrees), dans l'ordre d'affichage. */
 export function getNavItems(menu: MenuPortal): MenuNavItem[] {
-  return menu.sections.flatMap((s) => s.items.flatMap((i) => [i, ...(i.children ?? [])]));
+  return menu.sections.flatMap((s) => flattenNavItems(s.items));
 }
 
 export function getNavItem(menu: MenuPortal, id: string): MenuNavItem | undefined {
@@ -64,13 +69,6 @@ export interface PageInfo {
 export function findPageInfo(portal: Portail, pathname: string): PageInfo {
   const menu = getPortalMenu(portal);
   const resolved = resolveNavPath(pathname);
-
-  for (const section of menu.sections) {
-    for (const item of section.items) {
-      const enfant = (item.children ?? []).find((c) => c.path === resolved);
-      if (enfant) return { label: enfant.label, path: enfant.path };
-    }
-  }
 
   const items = getNavItems(menu);
   const trouve = items.find((i) => i.path === resolved);
@@ -103,20 +101,32 @@ export function getBreadcrumbItems(
   const resolved = resolveNavPath(pathname);
   const sousPage = menu.sousPages?.find((s) => pathname.startsWith(s.prefix));
 
-  for (const section of menu.sections) {
-    for (const item of section.items) {
-      const enfant = (item.children ?? []).find((c) => c.path === resolved);
-      if (enfant) {
-        crumbs.push({ label: item.label, href: item.path });
+  const walk = (
+    items: MenuNavItem[],
+    ancestors: MenuNavItem[],
+  ): BreadcrumbItem[] | null => {
+    for (const item of items) {
+      if (item.path === resolved) {
+        for (const a of ancestors) {
+          crumbs.push({ label: a.label, href: a.path });
+        }
         if (sousPage?.breadcrumb) {
-          crumbs.push({ label: enfant.label, href: enfant.path });
+          crumbs.push({ label: item.label, href: item.path });
           crumbs.push({ label: sousPage.breadcrumb });
           return crumbs;
         }
-        crumbs.push({ label: enfant.label });
+        crumbs.push({ label: item.label });
         return crumbs;
       }
+      const nested = walk(item.children ?? [], [...ancestors, item]);
+      if (nested) return nested;
     }
+    return null;
+  };
+
+  for (const section of menu.sections) {
+    const found = walk(section.items, []);
+    if (found) return found;
   }
 
   const compte = menu.accountMenu.find((a) => a.path === resolved);

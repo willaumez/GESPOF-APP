@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type { DateRange } from "react-day-picker";
 import {
   ChevronLeft,
@@ -8,10 +8,12 @@ import {
   FileSearch,
   Inbox,
   Loader2,
+  Download,
   MoreVertical,
   Search,
   Trash2,
   X,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { requeteApi } from "@/shared/lib/api";
@@ -28,7 +30,6 @@ import {
   periodeVersIso,
 } from "@/shared/components/date/PeriodDatePicker";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
@@ -84,32 +85,42 @@ import {
   formaterDateHeureFr,
   formaterDateSansHeure,
 } from "@/portails/Sr/components/fiche-detail/utils";
+import { SrPageHeader } from "@/portails/Sr/components/layout/SrPageHeader";
+import { ExporterFormatDialog } from "@/portails/Sr/components/export/ExporterFormatDialog";
+import {
+  COLONNES_LISTE_FICHES,
+  exporterTableau,
+  type FormatExportSr,
+} from "@/portails/Sr/lib/exporter-tableau";
 
 type StatutCfg = { badge: string; label: string; row: string };
 
 const STATUT_CFG: Record<string, StatutCfg> = {
   envoyee: {
-    badge: "border-transparent bg-emerald-100 text-emerald-800",
+    badge: "border-transparent bg-[#ecfdf5] text-[#047857] font-medium",
     label: "Envoyée",
-    row: "border-l-4! border-l-emerald-500! bg-emerald-50/40",
+    row: "border-b border-[#f1f5f9]",
   },
   recue: {
-    badge: "border-transparent bg-amber-100 text-amber-900",
+    badge: "border-transparent bg-[#fffbeb] text-[#b45309] font-medium",
     label: "Reçue SP",
-    row: "border-l-4! border-l-amber-500! bg-amber-50/40",
+    row: "border-b border-[#f1f5f9]",
   },
   cree: {
-    badge: "border-transparent bg-slate-100 text-slate-700",
+    badge: "border-transparent bg-[#f1f5f9] text-[#475569] font-medium",
     label: "Créée",
-    row: "border-l-4! border-l-slate-400!",
+    row: "border-b border-[#f1f5f9]",
   },
 };
 
+type FiltreChip = "tous" | keyof Stats;
+
 const STATS_CFG: {
-  key: keyof Stats;
+  key: FiltreChip;
   label: string;
   hint: string;
 }[] = [
+  { key: "tous", label: "Toutes", hint: "Toutes les fiches" },
   { key: "cree", label: "Créées", hint: "Brouillons locaux" },
   { key: "envoyee", label: "Envoyées", hint: "Transmises au SP" },
   { key: "recue", label: "Reçues SP", hint: "Accusées par le SP" },
@@ -118,6 +129,24 @@ const STATS_CFG: {
 
 const PAGE_SIZE_OPTIONS = optionsTaillePagination();
 const theme = getPortalMenu("sr").theme;
+
+function statutApiPour(chip: FiltreChip): string {
+  if (chip === "tous") return "";
+  if (chip === "en_attente") return "envoyee";
+  return chip;
+}
+
+function chipDepuisQuery(valeur: string | null): FiltreChip {
+  if (
+    valeur === "cree" ||
+    valeur === "envoyee" ||
+    valeur === "recue" ||
+    valeur === "en_attente"
+  ) {
+    return valeur;
+  }
+  return "tous";
+}
 
 function initiales(nom: string): string {
   return nom
@@ -135,6 +164,7 @@ function urlFichier(f: Fiche): string | null {
 
 export default function ListeFichesDepot() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { hasAcces } = useAuth();
 
   const [stats, setStats] = useState<Stats | null>(null);
@@ -144,7 +174,10 @@ export default function ListeFichesDepot() {
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [filterStatut, setFilterStatut] = useState("");
+  const [filtreChip, setFiltreChip] = useState<FiltreChip>(() =>
+    chipDepuisQuery(searchParams.get("filtre")),
+  );
+  const filterStatut = statutApiPour(filtreChip);
   const [periode, setPeriode] = useState<DateRange | undefined>();
   const [page, setPage] = useState<number>(PAGINATION.PAGE_PAR_DEFAUT);
   const [pageSize, setPageSize] = useState(String(PAGINATION.TAILLE_PAR_DEFAUT));
@@ -153,6 +186,22 @@ export default function ListeFichesDepot() {
 
   const [deleting, setDeleting] = useState<Fiche | null>(null);
   const [deletingLoading, setDeletingLoading] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  useEffect(() => {
+    const chip = chipDepuisQuery(searchParams.get("filtre"));
+    setFiltreChip(chip);
+  }, [searchParams]);
+
+  function appliquerFiltre(chip: FiltreChip) {
+    setFiltreChip(chip);
+    setPage(1);
+    const next = new URLSearchParams(searchParams);
+    if (chip === "tous") next.delete("filtre");
+    else next.set("filtre", chip);
+    setSearchParams(next, { replace: true });
+  }
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -225,127 +274,189 @@ export default function ListeFichesDepot() {
   }
 
   const hasActiveFilters = Boolean(
-    search || filterStatut || periode?.from,
+    search || filtreChip !== "tous" || periode?.from,
   );
 
   const resetFilters = () => {
     setSearch("");
     setDebouncedSearch("");
-    setFilterStatut("");
     setPeriode(undefined);
-    setPage(1);
+    appliquerFiltre("tous");
   };
 
-  const styleHero: CSSProperties = {
-    background: `
-      radial-gradient(120% 80% at 100% 0%, ${theme.topColor}18 0%, transparent 55%),
-      linear-gradient(135deg, ${theme.bgColor} 0%, #ffffff 48%, ${theme.bgColor} 100%)
-    `,
-    borderColor: `${theme.topColor}33`,
-  };
+  async function exporterListe(format: FormatExportSr) {
+    setExporting(true);
+    try {
+      const { dateDebut, dateFin } = periodeVersIso(periode);
+      const params = new URLSearchParams({ page: "1", limit: "all" });
+      if (debouncedSearch) params.set("search", debouncedSearch);
+      if (filterStatut) params.set("statut", filterStatut);
+      if (dateDebut) params.set("date_debut", dateDebut);
+      if (dateFin) params.set("date_fin", dateFin);
 
-  const stylePanneau: CSSProperties = {
-    borderColor: `${theme.topColor}28`,
-  };
+      const data = await requeteApi<FichesDepotResponse>(
+        `${SERVICE_REGLEMENT_ENDPOINTS.FICHES_DEPENSES}?${params.toString()}`,
+      );
+      const liste = data.fiches ?? [];
+      if (liste.length === 0) {
+        toast.message("Aucune fiche à exporter.");
+        return;
+      }
+
+      exporterTableau({
+        format,
+        titre: "Liste des fiches de dépôt",
+        sousTitre: `Pool SR · ${liste.length} fiche${liste.length > 1 ? "s" : ""}`,
+        colonnes: COLONNES_LISTE_FICHES,
+        lignes: liste.map((f) => ({
+          reference: f.reference,
+          presentation:
+            f.date_presentation_libelle ??
+            f.datePresentation ??
+            f.date_presentation ??
+            "",
+          montant: formatMontant(f.montant_total),
+          genere_par: f.genere_par,
+          statut: STATUT_CFG[f.statut]?.label ?? f.statut,
+          creation: formaterDateHeureFr(f.date_creation),
+        })),
+        nomBase: "liste-fiches-depot",
+      });
+      toast.success("Export généré.");
+      setExportOpen(false);
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Erreur lors de l'export.",
+      );
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return (
     <TooltipProvider>
-      <div className="flex w-full flex-col gap-5 pb-2 sm:gap-6">
-        {/* Héros */}
-        <section
-          className="relative overflow-hidden rounded-2xl border-2 px-5 py-5 sm:px-7 sm:py-6"
-          style={styleHero}
-        >
-          <div
-            className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full opacity-40"
-            style={{ background: theme.iconBg }}
-            aria-hidden
-          />
-          <div className="relative flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p
-                className="text-[11px] font-semibold tracking-[0.14em] uppercase"
-                style={{ color: theme.iconColor }}
+      <div className="flex w-full flex-col gap-6">
+        <SrPageHeader
+          eyebrow="Pool SR · Consultation"
+          title="Liste des fiches de dépôt"
+          description="Fiches générées par le Pool SR et transmises au Service de Prévision."
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={() => setExportOpen(true)}
+                className="flex h-[38px] items-center gap-2 rounded-md border border-[#cbd5e1] bg-white px-3.5 text-sm font-medium text-[#0f172a] transition-colors hover:border-[#94a3b8] hover:bg-[#f8fafc]"
               >
-                Consultation
-              </p>
-              <h2 className="font-heading text-[1.35rem] font-bold tracking-tight text-[#0f172a] sm:text-[1.55rem]">
-                Fiches de dépôt
-              </h2>
-              <p className="mt-1 max-w-xl text-[13.5px] leading-relaxed text-muted-foreground">
-                Recherchez, filtrez par statut ou période de présentation, puis
-                ouvrez le détail d&apos;une fiche.
-              </p>
-            </div>
-            <p className="text-[13px] tabular-nums text-muted-foreground">
-              {loading
-                ? "Chargement…"
-                : `${total} fiche${total !== 1 ? "s" : ""}`}
-            </p>
-          </div>
-        </section>
+                <Download size={16} />
+                Exporter
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/sr/generer")}
+                className="flex h-[38px] items-center gap-2 rounded-md px-4 text-sm font-semibold text-white transition-colors"
+                style={{ background: theme.ctaColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = theme.hoverColor;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = theme.ctaColor;
+                }}
+              >
+                <Zap size={16} />
+                Générer une fiche de dépôt
+              </button>
+            </>
+          }
+        />
 
-        {/* Stats */}
-        <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {STATS_CFG.map(({ key, label, hint }) => (
-            <div
-              key={key}
-              className="rounded-2xl border-2 bg-card px-4 py-3.5"
-              style={stylePanneau}
-            >
-              <p className="text-[11.5px] font-medium text-muted-foreground">
-                {label}
-              </p>
-              {loading ? (
-                <Skeleton className="mt-2 h-7 w-12" />
-              ) : error ? (
-                <p className="mt-1 font-heading text-xl font-bold text-muted-foreground/40">
-                  —
-                </p>
-              ) : (
-                <p className="mt-1 font-heading text-2xl font-bold tabular-nums text-[#0f172a]">
-                  {stats?.[key] ?? 0}
-                </p>
-              )}
-              <p className="mt-0.5 text-[11.5px] text-muted-foreground/80">
-                {hint}
-              </p>
-            </div>
-          ))}
-        </section>
+        <ExporterFormatDialog
+          open={exportOpen}
+          onOpenChange={setExportOpen}
+          titre="Exporter la liste"
+          description="Choisissez le format de la liste des fiches de dépôt à télécharger."
+          loading={exporting}
+          onConfirmer={exporterListe}
+        />
 
-        {/* Liste */}
+        {/* Stats / filtres — maquette */}
         <section
-          className="overflow-hidden rounded-2xl border-2 bg-card"
-          style={stylePanneau}
+          className="grid gap-2.5"
+          style={{
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+          }}
         >
-          <div
-            className="flex flex-col gap-3 border-b px-4 py-4 sm:px-5"
-            style={{ borderColor: `${theme.topColor}18` }}
-          >
-            <div className="flex w-full flex-wrap items-center gap-2">
-              <div className="relative min-w-[12rem] flex-1 sm:max-w-xs">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Référence, agent…"
+          {STATS_CFG.map(({ key, label, hint }) => {
+            const selected = filtreChip === key;
+            const valeur =
+              key === "tous"
+                ? (stats
+                    ? (stats.cree ?? 0) +
+                      (stats.envoyee ?? 0) +
+                      (stats.recue ?? 0)
+                    : total)
+                : (stats?.[key] ?? 0);
+            return (
+              <button
+                type="button"
+                key={key}
+                onClick={() => appliquerFiltre(key)}
+                className="flex flex-col gap-0.5 rounded-lg border bg-white px-3.5 py-3 text-left transition-colors"
+                style={{
+                  borderColor: selected ? theme.topColor : "#e2e8f0",
+                  boxShadow: selected
+                    ? `inset 0 -3px 0 ${theme.topColor}`
+                    : undefined,
+                  background: selected ? theme.bgColor : "#fff",
+                }}
+              >
+                <span className="flex items-baseline justify-between gap-2">
+                  <span
+                    className="text-sm font-semibold"
+                    style={{ color: selected ? theme.textColor : "#0f172a" }}
+                  >
+                    {label}
+                  </span>
+                  <span className="text-xl font-semibold tabular-nums text-[#0f172a]">
+                    {loading ? "—" : error ? "—" : valeur}
+                  </span>
+                </span>
+                <span className="text-xs text-[#64748b]">{hint}</span>
+              </button>
+            );
+          })}
+        </section>
+
+        {/* Liste — maquette + filtres statut / période conservés */}
+        <section className="flex flex-col rounded-lg border border-[#e2e8f0] bg-white">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e8f0] px-4 py-3">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+              <div
+                className="flex h-9 min-w-[12rem] flex-1 items-center gap-2 rounded-md border border-[#cbd5e1] px-3 text-[#64748b] sm:max-w-[340px]"
+              >
+                <Search className="size-4 shrink-0" />
+                <input
+                  placeholder="Rechercher une référence, un agent…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="h-9 border-2 bg-white pl-8"
-                  style={{ borderColor: `${theme.topColor}28` }}
+                  className="h-full min-w-0 flex-1 border-0 bg-transparent text-sm text-[#0f172a] outline-none placeholder:text-[#94a3b8]"
                 />
               </div>
 
               <Select
-                value={filterStatut || "all"}
+                value={
+                  filtreChip === "tous" || filtreChip === "en_attente"
+                    ? filterStatut || "all"
+                    : filtreChip
+                }
                 onValueChange={(v) => {
-                  setFilterStatut(v === "all" ? "" : v);
-                  setPage(1);
+                  appliquerFiltre(
+                    v === "all"
+                      ? "tous"
+                      : (v as "cree" | "envoyee" | "recue"),
+                  );
                 }}
               >
-                <SelectTrigger
-                  className="h-9 w-[150px] border-2 bg-white"
-                  style={{ borderColor: `${theme.topColor}28` }}
-                >
+                <SelectTrigger className="h-9 w-[150px] border border-[#cbd5e1] bg-white">
                   <SelectValue placeholder="Tous les statuts" />
                 </SelectTrigger>
                 <SelectContent>
@@ -356,14 +467,24 @@ export default function ListeFichesDepot() {
                 </SelectContent>
               </Select>
 
+              <PeriodDatePicker
+                portail="sr"
+                variant="filtre"
+                libelle="Période"
+                value={periode}
+                onChange={(range) => {
+                  setPeriode(range);
+                  setPage(1);
+                }}
+              />
+
               {hasActiveFilters ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-9 w-9 border-2"
-                      style={{ borderColor: `${theme.topColor}28` }}
+                      className="h-9 w-9 border border-[#cbd5e1]"
                       onClick={resetFilters}
                     >
                       <X className="size-4" />
@@ -372,48 +493,37 @@ export default function ListeFichesDepot() {
                   <TooltipContent>Réinitialiser les filtres</TooltipContent>
                 </Tooltip>
               ) : null}
-
-              <PeriodDatePicker
-                portail="sr"
-                variant="filtre"
-                libelle="Période"
-                className="ml-auto"
-                value={periode}
-                onChange={(range) => {
-                  setPeriode(range);
-                  setPage(1);
-                }}
-              />
             </div>
+            <span className="text-[13px] text-[#64748b]">
+              {loading
+                ? "Chargement…"
+                : `${total} fiche${total !== 1 ? "s" : ""}`}
+            </span>
           </div>
 
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow
-                className="hover:bg-transparent"
-                style={{ background: theme.bgColor }}
-              >
-                <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+              <TableRow className="hover:bg-transparent border-b border-[#e2e8f0] bg-[#f8fafc]">
+                <TableHead className="h-10 px-4 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                   Référence
                 </TableHead>
-                <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+                <TableHead className="h-10 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                   Présentation
                 </TableHead>
-                <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
-                  Création
+                <TableHead className="h-10 text-right text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
+                  Montant (FCFA)
                 </TableHead>
-                <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
-                  Montant
-                </TableHead>
-                <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+                <TableHead className="h-10 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                   Généré par
                 </TableHead>
-                <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+                <TableHead className="h-10 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                   Statut
                 </TableHead>
-                <TableHead className="h-11 text-right text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
-                  Actions
+                <TableHead className="h-10 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
+                  Création
                 </TableHead>
+                <TableHead className="h-10 w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -427,10 +537,7 @@ export default function ListeFichesDepot() {
                       <Skeleton className="h-4 w-24" />
                     </TableCell>
                     <TableCell>
-                      <Skeleton className="h-4 w-28" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="ml-auto h-4 w-28" />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -440,6 +547,9 @@ export default function ListeFichesDepot() {
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-5 w-20 rounded-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-28" />
                     </TableCell>
                     <TableCell />
                   </TableRow>
@@ -474,7 +584,7 @@ export default function ListeFichesDepot() {
                         <EmptyTitle>Aucune fiche trouvée</EmptyTitle>
                         <EmptyDescription>
                           {hasActiveFilters
-                            ? "Modifiez ou réinitialisez vos filtres de recherche."
+                            ? "Aucune fiche ne correspond à ces critères."
                             : "Les fiches générées apparaîtront ici."}
                         </EmptyDescription>
                       </EmptyHeader>
@@ -488,7 +598,10 @@ export default function ListeFichesDepot() {
                   return (
                     <TableRow
                       key={f.reference}
-                      className={cn("cursor-pointer", st.row)}
+                      className={cn(
+                        "cursor-pointer text-sm hover:bg-[#f8fafc]",
+                        st.row,
+                      )}
                       onClick={() =>
                         navigate(
                           `/sr/fiche/${encodeURIComponent(f.reference)}`,
@@ -496,43 +609,49 @@ export default function ListeFichesDepot() {
                       }
                     >
                       <TableCell
-                        className="font-mono text-[13px] font-semibold"
-                        style={{ color: theme.iconColor }}
+                        className="px-4 font-mono text-[13px] font-medium"
+                        style={{
+                          fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                          color: theme.textColor,
+                        }}
                       >
                         {f.reference}
                       </TableCell>
-                      <TableCell className="tabular-nums text-muted-foreground">
+                      <TableCell className="tabular-nums text-[#475569]">
                         {formaterDateSansHeure(
                           f.datePresentation ??
                             f.date_presentation_libelle ??
                             f.date_presentation,
                         )}
                       </TableCell>
-                      <TableCell className="tabular-nums text-muted-foreground">
-                        {formaterDateHeureFr(f.date_creation)}
-                      </TableCell>
-                      <TableCell>
+                      <TableCell className="text-right">
                         <span className="font-semibold tabular-nums text-[#0f172a]">
                           {formatMontant(f.montant_total)}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
                           <Avatar size="sm">
                             <AvatarFallback
-                              className="text-[10px] font-bold text-white"
-                              style={{ background: theme.ctaColor }}
+                              className="text-[11px] font-semibold"
+                              style={{
+                                background: theme.iconBg,
+                                color: theme.textColor,
+                              }}
                             >
                               {initiales(f.genere_par)}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-muted-foreground">
-                            {f.genere_par}
-                          </span>
+                          <span className="text-[#0f172a]">{f.genere_par}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={st.badge}>{st.label}</Badge>
+                        <Badge className={cn("rounded px-2.5 py-0.5 text-xs", st.badge)}>
+                          {st.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="tabular-nums text-[#475569]">
+                        {formaterDateHeureFr(f.date_creation)}
                       </TableCell>
                       <TableCell
                         className="text-right"
@@ -545,7 +664,7 @@ export default function ListeFichesDepot() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="size-8"
+                                className="size-[30px] text-[#64748b] hover:bg-[#f1f5f9]"
                                 aria-label={`Actions pour ${f.reference}`}
                               >
                                 <MoreVertical className="size-4" />
@@ -625,12 +744,10 @@ export default function ListeFichesDepot() {
               )}
             </TableBody>
           </Table>
+          </div>
 
           {!loading && !error && total > 0 ? (
-            <div
-              className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3"
-              style={{ borderColor: `${theme.topColor}18` }}
-            >
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e2e8f0] px-4 py-3 text-[13px] text-[#64748b]">
               <div className="flex items-center gap-2">
                 <p className="text-xs text-muted-foreground">Lignes par page</p>
                 <Select

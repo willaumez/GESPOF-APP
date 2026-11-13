@@ -1,0 +1,59 @@
+---
+description: Refonte UI GESPOF selon Prototype v2 — implémentation progressive guidée par la maquette
+alwaysApply: true
+---
+
+# GESPOF — Refonte Prototype v2
+
+## Source de vérité (maquette)
+
+- HTML (shell commun / SP / SR / Auth) : `C:\Users\owani\Downloads\Refonte GESPOF-APP (1)\GESPOF Prototype v2.dc.html`
+- HTML **SOF** : `C:\Users\owani\WORKS\Projects\DOMF-PROJET\SOF — Opérations Financières\GESPOF SOF v2.dc.html`
+  - Données menu / pages : `…\SOF — Opérations Financières\Refonte GESPOF-APP\sof-data.js`, `sof-pages.js`
+  - Plan de développement : pièce jointe / PDF `GESPOF SOF — Plan de développement`
+- Fonts : `C:\Users\owani\Downloads\Refonte GESPOF-APP (1)\fonts` (IBM Plex Sans / Serif / Mono, déjà copiés dans `gespof-app-frontend/public/fonts`)
+- Assets : `C:\Users\owani\Downloads\Refonte GESPOF-APP (1)\assets`
+
+## Mode d’implémentation
+
+- **Progressif** : n’implémenter que la partie demandée par l’utilisateur à chaque tour.
+- Coller **exactement** la maquette (espacements, couleurs, rayons, typo, libellés) pour la zone ciblée.
+- Ne pas refondre d’autres écrans tant que l’utilisateur ne le demande pas.
+- Conserver la logique métier / API existante ; seuls UI et micro-copy changent sauf demande contraire.
+- **SOF** : l’utilisateur dicte quoi implémenter ; ne pas anticiper les pages du plan.
+
+## Design system (extrait maquette)
+
+- Police UI : `IBM Plex Sans` (Google Fonts + fallback `/fonts/woff2`) ; titres expressifs app : `IBM Plex Serif` ; refs / matricules / montants : `IBM Plex Mono`
+- Sur les écrans auth : utiliser les classes `.auth-maquette` / `.am-*` (`auth-maquette.css`) — **ne pas** laisser Tailwind imposer line-height/font-size sur les titres (sinon le rendu diverge de la maquette)
+- Bleu principal : `#1e4d8c` · fond slate : `#0f172a` · texte : `#0f172a` / `#334155` / `#64748b`
+- Accents métiers : SOF `#2a7f62` / sidebar `#1e6650` · SP `#c9960a` · SR `#0760A8`
+- Bouton primaire : `linear-gradient(180deg, #1e4d8c 0%, #0f172a 100%)`, hauteur 50px, radius 10px
+- Champs : hauteur 50px, border 1.5px `#e2e8f0`, radius 10px, focus ring `rgba(30,77,140,.12)`
+
+## Déjà fait
+
+- Fonts IBM Plex (woff2 + Google Fonts) branchées via `/fonts/fonts.css`
+- Page **Login / Connexion** alignée sur l’écran maquette (`.auth-maquette`)
+- Page **Sélection du portail** (`PortailSelection.tsx`) — header, barre tricolore, cartes modules, footer
+- Portail **SR** (aligné maquette) :
+  - Shell : sidebar sombre `sidebarBg`, tricolore, logos inversés, IBM Plex
+  - `SrPageHeader` · pages métier + Audit + Profil
+- Portail **SP** (en cours) :
+  - Shell `SpLayout` (main padding maquette + gap-6) · `SpPageHeader` · `SpKpiBandeau` · `SpTag`
+  - Tableau de bord aligné Prototype v2 (résumé collé en bas)
+  - Fiche matinale / journée de trésorerie (`JourneeTresorerieVue`) alignée maquette
+  - Fiche des dépôts (liste + KPIs) · Fiche Bleue (liste) · Audit journalier
+  - Paramètres / Bibliothèque sections · Journées de trésorerie (onglets)
+  - Fiche d'exécution consolidée (Semaine / Mois / Année)
+  - Utilisateurs · Audit connexions · Audit d'actions (`SpAuditTabs`)
+- Portail **SOF** (démarrage) :
+  - Sidebar libellés / arborescence alignés maquette SOF v2 (`menu.ts`) — Cycle mensuel · Configuration
+  - En-tête `GESPOF · SOF` · pied `DOMF · DGCPT`
+  - Shell `SofLayout` (padding maquette) · `SofPageHeader`
+  - **Paramétrage › Exercice** (FE + BE) : `sof_exercice` enrichi, API CRUD/clôture/ouverture
+  - Pages métier existantes conservées ; nouvelles pages à la demande
+
+## Prochaines parties (à la demande)
+
+SOF plan phase 0 suite (nomenclature, TOFE, fléchage…) · SP : plans, libellés, profil · Admin.

@@ -41,6 +41,22 @@ class RubriqueDepense
     #[ORM\Column(name: 'code_synthetique', type: Types::BOOLEAN, options: ['default' => false])]
     private bool $codeSynthetique = false;
 
+    #[ORM\Column(name: 'ordre', type: Types::INTEGER)]
+    private int $ordre = 0;
+
+    #[ORM\Column(name: 'code_tofe', type: Types::STRING, length: 32, nullable: true)]
+    private ?string $codeTofe = null;
+
+    #[ORM\Column(name: 'actif', type: Types::BOOLEAN)]
+    private bool $actif = true;
+
+    /**
+     * Code alternatif RD Synthèse (colonne Exclusions du RD Model, ex. B1 face à B2).
+     * SPEC : code_synthese — sens à confirmer, non utilisé en calcul.
+     */
+    #[ORM\Column(name: 'code_synthese', type: Types::STRING, length: 10, nullable: true)]
+    private ?string $codeSynthese = null;
+
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'enfants')]
     #[ORM\JoinColumn(name: 'parent_code', referencedColumnName: 'code', nullable: true, onDelete: 'RESTRICT')]
     private ?self $parent = null;
@@ -51,7 +67,7 @@ class RubriqueDepense
      * @var Collection<int, self>
      */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent')]
-    #[ORM\OrderBy(['code' => 'ASC'])]
+    #[ORM\OrderBy(['ordre' => 'ASC', 'code' => 'ASC'])]
     private Collection $enfants;
 
     public function __construct(
@@ -60,12 +76,22 @@ class RubriqueDepense
         NatureDepense $nature,
         ?self $parent = null,
         bool $codeSynthetique = false,
+        int $ordre = 0,
+        ?string $codeTofe = null,
+        bool $actif = true,
+        ?string $codeSynthese = null,
     ) {
         $this->code = $code;
         $this->libelle = $libelle;
         $this->nature = $nature;
         $this->parent = $parent;
         $this->codeSynthetique = $codeSynthetique;
+        $this->ordre = $ordre;
+        $this->codeTofe = $codeTofe;
+        $this->actif = $actif;
+        $this->codeSynthese = $codeSynthese !== null && trim($codeSynthese) !== ''
+            ? trim($codeSynthese)
+            : null;
         $this->niveau = $parent === null ? 1 : $parent->niveau + 1;
         $this->enfants = new ArrayCollection();
 
@@ -116,6 +142,68 @@ class RubriqueDepense
         $this->codeSynthetique = $codeSynthetique;
 
         return $this;
+    }
+
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+
+    public function setOrdre(int $ordre): static
+    {
+        $this->ordre = $ordre;
+
+        return $this;
+    }
+
+    public function getCodeTofe(): ?string
+    {
+        return $this->codeTofe;
+    }
+
+    public function setCodeTofe(?string $codeTofe): static
+    {
+        $this->codeTofe = $codeTofe !== null && trim($codeTofe) !== '' ? trim($codeTofe) : null;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
+
+        return $this;
+    }
+
+    public function getCodeSynthese(): ?string
+    {
+        return $this->codeSynthese;
+    }
+
+    /** @deprecated Alias de getCodeSynthese() */
+    public function getCodeExclusion(): ?string
+    {
+        return $this->codeSynthese;
+    }
+
+    public function setCodeSynthese(?string $codeSynthese): static
+    {
+        $this->codeSynthese = $codeSynthese !== null && trim($codeSynthese) !== ''
+            ? trim($codeSynthese)
+            : null;
+
+        return $this;
+    }
+
+    /** @deprecated Alias de setCodeSynthese() */
+    public function setCodeExclusion(?string $codeExclusion): static
+    {
+        return $this->setCodeSynthese($codeExclusion);
     }
 
     public function getParent(): ?self

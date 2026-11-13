@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Entite;
 
 use App\Shared\Enum\Acces;
+use App\Shared\Enum\Genre;
 use App\Shared\Enum\RoleAcces;
 use App\Shared\Repository\UtilisateurRepository;
 use Doctrine\DBAL\Types\Types;
@@ -60,6 +61,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
 
     #[ORM\Column(name: 'derniere_connexion', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $derniereConnexion = null;
+
+    /** Genre : la civilité M./Mme en est dérivée. */
+    #[ORM\Column(name: 'genre', length: 10, nullable: true, enumType: Genre::class)]
+    private ?Genre $genre = null;
+
+    /** Chemin relatif sous var/avatars ; null = avatar en initiales. */
+    #[ORM\Column(name: 'photo_chemin', length: 255, nullable: true)]
+    private ?string $photoChemin = null;
+
+    #[ORM\Column(name: 'photo_empreinte', length: 64, nullable: true)]
+    private ?string $photoEmpreinte = null;
 
     public function __construct()
     {
@@ -260,6 +272,56 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
         return $this;
     }
 
+    public function getGenre(): ?Genre
+    {
+        return $this->genre;
+    }
+
+    public function setGenre(?Genre $genre): static
+    {
+        $this->genre = $genre;
+
+        return $this;
+    }
+
+    /** Civilité dérivée du genre ; jamais stockée. */
+    public function getCivilite(): ?string
+    {
+        return $this->genre?->civilite();
+    }
+
+    public function aUnePhoto(): bool
+    {
+        return null !== $this->photoChemin && null !== $this->photoEmpreinte;
+    }
+
+    public function getPhotoChemin(): ?string
+    {
+        return $this->photoChemin;
+    }
+
+    public function getPhotoEmpreinte(): ?string
+    {
+        return $this->photoEmpreinte;
+    }
+
+    public function definirPhoto(string $chemin, string $empreinte): static
+    {
+        $this->photoChemin = $chemin;
+        $this->photoEmpreinte = $empreinte;
+
+        return $this;
+    }
+
+    /** Retire le lien vers la photo ; le fichier reste sur disque. */
+    public function retirerPhoto(): static
+    {
+        $this->photoChemin = null;
+        $this->photoEmpreinte = null;
+
+        return $this;
+    }
+
     public function getUserIdentifier(): string
     {
         return $this->email;
@@ -328,6 +390,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface, 
             'connection' => $this->connection,
             'date_creation' => $this->dateCreation?->format('d/m/Y H:i:s'),
             'derniere_connexion' => $this->derniereConnexion?->format('d/m/Y H:i:s'),
+            'genre' => $this->genre?->value,
+            'civilite' => $this->getCivilite(),
+            'a_photo' => $this->aUnePhoto(),
         ];
     }
 }

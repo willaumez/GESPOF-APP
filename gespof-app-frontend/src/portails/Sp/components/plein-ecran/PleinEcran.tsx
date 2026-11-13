@@ -59,6 +59,10 @@ interface OverlayPleinEcranProps {
   ariaLabel?: string;
   /** Thème du portail (couleurs CSS variables). Défaut : SP. */
   portail?: Portail;
+  /** Masque la barre titre / sous-titre ; conserve le bouton quitter (coin). */
+  masquerEnTete?: boolean;
+  /** Contenu collé aux bords (sans padding du corps). */
+  sansMarge?: boolean;
 }
 
 /** Overlay plein viewport (portail body) pour afficher un tableau / contenu. */
@@ -71,6 +75,8 @@ export function OverlayPleinEcran({
   children,
   ariaLabel,
   portail = "sp",
+  masquerEnTete = false,
+  sansMarge = false,
 }: OverlayPleinEcranProps) {
   const theme = getPortalMenu(portail).theme;
 
@@ -106,26 +112,39 @@ export function OverlayPleinEcran({
       // (--primary, --accent, --ring), sinon sélections et cases cochées perdent le thème.
       style={portalThemeVars(theme.topColor)}
     >
-      <div
-        className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-6"
-        style={{ borderBottomColor: `${theme.topColor}55` }}
-      >
-        <div className="min-w-0">
-          <p className="truncate text-[15px] font-semibold text-foreground">
-            {titre}
-          </p>
-          {sousTitre ? (
-            <p className="truncate text-[12px] text-muted-foreground">
-              {sousTitre}
-            </p>
-          ) : null}
-        </div>
-        <div className="flex shrink-0 items-center gap-1.5">
+      {masquerEnTete ? (
+        <div className="absolute top-3 right-3 z-[101] flex items-center gap-1.5 sm:top-4 sm:right-4">
           {actions}
           <BoutonPleinEcran actif onToggle={onClose} />
         </div>
-      </div>
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 py-3 sm:px-4 sm:py-4">
+      ) : (
+        <div
+          className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-6"
+          style={{ borderBottomColor: `${theme.topColor}55` }}
+        >
+          <div className="min-w-0">
+            <p className="truncate text-[15px] font-semibold text-foreground">
+              {titre}
+            </p>
+            {sousTitre ? (
+              <p className="truncate text-[12px] text-muted-foreground">
+                {sousTitre}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {actions}
+            <BoutonPleinEcran actif onToggle={onClose} />
+          </div>
+        </div>
+      )}
+      <div
+        className={
+          sansMarge
+            ? "flex min-h-0 flex-1 flex-col overflow-hidden p-0"
+            : "flex min-h-0 flex-1 flex-col overflow-hidden px-3 py-3 sm:px-4 sm:py-4"
+        }
+      >
         {children}
       </div>
     </div>,

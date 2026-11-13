@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Circle } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import {
   FOOTER_MENU,
@@ -10,7 +10,11 @@ import {
 import { useAuth } from "@/shared/hooks/use-auth";
 import type { Portail } from "@/shared/hooks/auth-context";
 import type { MenuNavItem } from "@/shared/types/menu.interface";
-import logo from "@/shared/assets/GESPOF-logo-tr.png";
+import { Guilloche } from "@/shared/components/layout/Guilloche";
+
+const LOGO_GESPOF = "/GESPOF-logo-tr.png";
+/** Fond nuit Courrier (`--dgcpt-nuit`) pour la sidebar SR. */
+const SR_SIDEBAR_BG = "#041A33";
 
 /**
  * « 05/10/2026 16:22:59 » (ou ISO) → « Connecté le 05/10 à 16:22 » : sans libellé,
@@ -148,20 +152,25 @@ export function AppSidebar({
   const visible = (item: MenuNavItem) => !item.roles || hasAnyRole(item.roles);
   const isActivePath = (path: string) =>
     resolveNavPath(location.pathname) === path;
-  const hasActiveChild = (item: MenuNavItem) =>
-    (item.children ?? []).some((c) => isActivePath(c.path));
+  const hasActiveChild = (item: MenuNavItem): boolean =>
+    (item.children ?? []).some(
+      (c) => isActivePath(c.path) || hasActiveChild(c),
+    );
   const isExpanded = (item: MenuNavItem) =>
     expanded[item.id] ?? hasActiveChild(item);
+
+  const filtrerArbre = (items: MenuNavItem[]): MenuNavItem[] =>
+    items.filter(visible).map((item) => ({
+      ...item,
+      children: filtrerArbre(item.children ?? []),
+    }));
 
   // Sections du portail (src/portails/<Portail>/menu.ts), filtrees sur les roles
   // de l'utilisateur : une section dont toutes les entrees sont masquees disparait.
   const sections = menu.sections
     .map((section) => ({
       ...section,
-      items: section.items.filter(visible).map((item) => ({
-        ...item,
-        children: (item.children ?? []).filter(visible),
-      })),
+      items: filtrerArbre(section.items),
     }))
     .filter((section) => section.items.length > 0);
 
@@ -172,11 +181,18 @@ export function AppSidebar({
   };
 
   const tailleIcone = collapsed ? 20 : 16;
+  // SR : fond nuit Courrier ; autres portails : couleur métier + même motif.
+  const sb = portal === "sr" ? SR_SIDEBAR_BG : theme.sidebarBg;
 
-  const renderNavItem = (item: MenuNavItem) => {
+  const premiereFeuille = (item: MenuNavItem): string => {
+    const kids = item.children ?? [];
+    if (kids.length === 0) return item.path;
+    return premiereFeuille(kids[0]);
+  };
+
+  const renderNavItem = (item: MenuNavItem, depth = 0) => {
     const Icon = item.icon;
     const enfants = item.children ?? [];
-    const premierEnfant = enfants[0];
     const expandable = enfants.length > 0 && labelsVisibles;
     const opened = isExpanded(item);
     const childActive = hasActiveChild(item);
@@ -185,20 +201,23 @@ export function AppSidebar({
       : collapsed && enfants.length > 0
         ? childActive || isActivePath(item.path)
         : isActivePath(item.path);
-    const activeColor = theme.topColor;
-    const cibleParent = premierEnfant?.path ?? item.path;
+    const cibleParent = enfants.length > 0 ? premiereFeuille(item) : item.path;
+    const nested = depth > 0;
+    // Maquette : icônes au niveau racine / groupes / entrées avec icône dédiée ;
+    // feuilles `Circle` (placeholder) sans icône visible.
+    const showIcon = depth === 0 || enfants.length > 0 || item.icon !== Circle;
 
     return (
       <div
         key={item.id}
-        className="mb-0.5 [animation:fadeUp_.4s_ease_both]"
-        style={{ animationDelay: entranceDelay(item.id) }}
+        className={cn(!nested && "mb-px [animation:fadeUp_.4s_ease_both]")}
+        style={!nested ? { animationDelay: entranceDelay(item.id) } : undefined}
       >
         <div
           className={cn(
             "group/row flex items-center",
             expandable &&
-              "rounded-md transition-[background-color] duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] hover:bg-white/[0.08]",
+              "rounded-md transition-[background-color] duration-150 hover:bg-white/10",
           )}
         >
           <Link
@@ -211,61 +230,70 @@ export function AppSidebar({
               }
             }}
             className={cn(
-              "group relative flex flex-1 items-center gap-2 overflow-hidden text-sm font-medium transition-[color,background-color,box-shadow,transform] duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] active:scale-[0.98]",
-              collapsed ? "h-10 justify-center px-0" : "h-9 justify-start px-2",
-              expandable ? "rounded-l-md rounded-r-none" : "rounded-md",
+              "group relative flex flex-1 items-center overflow-hidden transition-[color,background-color,box-shadow] duration-150",
+              nested
+                ? "min-h-8 gap-2 rounded-[5px] px-2.5 py-1.5 text-[13px] leading-[1.35]"
+                : cn(
+                    "gap-2.5 text-sm",
+                    collapsed
+                      ? "min-h-9 justify-center px-0"
+                      : "min-h-9 justify-start px-2.5 py-[7px]",
+                  ),
+              expandable
+                ? "rounded-l-md rounded-r-none"
+                : nested
+                  ? "rounded-[5px]"
+                  : "rounded-md",
               active
-                ? "font-semibold"
-                : expandable
-                  ? "text-foreground/80 hover:text-foreground"
-                  : "text-foreground/80 hover:bg-white/[0.08] hover:text-foreground",
+                ? "font-semibold text-white"
+                : nested
+                  ? "font-normal text-white/85"
+                  : "font-normal text-white/90",
+              !active && !expandable && "hover:bg-white/10",
             )}
             style={
               active
                 ? {
-                    color: activeColor,
-                    background: `linear-gradient(90deg, ${activeColor}38 0%, ${activeColor}0f 100%)`,
-                    boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.35)",
+                    background: "rgba(255,255,255,0.14)",
+                    boxShadow: nested ? undefined : "inset 3px 0 0 #fff",
                   }
                 : undefined
             }
           >
-            {active ? (
-              <span
-                aria-hidden
-                className="pointer-events-none absolute left-0 top-2 bottom-2 w-[3px] rounded-r-sm"
-                style={{
-                  background: `linear-gradient(180deg, ${activeColor}, ${activeColor}cc)`,
-                  boxShadow: `0 0 10px ${activeColor}73`,
-                }}
+            {showIcon ? (
+              <Icon
+                size={nested ? 15 : tailleIcone}
+                className="relative flex-shrink-0 opacity-90"
+                style={{ color: active ? "#fff" : "rgba(255,255,255,0.85)" }}
               />
             ) : null}
-            <Icon
-              size={tailleIcone}
-              className="relative flex-shrink-0 transition-transform duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] group-hover:scale-110"
-              style={active ? { color: activeColor } : undefined}
-            />
             {labelsVisibles ? (
-              <span className="relative min-w-0 flex-1 truncate">
+              <span className="relative min-w-0 flex-1 truncate leading-[1.3]">
                 {item.label}
               </span>
+            ) : null}
+            {expandable && labelsVisibles ? (
+              <span className="text-white/60" aria-hidden />
             ) : null}
           </Link>
 
           {expandable && (
-              <button
+            <button
               type="button"
               onClick={() => {
                 setExpanded((s) => ({ ...s, [item.id]: !opened }));
               }}
-              className="flex h-9 w-6 shrink-0 items-center justify-center rounded-r-md text-foreground/55 transition-[color,transform] duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] hover:text-foreground"
+              className={cn(
+                "flex shrink-0 items-center justify-center rounded-r-md text-white/60 transition-colors hover:text-white",
+                nested ? "h-8 w-6" : "h-9 w-6",
+              )}
               aria-label={opened ? "Réduire" : "Développer"}
               aria-expanded={opened}
             >
               <ChevronRight
                 size={14}
                 className={cn(
-                  "transition-transform duration-[180ms] ease-[cubic-bezier(0,0,0.2,1)]",
+                  "transition-transform duration-180",
                   opened && "rotate-90",
                 )}
               />
@@ -275,75 +303,25 @@ export function AppSidebar({
 
         {expandable && (
           <div
-            className="ml-[19px] grid overflow-hidden transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            className={cn(
+              "grid overflow-hidden transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+              depth === 0 ? "ml-[19px]" : "ml-[14px]",
+            )}
             style={{ gridTemplateRows: opened ? "1fr" : "0fr" }}
           >
-            <div className="relative flex min-h-0 flex-col overflow-hidden pb-1.5 pl-3.5">
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  borderLeft: `3px solid ${activeColor}`,
-                  borderBottom: `3px solid ${activeColor}`,
-                  borderBottomLeftRadius: 14,
-                  opacity: opened ? 0.55 : 0,
-                  clipPath: opened ? "inset(0 0 0 0)" : "inset(100% 0 0 0)",
-                  transition: opened
-                    ? "clip-path 400ms cubic-bezier(0.22, 1, 0.36, 1) 50ms, opacity 200ms ease"
-                    : "clip-path 280ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease",
-                }}
-              />
-              {enfants.map((child, index) => {
-                const ChildIcon = child.icon;
-                const enfantActif = isActivePath(child.path);
-                return (
-                  <Link
-                    key={child.id}
-                    to={child.path}
-                    title={child.label}
-                    data-actif={enfantActif ? "true" : undefined}
-                    className={cn(
-                      "group relative mt-0.5 flex h-8 items-center gap-2 overflow-hidden rounded-md px-2 text-[13px] font-medium transition-[color,background-color,box-shadow,transform,opacity] duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] active:scale-[0.98]",
-                      opened
-                        ? "translate-x-0 opacity-100"
-                        : "-translate-x-1.5 opacity-0",
-                      !enfantActif &&
-                        "text-foreground/80 hover:bg-white/[0.08] hover:text-foreground",
-                      enfantActif && "font-semibold",
-                    )}
-                    style={{
-                      transitionDelay: opened ? `${40 + index * 45}ms` : "0ms",
-                      ...(enfantActif
-                        ? {
-                            color: activeColor,
-                            background: `linear-gradient(90deg, ${activeColor}38 0%, ${activeColor}0f 100%)`,
-                            boxShadow:
-                              "inset 0 1px 0 rgba(255, 255, 255, 0.35)",
-                          }
-                        : undefined),
-                    }}
-                  >
-                    {enfantActif ? (
-                      <span
-                        aria-hidden
-                        className="pointer-events-none absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-sm"
-                        style={{
-                          background: `linear-gradient(180deg, ${activeColor}, ${activeColor}cc)`,
-                          boxShadow: `0 0 10px ${activeColor}73`,
-                        }}
-                      />
-                    ) : null}
-                    <ChildIcon
-                      size={14}
-                      className="relative flex-shrink-0 transition-transform duration-[120ms] ease-[cubic-bezier(0,0,0.2,1)] group-hover:scale-110"
-                      style={
-                        enfantActif ? { color: activeColor } : undefined
-                      }
-                    />
-                    <span className="relative truncate">{child.label}</span>
-                  </Link>
-                );
-              })}
+            <div
+              className={cn(
+                "relative flex min-h-0 flex-col gap-px overflow-hidden py-0.5 pl-2.5",
+                depth >= 1 && "border-l border-dashed border-white/28",
+              )}
+            >
+              {depth === 0 ? (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-1 left-0 w-px bg-white/22"
+                />
+              ) : null}
+              {enfants.map((child) => renderNavItem(child, depth + 1))}
             </div>
           </div>
         )}
@@ -372,109 +350,105 @@ export function AppSidebar({
   return (
     <aside
       className={cn(
-        "relative z-10 flex h-full flex-col overflow-hidden",
+        "relative z-10 flex h-full flex-col overflow-hidden text-white",
         remplirLargeur
           ? "min-h-0 w-full"
           : "flex-shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
       )}
       style={{
         width: largeurAside,
-        background: theme.bgColor,
-        borderRight: remplirLargeur ? "none" : `1px solid ${theme.topColor}22`,
+        background: sb,
+        isolation: "isolate",
       }}
     >
+      <Guilloche opacite={0.08} />
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[3px]"
-        style={{ background: theme.topColor }}
-      />
-
-      {/*
-        Coeur a largeur depliee minimale : pendant le repli / un drag trop serre,
-        le parent rogne au lieu de comprimer les libelles / le flex.
-      */}
-      <div
-        className="flex h-full min-h-0 flex-col"
+        className="relative z-[1] flex h-full min-h-0 flex-col"
         style={{
           width: largeurCoeur,
           minWidth: collapsed ? undefined : largeurDepliee,
         }}
       >
-        {/* En-tete : logo + identite du service du portail.
-            Le repli de la barre est commande depuis AppTopBar. */}
+        {/* En-tête logos — en repli, ancré à gauche (zone visible 64px), pas centré sur la largeur dépliée */}
         <div
           className={cn(
-            "flex-shrink-0 transition-[padding] duration-300",
-            collapsed ? "px-1.5 py-3" : "px-4 py-4",
+            "flex min-h-[72px] shrink-0 items-center border-b border-white/14 bg-black/14 transition-[padding] duration-300",
+            collapsed ? "px-0 py-3" : "gap-2.5 px-4 py-3.5",
           )}
-          style={{ borderBottom: `1px solid ${theme.topColor}1a` }}
         >
           <Link
             to="/portail"
-            title={`${menu.title} — ${menu.subtitle}`}
+            title={`${menu.sidebarBrandTitle ?? menu.title} — ${menu.sidebarBrandSubtitle ?? menu.subtitle}`}
             className={cn(
               "flex items-center gap-2.5",
-              collapsed && "w-full justify-center",
+              collapsed && "w-16 justify-center",
             )}
-            style={collapsed ? { width: LARGEUR_REPLIEE - 12 } : undefined}
           >
-            <img
-              src={logo}
-              alt="Logo"
-              className={cn(
-                "flex-shrink-0 object-contain transition-[width,height] duration-300",
-                collapsed ? "h-9 w-9" : "h-12 w-12",
-              )}
-            />
-            {/* Logo du service : il occupe toute la place restante de l'en-tete
-                (flex-1 + object-contain, cale a gauche contre le logo GESPOF).
-                Portail sans logo (Admin) : nom du service en texte. */}
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-white p-0.5">
+              <img
+                src={LOGO_GESPOF}
+                alt="GESPOF"
+                className="size-10 rounded-full object-contain"
+              />
+            </span>
             {labelsVisibles ? (
-              menu.logo ? (
+              menu.sidebarBrandTitle ? (
+                <div className="flex min-w-0 flex-col leading-[1.2]">
+                  <span
+                    className="truncate text-[18px] font-semibold"
+                    style={{
+                      fontFamily: '"IBM Plex Serif", "IBM Plex Sans", serif',
+                    }}
+                  >
+                    {menu.sidebarBrandTitle}
+                  </span>
+                  {menu.sidebarBrandSubtitle ? (
+                    <span className="truncate text-[11px] text-white/80">
+                      {menu.sidebarBrandSubtitle}
+                    </span>
+                  ) : null}
+                </div>
+              ) : menu.logo ? (
                 <img
                   src={menu.logo}
                   alt={`${menu.title} — ${menu.subtitle}`}
-                  className="h-12 min-w-0 flex-1 object-contain object-left"
+                  className="h-8 max-w-[178px] min-w-0 object-contain object-left brightness-0 invert"
                 />
               ) : (
-                <div className="min-w-0 leading-tight">
-                  <p
-                    className="truncate font-heading text-base font-bold uppercase tracking-wide"
-                    style={{ color: theme.topColor }}
+                <div className="flex min-w-0 flex-col leading-[1.15]">
+                  <span
+                    className="truncate text-[17px] font-semibold"
+                    style={{
+                      fontFamily: '"IBM Plex Serif", "IBM Plex Sans", serif',
+                    }}
                   >
                     {menu.title}
-                  </p>
-                  <p className="truncate text-xs font-medium text-foreground/60">
+                  </span>
+                  <span className="text-[9px] tracking-[0.2em] text-white/75">
                     {menu.subtitle}
-                  </p>
+                  </span>
                 </div>
               )
             ) : null}
           </Link>
         </div>
 
-        {/* Menu : seule zone defilante (barre de defilement masquee, voiles degrades
-            en haut / bas pour signaler le contenu hors champ). */}
         <div className="relative flex min-h-0 flex-1 flex-col">
           <nav
             ref={navRef}
             className={cn(
-              "scrollbar-none scroll-fluide min-h-0 flex-1 overflow-y-auto overflow-x-hidden transition-[padding] duration-300",
-              collapsed ? "px-1.5 py-2" : "p-3",
+              "scrollbar-none scroll-fluide min-h-0 flex-1 overflow-y-auto overflow-x-hidden",
+              collapsed ? "px-1.5 py-2" : "px-2.5 pb-4 pt-2",
             )}
           >
             <div
               ref={contenuNavRef}
               style={collapsed ? { width: LARGEUR_REPLIEE - 12 } : undefined}
             >
-              {sections.map((section, index) => (
-                <div
-                  key={section.id}
-                  className={cn(
-                    index === 0 ? "mt-0" : collapsed ? "mt-2" : "mt-5",
-                  )}
-                >
+              {sections.map((section) => (
+                <div key={section.id} className="flex flex-col gap-px pt-3">
                   {section.label && labelsVisibles && (
-                    <p className="px-2 pb-1.5 pt-2 text-xs font-semibold text-foreground/70">
+                    <p className="px-2.5 pb-1.5 pt-1 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/62">
                       {section.label}
                     </p>
                   )}
@@ -489,7 +463,7 @@ export function AppSidebar({
             className="pointer-events-none absolute inset-x-0 top-0 h-8 transition-opacity duration-300 ease-out"
             style={{
               opacity: voiles.haut ? 1 : 0,
-              background: `linear-gradient(to bottom, ${theme.bgColor}, ${theme.bgColor}00)`,
+              background: `linear-gradient(to bottom, ${sb}, transparent)`,
             }}
           />
           <div
@@ -497,65 +471,46 @@ export function AppSidebar({
             className="pointer-events-none absolute inset-x-0 bottom-0 h-10 transition-opacity duration-300 ease-out"
             style={{
               opacity: voiles.bas ? 1 : 0,
-              background: `linear-gradient(to top, ${theme.bgColor}, ${theme.bgColor}00)`,
+              background: `linear-gradient(to top, ${sb}, transparent)`,
             }}
           />
         </div>
 
         <div
           className={cn(
-            "flex-shrink-0 transition-[padding] duration-300",
-            collapsed ? "px-1.5 py-2" : "p-3",
+            "flex shrink-0 flex-col gap-1 border-t border-white/14 bg-black/10 text-[12px] text-white/80",
+            collapsed ? "px-1.5 py-2" : "px-[18px] py-3",
           )}
-          style={{ borderTop: `1px solid ${theme.topColor}1a` }}
         >
-          <div
-            className="flex items-center gap-2.5 px-1 py-1.5"
+          <span
+            className="flex items-center gap-2 text-white"
             style={{
               justifyContent: collapsed ? "center" : "flex-start",
-              width: collapsed ? LARGEUR_REPLIEE - 12 : undefined,
             }}
           >
-            <span className="relative flex h-2 w-2 flex-shrink-0">
-              <span
-                className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60"
-                style={{ background: theme.topColor }}
-              />
-              <span
-                className="relative inline-flex h-2 w-2 rounded-full"
-                style={{ background: theme.topColor }}
-              />
+            <span className="size-[7px] shrink-0 rounded-full bg-[#4ade80]" />
+            {labelsVisibles ? "Système opérationnel" : null}
+          </span>
+          {labelsVisibles && menu.sidebarFooterCaption ? (
+            <span className="truncate" title={menu.sidebarFooterCaption}>
+              {menu.sidebarFooterCaption}
             </span>
-            {labelsVisibles && (
-              <span className="truncate text-sm font-medium text-foreground/80">
-                Système opérationnel
-              </span>
-            )}
-          </div>
-
-          {FOOTER_MENU.map((item) => {
-            const Icon = item.icon;
-            const valeur =
-              item.id === "last-connexion" ? user?.derniereConnexion : null;
-            return (
-              <div
-                key={item.id}
-                title={valeur ? `${item.label} : ${valeur}` : item.label}
-                className="mt-1 flex w-full items-center gap-2.5 px-1 py-1 text-xs text-foreground/70"
-                style={{
-                  justifyContent: collapsed ? "center" : "flex-start",
-                  width: collapsed ? LARGEUR_REPLIEE - 12 : undefined,
-                }}
-              >
-                <Icon size={collapsed ? 18 : 15} className="flex-shrink-0" />
-                {labelsVisibles && (
-                  <span className="truncate">
-                    {valeur ? libelleConnexion(valeur) : item.label}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+          ) : (
+            FOOTER_MENU.map((item) => {
+              const valeur =
+                item.id === "last-connexion" ? user?.derniereConnexion : null;
+              if (!labelsVisibles) return null;
+              return (
+                <span
+                  key={item.id}
+                  title={valeur ? `${item.label} : ${valeur}` : item.label}
+                  className="truncate"
+                >
+                  {valeur ? libelleConnexion(valeur) : item.label}
+                </span>
+              );
+            })
+          )}
         </div>
       </div>
     </aside>

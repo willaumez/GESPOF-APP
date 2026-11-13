@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/sha
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { AvatarUtilisateur } from "@/shared/components/utilisateurs/AvatarUtilisateur";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel,
 } from "@/shared/components/ui/select";
@@ -80,12 +80,6 @@ function classeBadgeMetier(valeur: string): string {
   if (info.actions.includes("SUPPRIMER")) return "border-transparent bg-primary/10 text-primary";
   if (info.portail === null) return "border-transparent bg-secondary text-secondary-foreground";
   return "border-transparent bg-muted text-muted-foreground";
-}
-
-function initiales(u: Utilisateur): string {
-  const a = (u.prenom?.[0] ?? "").toUpperCase();
-  const b = (u.nom?.[0] ?? "").toUpperCase();
-  return `${a}${b}` || "?";
 }
 
 function estCompteConnecte(emailUtilisateur: string, emailSession: string | undefined): boolean {
@@ -466,9 +460,30 @@ export default function GestionUtilisateurs({ portail }: { portail?: Portail }) 
                       >
                         <TableCell className="font-mono text-muted-foreground">{u.matricule}</TableCell>
                         <TableCell className={cn("font-medium", u.actif ? "text-foreground" : "text-destructive")}>
-                          <span className="inline-flex items-center gap-1.5">
-                            {u.nom} {u.prenom}
-                            {moi && <BadgeVous />}
+                          <span className="inline-flex min-w-0 items-center gap-2.5">
+                            <AvatarUtilisateur
+                              id={u.id}
+                              nom={u.nom}
+                              prenom={u.prenom}
+                              aPhoto={u.a_photo}
+                              taille={32}
+                              fondInitiales={
+                                moi
+                                  ? undefined
+                                  : u.actif
+                                    ? undefined
+                                    : "#fecaca"
+                              }
+                              couleurInitiales={
+                                !u.actif && !moi ? "#b91c1c" : undefined
+                              }
+                            />
+                            <span className="inline-flex min-w-0 items-center gap-1.5">
+                              <span className="truncate">
+                                {u.nom} {u.prenom}
+                              </span>
+                              {moi && <BadgeVous />}
+                            </span>
                           </span>
                         </TableCell>
                         <TableCell className="text-muted-foreground">{u.email}</TableCell>
@@ -552,20 +567,23 @@ export default function GestionUtilisateurs({ portail }: { portail?: Portail }) 
                         )}
                       >
                         <div className="flex items-start gap-3">
-                          <Avatar size="lg" className="size-12">
-                            <AvatarFallback
-                              className={cn(
-                                "text-sm font-semibold",
-                                moi
-                                  ? "bg-primary text-primary-foreground"
-                                  : u.actif
-                                    ? "bg-primary/10 text-primary"
-                                    : "bg-destructive/10 text-destructive",
-                              )}
-                            >
-                              {initiales(u)}
-                            </AvatarFallback>
-                          </Avatar>
+                          <AvatarUtilisateur
+                            id={u.id}
+                            nom={u.nom}
+                            prenom={u.prenom}
+                            aPhoto={u.a_photo}
+                            taille={48}
+                            fondInitiales={
+                              moi
+                                ? undefined
+                                : u.actif
+                                  ? undefined
+                                  : "#fecaca"
+                            }
+                            couleurInitiales={
+                              !u.actif && !moi ? "#b91c1c" : undefined
+                            }
+                          />
                           <div className="min-w-0 flex-1">
                             <h3 className={cn(
                               "flex flex-wrap items-center gap-1.5 text-[14.5px] font-semibold leading-tight",

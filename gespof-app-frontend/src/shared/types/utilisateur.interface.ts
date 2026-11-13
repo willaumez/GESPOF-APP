@@ -3,6 +3,8 @@ export interface RoleInfo {
   libelle: string;
 }
 
+export type GenreUtilisateur = "homme" | "femme" | null;
+
 export interface Utilisateur {
   id: number;
   matricule: string;
@@ -22,6 +24,9 @@ export interface Utilisateur {
   connection: string;
   date_creation: string;
   derniere_connexion: string | null;
+  genre: GenreUtilisateur;
+  civilite: string | null;
+  a_photo: boolean;
 }
 
 export interface UtilisateurCree extends Utilisateur {

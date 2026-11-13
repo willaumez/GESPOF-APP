@@ -1,0 +1,86 @@
+ligne_synthese;libelle_srot;code_rd_model;ligne_rd_model;code_ajustement;libelle_ajustement;ligne_reporting
+4;Depenses Sur Exercices Antérieurs;;4;1;Dépenses sur exercices antérieurs;4
+6;A. DEPENSES DE PERSONNEL Ex Ant;;6;1A;A. Dépenses de personnel ex. ant.;6
+7;. SOLDE PERM.;A;7;1A1;Solde permanente;7
+8;. MAIN D'OEUVRE NON PERM.;B;8;1A2;Main d'oeuvre non permanente;8
+9;. AUTRES;B2;9;1A3;Autres;9
+11;B. DETTE PUBLIQUE;C;11;1B;B. Dette publique;11
+13;C1. BIENS ET SERVICES;D;13;1C1;C. Biens et services;13
+15;C2. CREDITS DELEGUES;D1;15;1C2;C. Crédits Délégués;15
+17;D. TRANSFERTS ET SUBVENTIONS;;17;1D;D. Transferts et subventions;17
+18;. BOURSES ET STAGES;E;18;1D1;Bourses et stages;18
+19;. SUBVENTIONS;F;19;1D2;Subventions;19
+20;. COTIS. INTERNATIONALES;G;20;1D3;Cotisations internationales;20
+21;. RAPPELS PENSIONS;;21;1D5;Rappel pensions;21
+22;. AUTRES;H;22;1D4;Autres;22
+24;E. DEPENSES D'INVESTISSEMENT;I;24;1X;E. Dépenses d'investissement;24
+25;. Dont ANGT;J;25;;Dont A.N.G.T.;25
+26;. Dont Caisse de Relance;K;26;;Dont caisse de relance;26
+28;F. AGENCES COMPTABLES;L;28;1F;F. Agences comptables;28
+30;G. CLUB DE LIBREVILLE;;30;1G;G. Club de Libreville;30
+32;H. AUTRES DEPENSES;M;32;1H;H. Autres dépenses;32
+34;Depenses Sur Exercice;;34;2;Dépenses sur exercice;34
+36;A. DEPENSES DE PERSONNEL;;36;2A;A. Dépenses de personnel;36
+37;. SOLDE PERMANENTE;N;37;2A1;Solde permanente;37
+38;. AUTRES;O;38;2A2;Rappels;38
+39;. MAIN D'OEUVRE NON PERM.;P;39;2A3;Main d'oeuvre non permanente;39
+41;B. DETTE PUBLIQUE;;41;2B;B. Dette publique;41
+42;-  INTERETS DGCPT;;42;2B1;Intérêts D.G.C.P.T.;42
+43;. INTERETS DETTE INTERIEURE;Q;43;2B11;Intérêts dette intérieure;43
+44;. INTERETS DETTE EXTERIEURE;R;44;2B12;Intérêts dette extérieure;44
+45;- BUDGET;S;45;2B2;Budget;45
+46;- AGIOS BEAC/FACILITES;T;46;2B3;Agios B.E.A.C./Facilités;46
+47;- INTERETS BTA;U;47;2B4;Intérêts B.T.A.;47
+48;- BONS D'EQUIPEMENT;;48;2B5;Bons d'équipement;48
+50;C. BIENS ET SERVICES;;50;2C;C. Biens et services;50
+51;. SERVICES PUBLICS;V;51;2C5;Services publics;51
+52;. DETTES CROISEES;W;52;2C1;Dettes croisées;52
+53;. LOCATIONS;X;53;2C2;Locations;53
+54;. TRANSPORTS ET DEPLACEMENTS;Y;54;2C3;Transports et déplacements;54
+55;. AUTRES BIENS ET SERVICES;Z;55;2C4;Autres biens et services;55
+57;D. TRANSFERTS ET SUBVENTIONS;;57;2D;D. Transferts et subventions;57
+58;. BOURSES ET STAGES;AA;58;2D1;Bourses et stages;58
+59;. SUBVENTIONS;AB;59;2D2;Subventions;59
+60;. COTIS. INTERNATIONALES;AC;60;2D3;Cotisations internationales;60
+61;. AIDE A LA RESTRUCTURATION;AD;61;2D4;Aide a la restructuration;61
+62;. DEPENSES DE SECURITE;AE;62;2D5;Dépenses de sécurité;62
+63;. DEPENSES CABINET P.R.;;63;2D6;Dépenses Cabinet P.R.;63
+64;. AUTRES DEP. PRESIDENTIELLES;;64;2D7;Autres dépenses présidentielles;64
+65;. FONDS DE SOUVERAINETE;;65;2D8;Fonds de souveraineté;65
+66;. PENSIONS;AF;66;2D9;Pensions;66
+67;. PRIMES DE RENDEMENT;;67;2Db;Primes de rendement;67
+68;. AUTRES;AG;68;2Da;Autres;68
+70;E. DEPENSES D'INVESTISSEMENT;AH;70;2X;E. Dépenses d'investissement;70
+72;F. PRIMES D'INCITATION;;72;2F;F. Primes d'incitation;72
+74;G. CREDITS DELEGUES;AI;74;2G;G. Crédits délégués;74
+76;H. AGENCES COMPTABLES;AJ;76;2H;H. Agences comptables;76
+77;. Dont ANGT;AK;77;;Dont A.N.G.T.;77
+79;I. AUTRES DEPENSES;;79;2I;I. Autres dépenses;79
+80;.Budget;AK1;80;2I1;Budget;80
+81;.Aide à la restructuration;AK2;81;2I2;Aide à la restructuration;81
+83;TOTAL DES DEPENSES BUDGETAIRES;;83;;Total des dépenses budgétaires;83
+85;Dépenses Sans ordonnancement;;85;3;Dépenses sans ordonnancement;85
+87;- ASSURANCE MALADIE;AL;87;3A;Assurance maladie;87
+88;- FONDS DE DEV. DU SPORT;AM;88;3B;Fonds de développement du sport;88
+89;- CNSS;AN;89;3C;C.N.S.S.;89
+90;- CLUB LBV 7;AO1;90;3W;Club de Libreville;90
+91;- FONDS DE RIPOSTE COVID-19;AO2;91;3X;Fonds de Riposte COVID-19;91
+92;- FONDS DE SOLIDARITE COVID 19;AO3;92;3Y;Fonds de Solidarité COVID-19;92
+93;- AUTRES CORRESPONDANTS;AO;93;3D;Autres correspondants;93
+94;- CAUTIONS;AP;94;3F;Cautions;94
+95;- CONSIGNATIONS;AQ;95;3G;Consignations;95
+96;- REMB. EXCEDENTS;AR;96;3H;Remboursements excédents;96
+97;- VIREMENTS DIVERS;;97;3I;Virements divers;97
+98;- BONUS;AS;98;3J;Bonus;98
+99;- PRIMES D'INCITATION;AT;99;3K;Fonds communs;99
+100;- FONDS EQUIPEMENT;AU;100;3L;Fonds équipement;100
+101;- FONDS DIVERS;AV;101;3M;Fonds divers;101
+102;- F.E.R.;AW;102;3N;F.E.R.;102
+103;- COLLECTIVITES LOCALES;AX;103;3O;Collectivités locales;103
+104;- AUTRES OPERATIONS DE TRESORERIE;AY;104;3P;Autres opérations de trésorerie;104
+105;- Capital Dette EXTERIEURE;AZ;105;3Q;Capital dette extérieure;105
+106;- Capital Dette INTERIEURE;AAA;106;3R;Capital dette intérieure;106
+107;- Remboursements B.T.A.;AAB;107;3T;Remboursements B.T.A.;107
+108;- Remboursements Facilités de Trésorerie;AAC;108;3U;Remboursements facilités de tréso.;108
+109;- Remboursements DTS;AAD;109;3V;Remboursements D.T.S.;109
+111;TOTAL DES REGLEMENTS;;111;;Total des règlements;111

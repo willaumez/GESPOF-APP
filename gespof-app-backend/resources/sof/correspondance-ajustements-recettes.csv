@@ -1,0 +1,87 @@
+ligne_synthese;libelle_srot;code_rd_model;ligne_rd_model;code_ajustement;libelle_ajustement;ligne_reporting
+3;PETROLE;;3;1;Recettes pétrolières;4
+4;. I.S.  PETROLE;103;4;1A;I.S. pétrole;5
+5;. DIVIDENDES;211;5;1C;Dividendes;6
+6;. REDEVANCE;261;6;1B;R.M.P.;7
+7;. REDEVANCE superficiaire;263;7;1D;Redevance superficiaire;8
+8;. PROFIT OIL;262;8;1F;Profit oil;9
+9;. PROFIT GAZ;265;9;1H;Profit gaz;10
+10;. DISCOUNT ET BONI;264;10;1X;Discount et Bonus;11
+11;. AUTRES RECETTES PETROLIERES;266;11;1G;Autres recettes pétrolières;12
+13;RECETTES HORS PETROLE;;13;2;Recettes hors pétrole;14
+15;. RECETTES FISCALES;;15;;Recettes fiscales;16
+17;A. DOUANES;300;17;2A;A. Douanes;18
+19;B. TAXES SUR BIENS ET SERVICES;;19;2B;B. Taxes sur les biens et services;20
+20;. T.V.A.;;20;2B1;T.V.A.;21
+21;. RECETTES BRUTES;184;21;2B11;T.V.A. collectée;22
+22;. TVA Précomptée;185;22;2B12;Précomptes T.V.A.;23
+23;. REMBOURSEMENTS COURANTS;400;23;2B13;Remboursements T.V.A. courants;24
+24;. REMBOURSEMENTS ARRIERES;401;24;2B14;Remboursements T.V.A. arriérés;25
+25;. AUTRES TAXES / BIENS SERV;;25;2B2;Autres taxes sur biens et services;26
+26;. TAXES SUR ACTIV.FINANCIERES;187;26;2B21;T.A.F.;27
+27;. DROITS D'ACCISES;186;27;2B22;Droits accises;28
+28;. TAXES SUR LES JEUX;188;28;2B23;Taxes sur les jeux;29
+29;. SUR LES LOYERS;163;29;2B24;Loyers;30
+30;. SUR LES TRANSACTIONS;192;30;2B25;Transactions;31
+31;. REDEVANCE AUDIOVISUELLE;191;31;2B26;Redevance Audio-Visuelle;32
+32;. AUTRES TAXES;156;32;2B27;Autres taxes;33
+34;C. IMPOTS SUR LES SOCIETES H.P;;34;2C;C. Impôts sur les sociétés H.P.;35
+35;. IS NORMAL;119;35;2C1;I.S. normal;36
+36;. IS MINES;104;36;2C2;I.S. mines;37
+37;. RETENUE A LA SOURCE;105;37;2C3;Retenue a la source;38
+39;D. IMPOTS SUR LES PERSONNES;;39;2D;D. Impôts sur les personnes;40
+40;. IRPP;121;40;2D1;I.R.P.P.;41
+41;. IRPP (PRELEVEMENT EMPLOYEUR);124;41;2D2;I.R.P.P. prélèvement employeur;42
+42;. I.F.R.;128;42;2D3;I.F.R.;43
+43;. TAXE COMPLEMENTAIRE;127;43;2D4;Taxe Complémentaire;44
+44;. AUTRES;139;44;2D5;Autres impôts sur les personnes;45
+46;E. AUTRES RECETTES FISCALES;;46;2X;E. Autres recettes fiscales;47
+47;. ENREGISTREMENT;147;47;2X1;Enregistrement;48
+48;. IRVM;140;48;2X2;I.R.V.M.;49
+49;. PENALITES;138;49;2X3;Pénalités;50
+50;. AUTRES TAXES;199;50;2X4;Autres taxes;51
+52;. AUTRES RECETTES …………………….;;52;;Autres recettes;53
+54;F. RECETTES NON FISCALES;;54;2F;F. Recettes non fiscales;55
+55;. PRODUITS DES PARTICIPATIONS;213;55;2F1;Produits des participations;56
+56;. DOMAINE MINIER;270;56;2F2;Domaine minier;57
+57;. DOMAINE FORESTIER;290;57;2F3;Domaine forestier;58
+58;. DOMAINE FONCIER;250;58;2F4;Domaine foncier;59
+59;. RECETTES DIVERSES;317;59;2F5;Recettes diverses;60
+61;G. RECETTES AFFECTEES;;61;2G;G. Recettes affectées;62
+62;. PATENTES;310;62;2G1;Patentes;63
+63;. ISL;311;63;2G2;Impôt Syntétique Libératoire;64
+64;. LICENCES;312;64;2G3;Licences;65
+65;. FONCIER BATI;313;65;2G4;Foncier bâti;66
+66;. FONCIER NON BATI;314;66;2G5;Foncier non bâti;67
+67;. CONTRIBUTION FONCIERE UNIQUE;314A;67;2Gg;Contribution Foncière Unique;68
+68;. FOND NATIONAL DE L'HABITAT;315;68;2G6;Fond national de l'habitat;69
+69;. TAXE VICINALE;315A;69;2G7;Taxe vicinale;70
+70;. TAXE MUNICIPALE/CARBURANTS;316;70;2G8;Taxe municipale / carburants;71
+71;. CONTRIBUTION POUR LES ORDURES MENAGERES;319;71;2Gf;Contribution pour les ordures ménagères;72
+72;. ROAM/CSS (ASSURANCE MALADIE);190;72;2G9;R.O.A.M. / CSS;73
+73;. TAXE SUR LES TRANSFERTS DE FONDS (ASSURANCE MALADIE);189;73;2Ga;Taxe et transferts fonds;74
+74;. RETENUS ASSURANCE MALADIE;420;74;2Gb;Retenues assurance maladie;75
+75;. PENSIONS;410;75;2Gc;Pensions;76
+76;. RUR;181;76;2Gd;Fer II (R.U.R.);77
+77;. TAXE DE FORMATION PROFESSIONNELLE;130;77;2Ge;Taxe de formation professionnelle;78
+79;Recettes à répartir (virement impôts);200;79;3;Recettes budgétaire à répartir;80
+80;TOTAL RECETTES BUDGETAIRES;;80;;Total recettes budgétaires;81
+82;Emprunts;;82;4;Emprunts;83
+83;.    OTA;AUU;83;4A;O.T.A.;84
+84;.    BTA;AV;84;4B;B.T.A.;85
+85;.    Facilités de Trésorerie;AW;85;4D;Facilités de Trésorerie;86
+86;.    DTS;AX;86;4F;DTS;87
+87;.    Emprunt obligataire sous-régional;AY;87;4C;Emprunt obligataire sous-régional;88
+88;.    Emprunt obligataire international;AY2;88;4X;Emprunt obligataire international;89
+89;.    Appuis budgétaires;AY3;89;4G;Appuis budgétaires;90
+91;Recettes non budgétaires;;91;5;Recettes non budgétaires;92
+92;.    Agences comptables;AZ;92;5A;Agences comptables;93
+93;.    Correspondants;AAA;93;5B;Autres correspondants;94
+94;.    Dépôt de cautions;AAB;94;5C;Cautions;95
+95;.    Consignations;AAC;95;5D;Consignations;96
+96;.    Excédents de versement;AAD;96;5X;Excédents de versement;97
+97;.    Virements a effectuer;AAH;97;5I;Virements à effectuer;98
+98;.    Fonds communs;AAE;98;5F;Fonds communs;99
+99;.    Fonds divers;AAF;99;5G;Fonds divers;100
+100;.    Collectivités Locales;AAG;100;5H;Collectivités locales;101
+102;TOTAL DES RECETTES;;102;;Total recettes;103

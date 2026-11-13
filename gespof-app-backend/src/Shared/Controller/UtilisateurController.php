@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Shared\Controller;
 
 use App\Shared\Entite\Utilisateur;
+use App\Shared\Exception\ApiExceptionInterface;
+use App\Shared\Repository\UtilisateurRepository;
+use App\Shared\Service\PhotosDeProfil;
 use App\Shared\Service\UtilisateurServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,6 +32,8 @@ final class UtilisateurController extends AbstractController
 
     public function __construct(
         private readonly UtilisateurServiceInterface $utilisateurService,
+        private readonly PhotosDeProfil $photosDeProfil,
+        private readonly UtilisateurRepository $utilisateurRepository,
     ) {
     }
 
@@ -63,6 +68,33 @@ final class UtilisateurController extends AbstractController
     public function detail(int $id, #[CurrentUser] Utilisateur $utilisateurConnecte): JsonResponse
     {
         return $this->run(fn () => new JsonResponse($this->utilisateurService->detail($utilisateurConnecte, $id)));
+    }
+
+    #[Route('/{id}/photo', name: 'utilisateur_photo', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function photo(int $id, #[CurrentUser] Utilisateur $utilisateurConnecte): Response
+    {
+        try {
+            // Contrôle d'habilitation (même périmètre que le détail).
+            $this->utilisateurService->detail($utilisateurConnecte, $id);
+        } catch (ApiExceptionInterface $e) {
+            return new JsonResponse(['message' => $e->getMessage()], $e->getStatusCode());
+        }
+
+        $cible = $this->utilisateurRepository->find($id);
+        if (!$cible instanceof Utilisateur || !$cible->aUnePhoto()) {
+            return new JsonResponse(['message' => 'Aucune photo de profil.'], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $photo = $this->photosDeProfil->lire($cible);
+        } catch (\Throwable) {
+            return new JsonResponse(['message' => 'Photo de profil illisible.'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new Response($photo['contenu'], Response::HTTP_OK, [
+            'Content-Type' => $photo['type'],
+            'Cache-Control' => 'private, max-age=300',
+        ]);
     }
 
     #[Route('', name: 'utilisateur_creer', methods: ['POST'])]

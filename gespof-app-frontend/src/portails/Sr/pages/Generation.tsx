@@ -1,8 +1,9 @@
-﻿import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   CalendarDays,
+  ChevronRight,
   Clock,
   Eye,
   FileDown,
@@ -31,7 +32,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import {
@@ -61,29 +61,30 @@ import {
   formaterDateHeureFr,
   formaterDateSansHeure,
 } from "@/portails/Sr/components/fiche-detail/utils";
+import { SrPageHeader } from "@/portails/Sr/components/layout/SrPageHeader";
 import type { Resume, FicheRecente } from "@/portails/Sr/types";
 
-type StatutCfg = { badge: string; label: string };
-
-const STATUT_CFG: Record<string, StatutCfg> = {
-  cree: {
-    badge: "border-transparent bg-slate-100 text-slate-700",
-    label: "Créée",
-  },
-  envoyee: {
-    badge: "border-transparent bg-emerald-100 text-emerald-800",
-    label: "Envoyée",
-  },
-  recue: {
-    badge: "border-transparent bg-amber-100 text-amber-900",
-    label: "Reçue SP",
-  },
-};
+function ChevronRightIcon() {
+  return (
+    <ChevronRight
+      size={18}
+      className="shrink-0 text-[#94a3b8] transition-transform group-hover:translate-x-0.5"
+      aria-hidden
+    />
+  );
+}
 
 const STATUT_JOUR_LABEL: Record<string, string> = {
   cree: "Créée",
-  envoyee: "Envoyée",
-  recue: "Reçue SP",
+  envoyee: "Envoyée au SP",
+  recue: "Reçue par le SP",
+};
+
+/** Badges statut maquette (fond pastel). */
+const STATUT_TAG: Record<string, { bg: string; fg: string; label: string }> = {
+  cree: { bg: "#f1f5f9", fg: "#475569", label: "Créée" },
+  envoyee: { bg: "#ecfdf5", fg: "#047857", label: "Envoyée" },
+  recue: { bg: "#fffbeb", fg: "#b45309", label: "Reçue SP" },
 };
 
 const theme = getPortalMenu("sr").theme;
@@ -191,176 +192,137 @@ export default function Generation() {
   const dernierTransmis = resume?.dernier_transmis;
   const enAttenteSp = resume?.en_attente_sp;
   const ficheExiste = Boolean(ficheJour?.existe);
-  const jourBadge = ficheJour?.statut
-    ? (STATUT_CFG[ficheJour.statut]?.badge ??
-      "border-transparent bg-amber-100 text-amber-900")
-    : "";
   const jourLabel = ficheJour?.statut
     ? (STATUT_JOUR_LABEL[ficheJour.statut] ?? "À traiter")
-    : "";
+    : "Non générée";
 
-  const styleHero: CSSProperties = {
-    background: `
-      radial-gradient(120% 80% at 100% 0%, ${theme.topColor}18 0%, transparent 55%),
-      linear-gradient(135deg, ${theme.bgColor} 0%, #ffffff 48%, ${theme.bgColor} 100%)
-    `,
-    borderColor: `${theme.topColor}33`,
-  };
+  const dateLongue = new Date().toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
-    <div className="flex min-h-0 w-full flex-1 flex-col gap-2.5 pb-2 sm:gap-3">
-      {/* Héros — fiche du jour */}
+    <div className="flex w-full flex-col gap-6">
+      <SrPageHeader
+        eyebrow={`Pool SR · Génération · ${dateLongue.charAt(0).toUpperCase()}${dateLongue.slice(1)}`}
+        title="Tableau de bord"
+        description="Génération et transmission des fiches de dépôt vers le Service de Prévision."
+      />
+
+      {/* Bannière fiche du jour — maquette */}
       <section
-        className="relative shrink-0 overflow-hidden rounded-2xl border-2 px-4 py-3 sm:px-5 sm:py-3.5"
-        style={styleHero}
+        className="flex flex-wrap items-center gap-5 rounded-lg border px-[24px] py-[22px]"
+        style={{
+          background: theme.bgColor,
+          borderColor: theme.borderColor,
+          boxShadow: `inset 4px 0 0 ${theme.topColor}`,
+        }}
       >
-        <div
-          className="pointer-events-none absolute -right-16 -top-20 size-44 rounded-full opacity-40"
-          style={{ background: theme.iconBg }}
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -bottom-24 left-1/3 size-52 rounded-full opacity-30"
-          style={{ background: theme.iconBg }}
-          aria-hidden
-        />
-
-        <div className="relative flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0 flex-1 space-y-2">
-            <div className="flex items-center gap-2">
+        <span
+          className="grid size-11 shrink-0 place-items-center rounded-lg border bg-white"
+          style={{
+            color: theme.textColor,
+            borderColor: theme.borderColor,
+          }}
+        >
+          <CalendarDays size={20} strokeWidth={1.7} />
+        </span>
+        <div className="flex min-w-[240px] flex-1 flex-col gap-1">
+          <span
+            className="text-[11.5px] font-semibold uppercase tracking-[0.12em]"
+            style={{ color: theme.textColor }}
+          >
+            Fiche du jour
+          </span>
+          {loadingResume ? (
+            <Skeleton className="h-8 w-48" />
+          ) : errorResume ? (
+            <span className="text-sm text-destructive">
+              Impossible de charger les données.
+            </span>
+          ) : (
+            <>
               <span
-                className="flex size-8 items-center justify-center rounded-lg"
-                style={{ background: theme.iconBg, color: theme.iconColor }}
+                className="text-[26px] font-semibold leading-[1.15] text-[#0f172a]"
+                style={{
+                  fontFamily: '"IBM Plex Serif", "IBM Plex Sans", serif',
+                }}
               >
-                <CalendarDays className="size-3.5" />
+                {ficheExiste ? jourLabel : "Non générée"}
               </span>
-              <div>
-                <p
-                  className="text-[10.5px] font-semibold tracking-[0.14em] uppercase"
-                  style={{ color: theme.iconColor }}
-                >
-                  Fiche du jour
-                </p>
-                <p className="text-[12px] text-muted-foreground">
-                  Génération et envoi vers le Service de Prévision
-                </p>
-              </div>
-            </div>
-
-            {loadingResume ? (
-              <div className="space-y-1.5">
-                <Skeleton className="h-8 w-56 max-w-full" />
-                <Skeleton className="h-4 w-36" />
-              </div>
-            ) : errorResume ? (
-              <div className="space-y-1.5">
-                <p className="font-heading text-xl font-bold tracking-tight text-muted-foreground/50 sm:text-2xl">
-                  —
-                </p>
-                <p className="text-[12.5px] text-destructive">
-                  Impossible de charger les données. Rafraîchissez la page.
-                </p>
-              </div>
-            ) : ficheExiste && ficheJour?.montant_total ? (
-              <div className="space-y-1.5">
-                <p className="font-heading text-[1.45rem] font-bold leading-none tracking-tight text-[#0f172a] sm:text-[1.85rem]">
-                  <MontantAnime valeur={ficheJour.montant_total} />
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {ficheJour.statut ? (
-                    <Badge className={jourBadge}>{jourLabel}</Badge>
-                  ) : null}
-                  {ficheJour.reference ? (
-                    <span className="font-mono text-[12px] font-semibold text-[#0f172a]/80">
+              <span className="text-sm text-[#475569]">
+                {ficheExiste && ficheJour?.reference ? (
+                  <>
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                      }}
+                    >
                       {ficheJour.reference}
                     </span>
-                  ) : null}
-                  {ficheJour.date ? (
-                    <span className="text-[12px] text-muted-foreground">
-                      {ficheJour.date}
-                    </span>
-                  ) : null}
-                  {peutConsulter && ficheJour.reference ? (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-7 gap-1.5 border-2 bg-white/70 px-2.5 text-[12px]"
-                      style={{ borderColor: `${theme.topColor}44` }}
-                      onClick={() =>
-                        navigate(
-                          `/sr/fiche/${encodeURIComponent(ficheJour.reference!)}`,
-                        )
-                      }
-                    >
-                      <Eye className="size-3.5" />
-                      Ouvrir la fiche
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-1.5">
-                <p className="font-heading text-[1.45rem] font-bold leading-none tracking-tight text-[#0f172a]/55 sm:text-[1.85rem]">
-                  Non générée
-                </p>
-                <p className="max-w-lg text-[12.5px] leading-snug text-muted-foreground">
-                  Aucune fiche de dépôt pour aujourd&apos;hui
-                  {ficheJour?.date ? ` (${ficheJour.date})` : ""}. Lancez une
-                  génération pour transmettre les règlements au SP.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {peutGenerer ? (
-            <div className="flex shrink-0 flex-col gap-1.5 sm:flex-row lg:flex-col">
-              <Button
-                type="button"
-                size="default"
-                onClick={() => navigate("/sr/generer")}
-                className="h-9 gap-2 px-4 text-[13px] font-semibold text-white shadow-md hover:opacity-95"
-                style={{ background: theme.ctaColor }}
-              >
-                <Zap className="size-3.5" strokeWidth={2.2} />
-                {ficheExiste
-                  ? "Nouvelle génération"
-                  : "Générer une fiche de dépôt"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="default"
-                className="h-9 gap-2 border-2 bg-white/80 px-4"
-                style={{ borderColor: `${theme.topColor}40` }}
-                onClick={() => navigate("/sr/fiches-depenses")}
-              >
-                <Clock className="size-3.5" />
-                Liste des fiches
-              </Button>
-            </div>
-          ) : (
-            <Button
-              type="button"
-              variant="outline"
-              size="default"
-              className="h-9 gap-2 border-2 bg-white/80 px-4"
-              style={{ borderColor: `${theme.topColor}40` }}
-              onClick={() => navigate("/sr/fiches-depenses")}
-            >
-              <Clock className="size-3.5" />
-              Liste des fiches
-            </Button>
+                    {ficheJour.montant_total
+                      ? ` · ${formatMontant(ficheJour.montant_total)} FCFA`
+                      : ""}
+                    {ficheJour.date ? ` · ${ficheJour.date}` : ""}
+                  </>
+                ) : (
+                  <>
+                    Aucune fiche pour aujourd&apos;hui
+                    {ficheJour?.date ? ` (${ficheJour.date})` : ""}.
+                  </>
+                )}
+              </span>
+            </>
           )}
+        </div>
+        <div className="flex min-w-[230px] flex-col gap-2">
+          {peutGenerer ? (
+            <button
+              type="button"
+              onClick={() => navigate("/sr/generer")}
+              className="flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold text-white transition-colors"
+              style={{ background: theme.ctaColor }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = theme.hoverColor;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = theme.ctaColor;
+              }}
+            >
+              <Zap size={16} strokeWidth={2} />
+              Générer une fiche de dépôt
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => navigate("/sr/fiches-depenses")}
+            className="flex h-10 items-center justify-center gap-2 rounded-md border border-[#cbd5e1] bg-white px-4 text-sm text-[#0f172a] transition-colors hover:bg-[#f8fafc]"
+          >
+            <Clock size={16} strokeWidth={1.8} />
+            Liste des fiches
+          </button>
         </div>
       </section>
 
-      {/* Métriques secondaires */}
-      <section className="grid shrink-0 gap-2.5 sm:grid-cols-2">
+      {/* Cartes KPI */}
+      <section
+        className="grid gap-4"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+        }}
+      >
         <button
           type="button"
-          className="group flex items-center gap-3 rounded-xl border-2 bg-card px-3.5 py-2.5 text-left transition-shadow hover:shadow-md sm:px-4"
-          style={{ borderColor: `${theme.topColor}22` }}
+          className="group flex items-center gap-4 rounded-lg border border-[#e2e8f0] bg-white px-5 py-[18px] text-left transition-colors"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = theme.topColor;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "#e2e8f0";
+          }}
           onClick={() =>
             dernierTransmis?.reference && peutConsulter
               ? navigate(
@@ -370,135 +332,127 @@ export default function Generation() {
           }
         >
           <span
-            className="flex size-9 shrink-0 items-center justify-center rounded-lg"
-            style={{ background: theme.iconBg, color: theme.iconColor }}
+            className="grid size-10 shrink-0 place-items-center rounded-lg"
+            style={{ background: theme.iconBg, color: theme.textColor }}
           >
-            <Send className="size-3.5" />
+            <Send size={18} strokeWidth={1.7} />
           </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium text-muted-foreground">
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="text-[12.5px] text-[#64748b]">
               Dernier montant transmis
-            </p>
+            </span>
             {loadingResume ? (
-              <Skeleton className="mt-1 h-6 w-36" />
+              <Skeleton className="h-7 w-40" />
             ) : dernierTransmis ? (
               <>
-                <p className="mt-0.5 font-heading text-lg font-bold tracking-tight text-[#0f172a] sm:text-xl">
+                <span className="text-[22px] font-semibold tabular-nums text-[#0f172a]">
                   <MontantAnime
                     valeur={dernierTransmis.montant_total}
                     suffixe=""
-                  />
-                  <span className="ml-1.5 text-[12px] font-semibold text-muted-foreground">
+                  />{" "}
+                  <span className="text-xs font-normal text-[#64748b]">
                     FCFA
                   </span>
-                </p>
-                <p className="truncate text-[12px] text-muted-foreground">
+                </span>
+                <span className="truncate text-[12.5px] text-[#64748b]">
                   {dernierTransmis.date}
                   {dernierTransmis.reference
                     ? ` · ${dernierTransmis.reference}`
                     : ""}
-                </p>
+                </span>
               </>
             ) : (
-              <p className="mt-0.5 font-heading text-base font-bold text-muted-foreground/50">
+              <span className="text-base font-semibold text-[#94a3b8]">
                 Aucun transmis
-              </p>
+              </span>
             )}
-          </div>
-          <ArrowRight className="size-4 shrink-0 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+          </span>
+          <ChevronRightIcon />
         </button>
 
         <button
           type="button"
-          className="group flex items-center gap-3 rounded-xl border-2 bg-card px-3.5 py-2.5 text-left transition-shadow hover:shadow-md sm:px-4"
-          style={{ borderColor: `${theme.topColor}22` }}
-          onClick={() => navigate("/sr/fiches-depenses")}
+          className="group flex items-center gap-4 rounded-lg border border-[#e2e8f0] bg-white px-5 py-[18px] text-left transition-colors"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = theme.topColor;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "#e2e8f0";
+          }}
+          onClick={() =>
+            navigate("/sr/fiches-depenses?filtre=en_attente")
+          }
         >
           <span
-            className="flex size-9 shrink-0 items-center justify-center rounded-lg"
-            style={{ background: theme.iconBg, color: theme.iconColor }}
+            className="grid size-10 shrink-0 place-items-center rounded-lg"
+            style={{ background: theme.iconBg, color: theme.textColor }}
           >
-            <Inbox className="size-3.5" />
+            <Inbox size={18} strokeWidth={1.7} />
           </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium text-muted-foreground">
-              En attente SP
-            </p>
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="text-[12.5px] text-[#64748b]">En attente SP</span>
             {loadingResume ? (
-              <Skeleton className="mt-1 h-6 w-14" />
+              <Skeleton className="h-7 w-12" />
             ) : (
               <>
-                <p className="mt-0.5 font-heading text-lg font-bold tracking-tight text-[#0f172a] sm:text-xl">
+                <span className="text-[22px] font-semibold text-[#0f172a]">
                   {enAttenteSp?.nombre ?? 0}
-                </p>
-                <p className="text-[12px] text-muted-foreground">
+                </span>
+                <span className="text-[12.5px] text-[#64748b]">
                   {(enAttenteSp?.nombre ?? 0) <= 1
                     ? "fiche envoyée non lue"
                     : "fiches envoyées non lues"}
-                </p>
+                </span>
               </>
             )}
-          </div>
-          <ArrowRight className="size-4 shrink-0 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+          </span>
+          <ChevronRightIcon />
         </button>
       </section>
 
-      {/* Fiches récentes */}
-      <section
-        className="shrink-0 overflow-hidden rounded-2xl border-2 bg-card"
-        style={{ borderColor: `${theme.topColor}28` }}
-      >
-        <div
-          className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-5"
-          style={{ borderColor: `${theme.topColor}18` }}
-        >
-          <div>
-            <h2 className="text-[15px] font-bold text-[#0f172a]">
+      {/* Fiches récentes — hauteur naturelle, scroll page entière */}
+      <section className="flex flex-col rounded-lg border border-[#e2e8f0] bg-white">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e8f0] px-[18px] py-3.5">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[15px] font-semibold text-[#0f172a]">
               Fiches récentes
-            </h2>
-            <p className="text-[12.5px] text-muted-foreground">
-              Cinq dernières générations
-            </p>
+            </span>
+            <span className="text-[12.5px] text-[#64748b]">
+              Six dernières générations
+            </span>
           </div>
-          <Button
+          <button
             type="button"
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
             onClick={() => navigate("/sr/fiches-depenses")}
+            className="flex h-8 items-center gap-1.5 rounded-md border border-[#e2e8f0] bg-white px-3 text-[13px] text-[#0f172a] transition-colors hover:border-[#94a3b8]"
           >
             Voir tout
-            <ArrowRight className="size-3.5" />
-          </Button>
+            <ArrowRight size={14} />
+          </button>
         </div>
 
         <Table>
           <TableHeader>
-            <TableRow
-              className="hover:bg-transparent"
-              style={{ background: theme.bgColor }}
-            >
-              <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+            <TableRow className="hover:bg-transparent border-b border-[#e2e8f0] bg-[#f8fafc]">
+              <TableHead className="h-10 px-[18px] text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                 Référence
               </TableHead>
-              <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+              <TableHead className="h-10 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                 Présentation
               </TableHead>
-              <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
-                Montant
+              <TableHead className="h-10 text-right text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
+                Montant (FCFA)
               </TableHead>
-              <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+              <TableHead className="h-10 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                 Généré par
               </TableHead>
-              <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+              <TableHead className="h-10 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                 Statut
               </TableHead>
-              <TableHead className="h-11 text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
+              <TableHead className="h-10 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#64748b]">
                 Création
               </TableHead>
-              <TableHead className="h-11 text-right text-[11px] font-bold uppercase tracking-wider text-[#0f172a]/70">
-                Actions
-              </TableHead>
+              <TableHead className="h-10 w-10" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -564,52 +518,65 @@ export default function Generation() {
               </TableRow>
             ) : (
               fiches.map((f) => {
-                const st = STATUT_CFG[f.statut] ?? {
-                  badge: "border-transparent bg-slate-100 text-slate-700",
+                const st = STATUT_TAG[f.statut] ?? {
+                  bg: "#f1f5f9",
+                  fg: "#475569",
                   label: f.statut,
                 };
                 return (
                   <TableRow
                     key={f.reference}
-                    className={peutConsulter ? "cursor-pointer" : undefined}
+                    className={cn(
+                      "border-b border-[#f1f5f9] text-sm hover:bg-[#f8fafc]",
+                      peutConsulter && "cursor-pointer",
+                    )}
                     onClick={() =>
                       peutConsulter &&
                       navigate(`/sr/fiche/${encodeURIComponent(f.reference)}`)
                     }
                   >
                     <TableCell
-                      className="font-mono text-[13px] font-semibold"
-                      style={{ color: theme.iconColor }}
+                      className="px-[18px] font-mono text-[13px] font-medium"
+                      style={{
+                        fontFamily: '"IBM Plex Mono", ui-monospace, monospace',
+                        color: theme.textColor,
+                      }}
                     >
                       {f.reference}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="tabular-nums text-[#475569]">
                       {formaterDateSansHeure(f.datePresentation)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       <span className="font-semibold tabular-nums text-[#0f172a]">
                         {formatMontant(f.montant_total)}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         <Avatar size="sm">
                           <AvatarFallback
-                            className="text-[10px] font-bold text-white"
-                            style={{ background: theme.ctaColor }}
+                            className="text-[11px] font-semibold"
+                            style={{
+                              background: theme.iconBg,
+                              color: theme.textColor,
+                            }}
                           >
                             {initiales(f.genere_par)}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-muted-foreground">
-                          {f.genere_par}
-                        </span>
+                        <span className="text-[#0f172a]">{f.genere_par}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={st.badge}>{st.label}</Badge>
+                      <span
+                        className="inline-block rounded px-[9px] py-0.5 text-xs font-medium"
+                        style={{ background: st.bg, color: st.fg }}
+                      >
+                        {st.label}
+                      </span>
                     </TableCell>
-                    <TableCell className="tabular-nums text-muted-foreground">
+                    <TableCell className="tabular-nums text-[#475569]">
                       {formaterDateHeureFr(f.date_creation)}
                     </TableCell>
                     <TableCell

@@ -26,11 +26,27 @@ class RubriqueDepenseRepository extends ServiceEntityRepository
         /** @var list<RubriqueDepense> $racines */
         $racines = $this->createQueryBuilder('r')
             ->andWhere('r.parent IS NULL')
-            ->orderBy('r.code', 'ASC')
+            ->orderBy('r.ordre', 'ASC')
+            ->addOrderBy('r.code', 'ASC')
             ->getQuery()
             ->getResult();
 
         return $racines;
+    }
+
+    /**
+     * @return list<RubriqueDepense>
+     */
+    public function listerAPlat(): array
+    {
+        /** @var list<RubriqueDepense> $rubriques */
+        $rubriques = $this->createQueryBuilder('r')
+            ->orderBy('r.ordre', 'ASC')
+            ->addOrderBy('r.code', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $rubriques;
     }
 
     public function findByCode(string $code): ?RubriqueDepense

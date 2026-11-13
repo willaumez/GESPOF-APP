@@ -45,6 +45,9 @@ export function DialogModifierUtilisateur({
   const [email, setEmail] = useState(utilisateur.email);
   const [nom, setNom] = useState(utilisateur.nom);
   const [prenom, setPrenom] = useState(utilisateur.prenom);
+  const [genre, setGenre] = useState<"homme" | "femme" | "">(
+    utilisateur.genre ?? "",
+  );
   const [metier, setMetier] = useState<RoleUtilisateur | "">(
     (utilisateur.roles[0]?.valeur as RoleUtilisateur) ?? "",
   );
@@ -78,6 +81,7 @@ export function DialogModifierUtilisateur({
           email: email.trim(),
           nom: nom.trim(),
           prenom: prenom.trim(),
+          genre: genre || null,
           metier,
           ...(estAdministrateur ? { acces } : {}),
         }),
@@ -160,6 +164,23 @@ export function DialogModifierUtilisateur({
                   <Input id="us-edit-prenom" value={prenom} onChange={(e) => setPrenom(e.target.value)} disabled={loading} />
                   {erreurs.prenom && <p className="text-[12px] text-destructive">{erreurs.prenom}</p>}
                 </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="us-edit-genre">Genre</Label>
+                <Select
+                  value={genre || "__none__"}
+                  onValueChange={(v) => setGenre(v === "__none__" ? "" : (v as "homme" | "femme"))}
+                  disabled={loading}
+                >
+                  <SelectTrigger id="us-edit-genre" className="w-full">
+                    <SelectValue placeholder="Non renseigné" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Non renseigné</SelectItem>
+                    <SelectItem value="homme">Homme</SelectItem>
+                    <SelectItem value="femme">Femme</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="us-edit-metier">Métier</Label>

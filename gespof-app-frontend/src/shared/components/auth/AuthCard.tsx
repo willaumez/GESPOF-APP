@@ -1,17 +1,17 @@
 import type { ReactNode } from "react";
-import { ShieldCheck } from "lucide-react";
-import logoDGCPT from "@/shared/assets/logo_tresor_v3.webp";
+import { Shield } from "lucide-react";
 import {
   AuthEntranceContext,
   useEstPremierChargementAuth,
 } from "./AuthEntranceContext";
+import "./auth-maquette.css";
 
+/** Coque page auth — styles exacts maquette Prototype v2. */
 export function AuthCard({ children }: { children: ReactNode }) {
   const estPremierChargement = useEstPremierChargementAuth();
 
   return (
-    <div className="relative flex min-h-dvh w-full flex-col overflow-x-hidden">
-      {/* Fond */}
+    <div className="auth-maquette relative flex min-h-dvh w-full flex-col overflow-hidden bg-[#0f172a]">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
           className={
@@ -27,61 +27,60 @@ export function AuthCard({ children }: { children: ReactNode }) {
             filter: "blur(6px)",
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,rgba(255,255,255,.08),transparent_55%)]" />
-        <div className="absolute inset-0 bg-slate-950/35" />
+        <div className="absolute inset-0 bg-[rgba(2,6,23,0.4)]" />
       </div>
 
-      {/* En-tête DGCPT — compact sur mobile, hors de la carte */}
-      <header className="relative z-20 flex shrink-0 items-center gap-2.5 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))] sm:gap-3 sm:px-6 sm:pt-5">
+      <header
+        className="relative z-20 flex shrink-0 items-center gap-3"
+        style={{ padding: "20px 24px 8px" }}
+      >
         <img
-          src={logoDGCPT}
+          src="/logo-tresor.webp"
           alt="Logo Trésor Public"
-          className="h-9 w-9 shrink-0 object-contain sm:h-11 sm:w-11"
+          style={{ width: 44, height: 44, objectFit: "contain", flex: "none" }}
         />
-        <div className="min-w-0 text-[0.625rem] font-bold leading-snug text-white drop-shadow-sm sm:text-[0.75rem]">
-          <p className="truncate sm:whitespace-normal">
-            Direction Générale de la Comptabilité
-          </p>
-          <p className="truncate sm:whitespace-normal">
-            Publique et du Trésor
-            <span className="font-semibold text-white/80"> (DGCPT)</span>
-          </p>
+        <div className="am-header-dgcpt">
+          Direction Générale de la Comptabilité
+          <br />
+          Publique et du Trésor <span className="muted">(DGCPT)</span>
         </div>
       </header>
 
-      {/* Carte centrée */}
       <div
         className={
           estPremierChargement
-            ? "relative z-10 mx-auto flex w-full min-w-0 max-w-[68rem] flex-1 items-center px-3 py-3 sm:px-5 sm:py-6 [animation:fadeUp_.6s_ease_both]"
-            : "relative z-10 mx-auto flex w-full min-w-0 max-w-[68rem] flex-1 items-center px-3 py-3 sm:px-5 sm:py-6"
+            ? "relative z-10 flex flex-1 items-center justify-center [animation:fadeUp_.6s_ease_both]"
+            : "relative z-10 flex flex-1 items-center justify-center"
         }
+        style={{ padding: "16px 20px" }}
       >
-        <div className="w-full rounded-2xl border border-white/20 bg-white/97 shadow-[0_24px_64px_rgba(2,10,25,.42)] backdrop-blur-xl sm:rounded-[1.75rem] sm:shadow-[0_30px_80px_rgba(2,10,25,.45)]">
-          <div className="px-4 py-5 sm:px-10 sm:py-8 lg:px-12">
-            <AuthEntranceContext.Provider value={estPremierChargement}>
-              {children}
-            </AuthEntranceContext.Provider>
-          </div>
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 1088,
+            background: "rgba(255,255,255,.97)",
+            border: "1px solid rgba(255,255,255,.2)",
+            borderRadius: 28,
+            boxShadow: "0 30px 80px rgba(2,10,25,.45)",
+            padding: "40px 48px 32px",
+          }}
+        >
+          <AuthEntranceContext.Provider value={estPremierChargement}>
+            {children}
+          </AuthEntranceContext.Provider>
         </div>
       </div>
 
-      {/* Pied de page — dans le flux (pas de chevauchement sur petits écrans) */}
       <div
         className={
           estPremierChargement
-            ? "relative z-10 flex shrink-0 items-center justify-center gap-2 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1 text-center text-[0.6875rem] text-white/80 sm:pb-5 sm:text-[0.71875rem] [animation:fadeIn_1s_ease_.5s_both]"
-            : "relative z-10 flex shrink-0 items-center justify-center gap-2 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1 text-center text-[0.6875rem] text-white/80 sm:pb-5 sm:text-[0.71875rem]"
+            ? "am-footer relative z-10 flex shrink-0 items-center justify-center gap-2 [animation:fadeIn_1s_ease_.5s_both]"
+            : "am-footer relative z-10 flex shrink-0 items-center justify-center gap-2"
         }
+        style={{ padding: "4px 16px 20px" }}
       >
-        <ShieldCheck
-          size={13}
-          strokeWidth={1.8}
-          className="shrink-0 sm:size-3.5"
-        />
-        <span className="max-w-[20rem] leading-snug sm:max-w-none">
-          Connexion sécurisée — réservée aux agents habilités
-        </span>
+        <Shield size={14} strokeWidth={1.7} aria-hidden />
+        Connexion sécurisée — réservée aux agents habilités
       </div>
     </div>
   );

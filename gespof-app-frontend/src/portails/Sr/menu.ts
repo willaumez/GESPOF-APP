@@ -18,12 +18,16 @@ export const MENU_SR: MenuPortal = {
   ctaLabel: "Accéder au Pool SR",
   roles: ["AGENT_SR"],
   theme: {
-    topColor: "#0760A8",
+    // Jetons Courrier 00001-dev : bleu-profond / survol / nuit / bleus UI
+    topColor: "#064A85",
     bgColor: "#EFF4FB",
     iconBg: "#D6E2F5",
-    iconColor: "#0760A8",
-    ctaColor: "#0760A8",
-    hoverColor: "#064A85",
+    iconColor: "#064A85",
+    ctaColor: "#064A85",
+    hoverColor: "#082049",
+    sidebarBg: "#041A33",
+    borderColor: "#C9D6EA",
+    textColor: "#064A85",
   },
   // Largeur de la barre laterale : "Générer une fiche de dépôt" / "Audit des connexions".
   largeurMenu: 268,

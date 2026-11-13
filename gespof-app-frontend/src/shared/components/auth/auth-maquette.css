@@ -1,0 +1,364 @@
+/**
+ * Reset typo Tailwind → rendu identique à la maquette Prototype v2
+ * (IBM Plex Sans, line-height navigateur / valeurs inline maquette).
+ */
+.auth-maquette {
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: normal;
+}
+
+.auth-maquette h1,
+.auth-maquette h2,
+.auth-maquette h3,
+.auth-maquette h4,
+.auth-maquette p,
+.auth-maquette label,
+.auth-maquette a,
+.auth-maquette span,
+.auth-maquette button,
+.auth-maquette input {
+  font-family: inherit;
+  line-height: normal;
+}
+
+.auth-maquette .am-title-brand {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #0f172a;
+  line-height: normal;
+}
+
+.auth-maquette .am-tagline {
+  margin: 0 0 16px;
+  max-width: 320px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.auth-maquette .am-desc {
+  margin: 0;
+  max-width: 290px;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: #475569;
+}
+
+.auth-maquette .am-title-form {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 23px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: normal;
+}
+
+.auth-maquette .am-subtitle-form {
+  margin: 0 0 26px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: #64748b;
+  line-height: normal;
+}
+
+.auth-maquette .am-label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #334155;
+  line-height: normal;
+}
+
+.auth-maquette .am-label-spaced {
+  margin-top: 18px;
+}
+
+.auth-maquette .am-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  padding: 0 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+}
+
+.auth-maquette .am-field:focus-within {
+  border-color: #1e4d8c;
+  box-shadow: 0 0 0 3px rgba(30, 77, 140, 0.12);
+}
+
+.auth-maquette .am-field.is-error {
+  border-color: #dc2626;
+}
+
+.auth-maquette .am-field-pw {
+  padding-right: 6px;
+}
+
+.auth-maquette .am-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 14.5px;
+  font-weight: 400;
+  color: #0f172a;
+  line-height: normal;
+}
+
+.auth-maquette .am-input::placeholder {
+  color: #94a3b8;
+}
+
+.auth-maquette .am-eye {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.auth-maquette .am-eye:hover {
+  background: #f1f5f9;
+}
+
+.auth-maquette .am-row-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 22px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #64748b;
+  line-height: normal;
+}
+
+.auth-maquette .am-link {
+  font-weight: 600;
+  color: #1e4d8c;
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.auth-maquette .am-link:hover {
+  text-decoration: underline;
+}
+
+.auth-maquette .am-submit {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #1e4d8c 0%, #0f172a 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
+  font-family: inherit;
+  line-height: normal;
+}
+
+.auth-maquette .am-submit:hover:not(:disabled) {
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.3);
+}
+
+.auth-maquette .am-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.auth-maquette .am-first {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #64748b;
+  line-height: normal;
+}
+
+.auth-maquette .am-err {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+  font-size: 12.5px;
+  color: #b91c1c;
+  line-height: normal;
+}
+
+.auth-maquette .am-tests {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-maquette .am-tests-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #94a3b8;
+  line-height: normal;
+}
+
+.auth-maquette .am-tests-label::before,
+.auth-maquette .am-tests-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.auth-maquette .am-tests-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-maquette .am-test-admin {
+  flex: 1 1 260px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.auth-maquette .am-test-admin:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.auth-maquette .am-test-admin-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.auth-maquette .am-test-admin-mat {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: #64748b;
+  line-height: 1.25;
+}
+
+.auth-maquette .am-test-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: normal;
+}
+
+.auth-maquette .am-test-chip.sof:hover {
+  border-color: #2a7f62;
+  background: #f0f7f4;
+}
+.auth-maquette .am-test-chip.sp:hover {
+  border-color: #c9960a;
+  background: #fdfaf0;
+}
+.auth-maquette .am-test-chip.sr:hover {
+  border-color: #064a85;
+  background: #eff4fb;
+}
+
+.auth-maquette .am-header-dgcpt {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.auth-maquette .am-header-dgcpt .muted {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.auth-maquette .am-footer {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: normal;
+}
+
+.auth-maquette .am-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 40px;
+  border-right: 1px solid #e2e8f0;
+}
+
+.auth-maquette .am-form-col {
+  display: flex;
+  justify-content: center;
+  padding: 0 8px 0 40px;
+}
+
+@media (max-width: 759px) {
+  .auth-maquette .am-brand {
+    padding: 0 16px;
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 28px;
+  }
+
+  .auth-maquette .am-form-col {
+    padding: 0 8px;
+  }
+}

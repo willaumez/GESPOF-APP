@@ -32,9 +32,9 @@ use Doctrine\ORM\Mapping as ORM;
     // 'FISCALE' => RecetteFiscale::class,
 ])]
 #[ORM\Index(name: 'IDX_SOF_RECETTE_EXERCICE_MOIS', columns: ['exercice_annee', 'mois'])]
-#[ORM\Index(name: 'IDX_SOF_RECETTE_CAT_SOC', columns: ['categorie_id', 'societe_id'])]
+#[ORM\Index(name: 'IDX_SOF_RECETTE_CAT_SOC', columns: ['categorie_id', 'societe_matricule'])]
 #[ORM\Index(name: 'IDX_SOF_RECETTE_COMPTE_DOUANE', columns: ['compte_douane'])]
-#[ORM\UniqueConstraint(name: 'UNIQ_SOF_RECETTE_PETROLIERE', columns: ['societe_id', 'categorie_id', 'date_recette'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_SOF_RECETTE_PETROLIERE', columns: ['societe_matricule', 'categorie_id', 'date_recette'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_SOF_RECETTE_DOUANIERE', columns: ['compte_douane', 'date_recette'])]
 abstract class Recette
 {

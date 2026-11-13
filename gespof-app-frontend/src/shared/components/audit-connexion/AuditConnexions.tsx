@@ -30,15 +30,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/sha
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/shared/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/shared/components/ui/empty";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { AvatarUtilisateur } from "@/shared/components/utilisateurs/AvatarUtilisateur";
 import { ChartConnexions } from "./ChartConnexions";
 import { VueKanbanAudit } from "./VueKanbanAudit";
-import { BadgeVous, estCompteConnecte, initiales, partieDate } from "./affichage";
+import { BadgeVous, estCompteConnecte, partieDate } from "./affichage";
 
 /**
  * Journal des connexions — composant transverse partagé par les 4 portails.
@@ -281,14 +281,21 @@ export default function AuditConnexions({ portail }: AuditConnexionsProps) {
                     title={`${s.utilisateur.nom_complet} · ${s.utilisateur.matricule}`}
                   >
                     <span className="relative shrink-0">
-                      <Avatar className="size-9">
-                        <AvatarFallback className={cn(
-                          "text-[11px] font-semibold",
-                          moi && "bg-primary text-primary-foreground",
-                        )}>
-                          {initiales(s.utilisateur.nom_complet)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <AvatarUtilisateur
+                        id={s.utilisateur.id}
+                        nom={s.utilisateur.nom}
+                        prenom={s.utilisateur.prenom}
+                        aPhoto={!!s.utilisateur.a_photo}
+                        taille={36}
+                        fondInitiales={
+                          moi ? "hsl(var(--primary))" : undefined
+                        }
+                        couleurInitiales={
+                          moi
+                            ? "hsl(var(--primary-foreground))"
+                            : undefined
+                        }
+                      />
                       <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-background bg-emerald-500" />
                     </span>
                     <div className="min-w-0 flex-1">
@@ -522,14 +529,21 @@ export default function AuditConnexions({ portail }: AuditConnexionsProps) {
                       <TableCell>
                         <div className="flex items-center gap-2.5">
                           <span className="relative shrink-0">
-                            <Avatar className="size-8">
-                              <AvatarFallback className={cn(
-                                "text-[10px]",
-                                moi && "bg-primary text-primary-foreground",
-                              )}>
-                                {initiales(s.utilisateur.nom_complet)}
-                              </AvatarFallback>
-                            </Avatar>
+                            <AvatarUtilisateur
+                              id={s.utilisateur.id}
+                              nom={s.utilisateur.nom}
+                              prenom={s.utilisateur.prenom}
+                              aPhoto={!!s.utilisateur.a_photo}
+                              taille={32}
+                              fondInitiales={
+                                moi ? "hsl(var(--primary))" : undefined
+                              }
+                              couleurInitiales={
+                                moi
+                                  ? "hsl(var(--primary-foreground))"
+                                  : undefined
+                              }
+                            />
                             {s.statut === "EN_LIGNE" && (
                               <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-background bg-emerald-500" />
                             )}

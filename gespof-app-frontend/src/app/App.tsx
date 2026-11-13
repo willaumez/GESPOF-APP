@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { AuthProvider } from "@/shared/hooks/AuthContext";
+import { PhotoProfilProvider } from "@/shared/hooks/PhotoProfilContext";
 import { AppRoutes } from "@/app/router";
 
 const queryClient = new QueryClient();
@@ -13,9 +14,11 @@ export default function App() {
       <TooltipProvider>
         <Toaster />
         <AuthProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <PhotoProfilProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </PhotoProfilProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

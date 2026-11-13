@@ -1,79 +1,40 @@
 import { useState } from "react";
-import type { ReactNode } from "react";
-import { Library } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { cn } from "@/shared/lib/utils";
-import { getPortalMenu } from "@/shared/config/menu";
+import { Plus } from "lucide-react";
+import { SpPageHeader } from "@/portails/Sp/components/layout/SpPageHeader";
+import { SpBoutonPrimaire } from "@/portails/Sp/components/layout/SpBoutonsPage";
 import { BibliothequeSections } from "@/portails/Sp/components/parametres/fiche-bleue/BibliothequeSections";
 
-interface RubriqueParametres {
-  id: string;
-  libelle: string;
-  description: string;
-  icone: LucideIcon;
-  contenu: () => ReactNode;
-}
-
-
-const RUBRIQUES: RubriqueParametres[] = [
-  {
-    id: "bibliotheque-sections",
-    libelle: "Bibliothèque Sections",
-    description: "Sections et sous-sections réutilisables des Fiches Bleues.",
-    icone: Library,
-    contenu: () => <BibliothequeSections />,
-  },
-];
-
+/**
+ * Paramètres SP — Prototype v2 (onglet Bibliothèque Sections).
+ */
 export default function Parametres() {
-  const [rubriqueActive, setRubriqueActive] = useState(RUBRIQUES[0].id);
-  const theme = getPortalMenu("sp").theme;
-  const rubrique = RUBRIQUES.find((r) => r.id === rubriqueActive) ?? RUBRIQUES[0];
+  const [demandeAjout, setDemandeAjout] = useState(0);
 
   return (
+    <div className="flex flex-col gap-6">
+      <SpPageHeader
+        eyebrow="Paramétrage · Fiche Bleue"
+        title="Paramètres"
+        description="Bibliothèque des sections utilisées pour composer la Fiche Bleue et la Fiche d'exécution."
+        actions={
+          <SpBoutonPrimaire onClick={() => setDemandeAjout((n) => n + 1)}>
+            <Plus size={16} />
+            Ajouter une section
+          </SpBoutonPrimaire>
+        }
+      />
 
-    <div className="flex flex-col-reverse gap-5 lg:flex-row">
-      <div className="min-w-0 flex-1">{rubrique.contenu()}</div>
-
-      <nav
-        aria-label="Rubriques des paramètres"
-        className="shrink-0 lg:w-60"
-      >
-        <ul className="space-y-1">
-          {RUBRIQUES.map((item) => {
-            const Icone = item.icone;
-            const active = item.id === rubrique.id;
-            return (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => setRubriqueActive(item.id)}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "flex w-full items-start gap-2.5 rounded-lg border border-transparent px-2.5 py-2 text-left transition-[color,background-color,border-color] duration-200",
-                    active
-                      ? "bg-card shadow-sm"
-                      : "text-foreground/80 hover:bg-card/60 hover:text-foreground",
-                  )}
-                  style={
-                    active
-                      ? { color: theme.topColor, borderColor: `${theme.topColor}33` }
-                      : undefined
-                  }
-                >
-                  <Icone className="mt-0.5 size-4 shrink-0" />
-                  <span className="min-w-0">
-                    <span className="block text-[13px] font-semibold">{item.libelle}</span>
-                    <span className="block text-[11.5px] text-muted-foreground">
-                      {item.description}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <div className="overflow-hidden rounded-lg border border-[#e2e8f0] bg-white">
+        <div className="flex gap-1 overflow-x-auto border-b border-[#e2e8f0] px-3">
+          <span
+            className="flex h-[46px] items-center gap-2 px-3 text-sm font-semibold text-[#0f172a]"
+            style={{ boxShadow: "inset 0 -2px 0 #c9960a" }}
+          >
+            Bibliothèque Sections
+          </span>
+        </div>
+        <BibliothequeSections maquette demandeAjout={demandeAjout} />
+      </div>
     </div>
   );
 }

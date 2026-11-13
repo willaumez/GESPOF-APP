@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Inbox } from "lucide-react";
 import { toast } from "sonner";
-import { requeteApi } from "@/shared/lib/api";
+import { requeteApi, requeteApiBlob } from "@/shared/lib/api";
 import { SERVICE_REGLEMENT_ENDPOINTS } from "@/portails/Sr/api/endpoints";
 import { useAuth } from "@/shared/hooks/use-auth";
 import { useCountUp } from "@/portails/Sr/hooks/useCountUp";
-import { Card, CardContent } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
 import type { DonneesMouvement, FicheDepotDetail, LigneMouvement } from "@/portails/Sr/types";
 import type { SectionMouvement, TypeMouvement } from "../components/fiche-detail/constants";
@@ -16,10 +15,12 @@ import { ReleveReglements } from "../components/fiche-detail/ReleveReglements";
 import { FamilleDialog } from "../components/fiche-detail/FamilleDialog";
 import { ConfirmerEnvoiDialog } from "../components/fiche-detail/ConfirmerEnvoiDialog";
 import { ConfirmerSuppressionFicheDialog } from "../components/fiche-detail/ConfirmerSuppressionFicheDialog";
-import { ApercuFicheDepotExcelDialog } from "../components/fiche-detail/ApercuFicheDepotExcelDialog";
 import { detailFicheRecue, ficheRecuePourDate } from "@/portails/Sr/api/fiches-recues";
 import { PreviewFicheBleueDialog } from "@/portails/Sp/components/fiche-matinale/PreviewFicheBleueDialog";
 import type { LigneRapprochement } from "@/portails/Sp/components/fiche-matinale/rapprochement-sections";
+import { imprimerFicheDepot } from "@/portails/Sr/lib/imprimer-fiche-depot";
+import { nomFichierFicheDepot } from "@/portails/Sr/lib/exporter-fiche-depot-xlsx";
+import { OverlayPleinEcran } from "@/portails/Sp/components/plein-ecran/PleinEcran";
 
 /** `d/m/Y` ou `Y-m-d` (éventuellement suivi d'une heure) → `Y-m-d`. */
 function datePresentationVersIso(valeur: string | null | undefined): string | null {
@@ -74,7 +75,8 @@ export default function FicheDetail() {
   const [detail, setDetail] = useState<FicheDepotDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [apercuExcelOuvert, setApercuExcelOuvert] = useState(false);
+  const [telechargementEnCours, setTelechargementEnCours] = useState(false);
+  const [pleinEcranReleve, setPleinEcranReleve] = useState(false);
   const [familleDialog, setFamilleDialog] = useState<TypeMouvement | null>(null);
   const [confirmationSuppression, setConfirmationSuppression] = useState(false);
   const [suppressionEnCours, setSuppressionEnCours] = useState(false);
@@ -448,51 +450,122 @@ export default function FicheDetail() {
     [detail],
   );
 
-  return (
-    <div className="">
-      <Card className="shadow-sm">
-        <CardContent>
-          <div className="flex min-h-0 flex-1 flex-col gap-4 animate-in fade-in-0 duration-300">
-            <div className="shrink-0">
-              <FicheEnTete
-                reference={reference}
-                detail={detail}
-                loading={loading}
-                aDesActions={aDesActions}
-                peutEnvoyerCetteFiche={peutEnvoyerCetteFiche}
-                pretPourEnvoiSp={totauxSystacCorrespondent}
-                peutSupprimer={peutSupprimer}
-                afficheBarreActions={afficheBarreActions}
-                onOuvrirApercuExcel={() => setApercuExcelOuvert(true)}
-                onDemanderEnvoi={() => {
-                  if (!totauxSystacCorrespondent) {
-                    toast.error(
-                      "Envoi impossible : le montant Systac ne correspond pas au montant groupé.",
-                    );
-                    return;
-                  }
-                  setConfirmationEnvoi(true);
-                }}
-                onDemanderSuppression={() => setConfirmationSuppression(true)}
-                onOuvrirFicheBleue={() => void ouvrirFicheBleue()}
-                chargementFicheBleue={chargementFicheBleue}
-              />
-            </div>
+  const imprimer = () => {
+    if (!detail) return;
+    try {
+      imprimerFicheDepot(detail);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Impossible d'imprimer la fiche.",
+      );
+    }
+  };
 
+  const telechargerXlsx = async () => {
+    if (!detail || telechargementEnCours) return;
+    setTelechargementEnCours(true);
+    try {
+      const chemin = `${SERVICE_REGLEMENT_ENDPOINTS.FICHE_DETAIL}/${encodeURIComponent(detail.reference)}/telecharger`;
+      const blob = await requeteApiBlob(chemin, { timeoutMs: 180_000 });
+      const url = URL.createObjectURL(blob);
+      const lien = document.createElement("a");
+      lien.href = url;
+      lien.download = nomFichierFicheDepot(detail);
+      document.body.appendChild(lien);
+      lien.click();
+      lien.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Fichier Excel téléchargé.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Impossible de télécharger le fichier Excel.",
+      );
+    } finally {
+      setTelechargementEnCours(false);
+    }
+  };
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+          <FicheEnTete
+            reference={reference}
+            detail={detail}
+            loading={loading}
+            aDesActions={aDesActions}
+            peutEnvoyerCetteFiche={peutEnvoyerCetteFiche}
+            pretPourEnvoiSp={totauxSystacCorrespondent}
+            peutSupprimer={peutSupprimer}
+            afficheBarreActions={afficheBarreActions}
+            onImprimer={imprimer}
+            onTelechargerXlsx={() => void telechargerXlsx()}
+            telechargementEnCours={telechargementEnCours}
+            onAjouterLigne={() => setFamilleDialog("numeraire")}
+            onDemanderEnvoi={() => {
+              if (!totauxSystacCorrespondent) {
+                toast.error(
+                  "Envoi impossible : le montant Systac ne correspond pas au montant groupé.",
+                );
+                return;
+              }
+              setConfirmationEnvoi(true);
+            }}
+            onDemanderSuppression={() => setConfirmationSuppression(true)}
+            onOuvrirFicheBleue={() => void ouvrirFicheBleue()}
+            chargementFicheBleue={chargementFicheBleue}
+            peutPleinEcran={Boolean(detail && totalLignesTableau > 0)}
+            pleinEcranActif={pleinEcranReleve}
+            onBasculerPleinEcran={() => setPleinEcranReleve((v) => !v)}
+          />
+
+          <ReleveReglements
+            detail={detail}
+            loading={loading}
+            error={error}
+            sections={sections}
+            totalLignesAffichees={totalLignesAffichees}
+            totalLignesTableau={totalLignesTableau}
+            totalAnime={totalAnime}
+            totauxSystacCorrespondent={totauxSystacCorrespondent}
+            onOuvrirFamille={setFamilleDialog}
+            peutModifier={peutGererLignes}
+            onModifierLigne={(type) => setFamilleDialog(type)}
+          />
+
+      {detail && totalLignesTableau > 0 ? (
+        <OverlayPleinEcran
+          ouvert={pleinEcranReleve}
+          portail="sr"
+          titre="Relevé des règlements"
+          masquerEnTete
+          onClose={() => setPleinEcranReleve(false)}
+          ariaLabel="Relevé des règlements en plein écran"
+        >
+          <div className="flex h-full min-h-0 flex-col overflow-y-auto pt-8">
             <ReleveReglements
               detail={detail}
-              loading={loading}
-              error={error}
+              loading={false}
+              error={false}
               sections={sections}
               totalLignesAffichees={totalLignesAffichees}
               totalLignesTableau={totalLignesTableau}
               totalAnime={totalAnime}
               totauxSystacCorrespondent={totauxSystacCorrespondent}
-              onOuvrirFamille={setFamilleDialog}
+              masquerEquation
+              onOuvrirFamille={(type) => {
+                setPleinEcranReleve(false);
+                setFamilleDialog(type);
+              }}
+              peutModifier={peutGererLignes}
+              onModifierLigne={(type) => {
+                setPleinEcranReleve(false);
+                setFamilleDialog(type);
+              }}
             />
           </div>
-        </CardContent>
-      </Card>
+        </OverlayPleinEcran>
+      ) : null}
 
       <FamilleDialog
         familleDialog={familleDialog}
@@ -541,12 +614,6 @@ export default function FicheDetail() {
         suppressionEnCours={suppressionEnCours}
         onOpenChange={(open) => !open && setConfirmationSuppression(false)}
         onConfirmer={() => void confirmerSuppression()}
-      />
-
-      <ApercuFicheDepotExcelDialog
-        ouvert={apercuExcelOuvert}
-        detail={detail}
-        onClose={() => setApercuExcelOuvert(false)}
       />
 
       <PreviewFicheBleueDialog

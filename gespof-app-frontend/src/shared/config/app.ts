@@ -23,6 +23,9 @@ export const API_ENDPOINTS = {
     MOT_DE_PASSE_OUBLIE: "/api/v1/auth/login/forgot-password",
     RAFRAICHIR: "/api/v1/auth/refresh",
     ME: "/api/v1/auth/me",
+    ME_PHOTO: "/api/v1/auth/me/photo",
+    ME_PHOTO_BANDEAU: "/api/v1/auth/me/photo/bandeau",
+    ME_PHOTO_RETRAIT: "/api/v1/auth/me/photo/retrait",
     DECONNEXION: "/api/v1/auth/logout",
     VERIFIER_MOT_DE_PASSE: "/api/v1/auth/verify-password",
     CHANGER_MOT_DE_PASSE: "/api/v1/auth/change-password",
@@ -39,8 +42,8 @@ export const MESSAGES_APPLICATION = {
   },
   ERREUR: {
     CHARGEMENT: "Erreur lors du chargement des données.",
-    RESEAU: "Erreur réseau: impossible de contacter le serveur.",
-    SERVEUR: "Erreur interne du serveur.",
+    RESEAU: "Serveur inaccessible. Vérifiez votre connexion ou réessayez plus tard.",
+    SERVEUR: "Le serveur rencontre une erreur. Réessayez dans un instant.",
   },
 } as const;
 

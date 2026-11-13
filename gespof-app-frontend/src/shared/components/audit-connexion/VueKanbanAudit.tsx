@@ -1,11 +1,11 @@
 import { History, LogOut, Radio, TimerOff } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import type { SessionConnexion } from "@/shared/types/audit-connexion.interface";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
-import { BadgeVous, estCompteConnecte, initiales, partieDate } from "./affichage";
+import { AvatarUtilisateur } from "@/shared/components/utilisateurs/AvatarUtilisateur";
+import { BadgeVous, estCompteConnecte, partieDate } from "./affichage";
 
 type ColonneId = "en_ligne" | "deconnexion" | "inactivite" | "expiration";
 
@@ -74,14 +74,17 @@ function CarteSession({
     >
       <div className="flex items-start gap-2.5">
         <span className="relative shrink-0">
-          <Avatar className="size-8">
-            <AvatarFallback className={cn(
-              "text-[10px] font-semibold",
-              moi && "bg-primary text-primary-foreground",
-            )}>
-              {initiales(session.utilisateur.nom_complet)}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarUtilisateur
+            id={session.utilisateur.id}
+            nom={session.utilisateur.nom}
+            prenom={session.utilisateur.prenom}
+            aPhoto={!!session.utilisateur.a_photo}
+            taille={32}
+            fondInitiales={moi ? "hsl(var(--primary))" : undefined}
+            couleurInitiales={
+              moi ? "hsl(var(--primary-foreground))" : undefined
+            }
+          />
           {session.statut === "EN_LIGNE" && (
             <span className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-background bg-emerald-500" />
           )}
